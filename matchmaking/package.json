@@ -1,0 +1,42 @@
+{
+    "name": "coa-matchmaking",
+    "private": true,
+    "scripts": {
+        "start": "tsc --sourceMap && node --enable-source-maps dist/entrypoints/index.js",
+        "inspect": "tsc --sourceMap && node --inspect=0.0.0.0 --enable-source-maps dist/entrypoints/matcher.js local",
+        "test-create": "tsc --sourceMap && node --enable-source-maps dist/test/create-ticket-test.js",
+        "test-query": "tsc --sourceMap && node --enable-source-maps dist/test/query-ticket-test.js",
+        "test-match": "tsc --sourceMap && node --enable-source-maps dist/test/query-match-test.js"
+    },
+    "type": "commonjs",
+    "engines": {
+        "node": ">=16"
+    },
+    "dependencies": {
+        "@ethersproject/keccak256": "^5.6.1",
+        "@koa/cors": "^3.3.0",
+        "@koa/router": "^10.1.1",
+        "@types/koa-bodyparser": "^4.3.10",
+        "@types/winston": "^2.4.4",
+        "config": "^3.3.7",
+        "dotenv": "^16.0.1",
+        "postchain-client": "^1.17.0",
+        "koa": "^2.13.4",
+        "koa-bodyparser": "^4.3.0",
+        "node-fetch": "^2.6.7",
+        "playfab-sdk": "^2.119.230220",
+        "ts-postgres": "^1.3.1",
+        "web3": "^1.7.4",
+        "web3-eth-contract": "^1.7.3"
+    },
+    "devDependencies": {
+        "@sindresorhus/tsconfig": "^2.0.0",
+        "@types/config": "3.3.0",
+        "@types/koa__cors": "^3.3.0",
+        "@types/koa__router": "^8.0.11",
+        "@types/node": "^16.11.6",
+        "@types/node-fetch": "^2.6.1",
+        "typescript": "^4.7.3",
+        "xo": "^0.51.0"
+    }
+}

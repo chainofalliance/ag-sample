@@ -1,0 +1,15 @@
+{
+    "extends": "@sindresorhus/tsconfig/tsconfig.json",
+    "include": [
+        "src"
+    ],
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "module": "CommonJS",
+        "declaration": false,
+        "sourceMap": true,
+        "outDir": "dist",
+        "noUnusedLocals": false,
+        "noUnusedParameters": false
+    }
+}

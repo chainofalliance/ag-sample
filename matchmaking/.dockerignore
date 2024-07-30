@@ -1,0 +1,8 @@
+.*
+*.md
+**/*.test.*
+**/test.*
+dist
+Dockerfile
+node_modules
+test

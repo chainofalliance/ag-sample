@@ -1,0 +1,52 @@
+{
+    "common": {
+        "dapp": {
+            "name": "Tic Tac Toe",
+            "version": "0.0.1"
+        },
+        "consensus": {
+            "observer_amount": 0
+        },
+        "matchmaking": {
+            "match_frequency": 2,
+            "fallback_timeout": 5,
+            "max_devnet_servers": 51
+        },
+        "rate_limit": [
+            {
+                "type": "create-ticket",
+                "requests": 5,
+                "in_time": 60
+            },
+            {
+                "type": "ticket-status",
+                "requests": 1,
+                "in_time": 1
+            },
+            {
+                "type": "cancel-ticket",
+                "requests": 5,
+                "in_time": 60
+            }
+        ]
+    },
+    "postgres": {
+        "url": "jdbc:postgresql://postgres/matchmaking",
+        "user": "postgres",
+        "password": "postgres"
+    },
+    "local": {
+        "postchain": {
+            "url": "http://localhost:7741",
+            "chainId": 0
+        },
+        "build_alias": ""
+    },
+    "local-windows": {
+        "postchain": {
+            "url": "http://host.docker.internal:7740",
+            "chainId": 0
+        },
+        "build_alias": ""
+    }
+}
