@@ -1,0 +1,9 @@
+/out
+/build
+config.yml
+
+chromia.yml
+
+/src/lib/ft4
+/src/lib/iccf
+/src/lib/icmf

@@ -1,0 +1,16 @@
+@mount('ttt')
+module;
+
+import .core.*;
+
+namespace icmf {
+    import lib.icmf.*;
+}
+
+namespace Ft4 {
+    import lib.ft4.admin.{require_admin};
+    import lib.ft4.core.accounts.{account, auth_descriptor, create_account_with_auth, auth_descriptor_signer};
+    import lib.ft4.auth.{auth_handler, add_auth_handler, authenticate};
+    import lib.ft4.assets.{asset, balance, get_asset_balances, format_amount_with_decimals,
+        Unsafe.register_asset, increase_balance, deduct_balance};
+}

@@ -1,0 +1,35 @@
+module;
+
+import ^.*;
+
+namespace Leaderboard {
+    struct s_reward {
+        player: pubkey;
+        points: integer;
+    }
+
+    entity __def {
+        player: pubkey;
+        mutable points: integer;
+    }
+
+    function ensure(player: pubkey) {
+        val res = __def @? {player};
+        
+        if(res == null) {
+            return create __def(player, 0);
+        }
+
+        return res;
+    }
+
+
+    operation __icmf_message(sender: byte_array, topic: text, body: gtv) {
+        val rewards = list<s_reward>.from_gtv(body);
+
+        for(i in rewards) {
+            val entry = ensure(i.player);
+            entry.points += i.points;
+        }
+    }
+}

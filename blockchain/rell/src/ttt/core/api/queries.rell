@@ -1,0 +1,6 @@
+namespace ILeaderboard {
+    query get_points(pubkey) {
+        val res = Leaderboard.__def @? {pubkey};
+        return if(res == null) 0 else res.points;
+    }
+}

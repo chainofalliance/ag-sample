@@ -1,0 +1,7 @@
+@test module;
+
+import main.*;
+
+function test_print() {
+    print("Hello World");
+}
