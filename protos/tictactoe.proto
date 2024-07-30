@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option csharp_namespace = "AllianceGames.Sample.TicTacToe.Grpc";
+
+import "google/protobuf/empty.proto";
+package core;
+
+service TicTacToeService {
+    rpc ServerRequests (stream Response) returns (stream Request);
+}
+
+message Request
+{
+  oneof request
+  {
+    NewTurnRequest new_turn = 1;
+    GameOverRequest game_over = 1;
+  }
+}
+
+message Response
+{
+  oneof response
+  {
+    google.protobuf.Empty empty = 1;
+    MakeMoveResponse make_move = 2;
+  }
+}
+
+message NewTurnRequest
+{
+  bool you_turn = 1;
+  repeated int32 squares = 2;
+}
+
+message GameOverRequest
+{
+  bool winner = 1;
+}
+
+message MakeMoveResponse
+{
+  int32 square = 1;
+}

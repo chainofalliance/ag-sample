@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="AllianceGamesSdk.Common">
+        <HintPath>AllianceGamesSdk.Common.dll</HintPath>
+      </Reference>
+      <Reference Include="AllianceGamesSdk.Server">
+        <HintPath>AllianceGamesSdk.Server.dll</HintPath>
+      </Reference>
+      <Reference Include="Google.Protobuf">
+        <HintPath>dlls\Google.Protobuf.dll</HintPath>
+      </Reference>
+      <Reference Include="Grpc.AspNetCore.Server">
+        <HintPath>dlls\Grpc.AspNetCore.Server.dll</HintPath>
+      </Reference>
+      <Reference Include="Grpc.Core.Api">
+        <HintPath>dlls\Grpc.Core.Api.dll</HintPath>
+      </Reference>
+      <Reference Include="Grpc.Net.Client">
+        <HintPath>dlls\Grpc.Net.Client.dll</HintPath>
+      </Reference>
+      <Reference Include="Grpc.Net.Common">
+        <HintPath>dlls\Grpc.Net.Common.dll</HintPath>
+      </Reference>
+      <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+        <HintPath>dlls\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      </Reference>
+      <Reference Include="NBitcoin.Secp256k1">
+        <HintPath>dlls\NBitcoin.Secp256k1.dll</HintPath>
+      </Reference>
+      <Reference Include="Newtonsoft.Json">
+        <HintPath>dlls\Newtonsoft.Json.dll</HintPath>
+      </Reference>
+      <Reference Include="Postchain.Client">
+        <HintPath>..\SharedDependencies\Sdk\Plugins\PostchainClient\Postchain.Client.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog">
+        <HintPath>dlls\Serilog.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Sinks.Console">
+        <HintPath>dlls\Serilog.Sinks.Console.dll</HintPath>
+      </Reference>
+      <Reference Include="Serilog.Sinks.File">
+        <HintPath>dlls\Serilog.Sinks.File.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Google.Protobuf" Version="3.27.2" />
+      <PackageReference Include="Grpc.AspNetCore.Server" Version="2.64.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="Serilog" Version="4.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+      <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    </ItemGroup>
+</Project>
