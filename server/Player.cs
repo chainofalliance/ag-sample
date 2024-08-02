@@ -1,6 +1,5 @@
 ﻿using AllianceGames.Sample.TicTacToe.Grpc;
 using Grpc.Core;
-using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 
 internal class Player
@@ -13,11 +12,14 @@ internal class Player
     private readonly IServerStreamWriter<Request> responseStream;
     private readonly ChannelWriter<Response> responseChannel;
 
+    public Logic.Field Symbol { get; private set; }
+
     public Player(
         string address,
         IAsyncStreamReader<Response> requestStream,
         IServerStreamWriter<Request> responseStream,
-        ChannelWriter<Response> responseChannel
+        ChannelWriter<Response> responseChannel,
+        Logic.Field symbol
     )
     {
         Address = address;
@@ -25,6 +27,7 @@ internal class Player
         this.responseStream = responseStream;
         channel = Channel.CreateUnbounded<Request>();
         this.responseChannel = responseChannel;
+        Symbol = symbol;
     }
 
     public async Task Process(CancellationToken ct)
