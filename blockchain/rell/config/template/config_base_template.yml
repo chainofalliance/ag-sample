@@ -1,5 +1,5 @@
 blockchains:
-  AllianceGames${APP_SUFFIX}:
+  TicTacToe${APP_SUFFIX}:
     module: ${MAIN_MODULE}
 
     moduleArgs: &args

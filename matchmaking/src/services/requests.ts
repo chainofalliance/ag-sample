@@ -1,7 +1,6 @@
 import config from 'config';
 import { now } from '../javascript-helper';
 import { MatchmakingError } from './matchmaking';
-import { ServerDetails } from '../match';
 
 type RateLimitKey = [string, Request];
 type RateLimitValue = [number, number];
@@ -51,7 +50,7 @@ export interface MatchDetailsRequest extends BaseTicketRequest {
 export interface MatchDetailsResponse {
     matchId: string;
     matchedAt: number;
-    serverDetails: ServerDetails;
+    serverDetails: string;
 }
 
 export interface CancelTicketRequest extends BaseTicketRequest {

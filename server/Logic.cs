@@ -1,10 +1,8 @@
 ﻿using AllianceGames.Sample.TicTacToe.Grpc;
 using AllianceGamesSdk;
 using AllianceGamesSdk.Common;
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Serilog;
-using System.Collections;
 using System.Threading.Channels;
 
 internal class Logic
@@ -16,6 +14,7 @@ internal class Logic
         O
     }
 
+    public IReadOnlyDictionary<string, Player> Players => players;
     public CancellationToken CancellationToken => cts.Token;
     private readonly CancellationTokenSource cts = new();
     private readonly Dictionary<string, Player> players = new();
@@ -83,18 +82,36 @@ internal class Logic
             winner = GetWinner();
         }
 
-        var winnerPlayer = players.Values.First(p => p.Symbol == winner);
         // send game over message
-        foreach (var (_, player) in players)
+        var winnerPlayer = players.Values.First(p => p.Symbol == winner);
+        foreach (var (address, player) in players)
         {
             await player.Requests.WriteAsync(new Request
             {
-                // Game over 
+                GameOver = new GameOverRequest()
+                {
+                    Winner = winnerPlayer?.Address
+                }
             });
         }
 
+        object[] blockchainReward;
+        if (winnerPlayer == null)
+        {
+            blockchainReward = players
+                .Select(p => new object[] { p.Key, 50 })
+                .ToArray();
+        }
+        else
+        {
+            blockchainReward = new object[]
+            {
+                new object[]{ winnerPlayer!.Address, 100 },
+                new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Key, 50 }
+            };
 
-        onEnd?.Invoke(null);
+        }
+        onEnd?.Invoke(winnerPlayer?.Address);
     }
 
     private void InitializeBoard()

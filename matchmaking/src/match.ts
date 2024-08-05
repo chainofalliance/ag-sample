@@ -1,8 +1,3 @@
-export interface ServerDetails {
-    address: string;
-    port: number;
-}
-
 export interface Match {
     id: string,
     isAI: boolean,

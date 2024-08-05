@@ -42,7 +42,8 @@ export class Ticket {
 
     public canMatch(ticket: Ticket): boolean {
         return this.address != ticket.address
-            && this.state == TicketState.Open && ticket.state == TicketState.Open
+            && this.state == TicketState.Open
+            && ticket.state == TicketState.Open
     }
 
     public checkFallback(): boolean {

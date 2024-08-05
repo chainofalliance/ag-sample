@@ -19,3 +19,5 @@ export MSYS_NO_PATHCONV=1 && docker run \
     ${files} \
     -o "/out" \
     -l csharp
+
+cp -r "${current_dir}/${compiled_dir}/." "${current_dir}/client/TicTacToe/Assets/Scripts/Grpc"

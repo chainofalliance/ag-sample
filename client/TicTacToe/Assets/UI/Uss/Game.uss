@@ -1,0 +1,18 @@
+:root {
+    --image-x: url('project://database/Assets/UI/Textures/x.png');
+    --image-o: url('project://database/Assets/UI/Textures/o.png');
+}
+
+.Empty {
+    background-color: rgb(255, 143, 143);
+}
+
+.X {
+    background-color: rgb(255, 255, 255);
+    background-image: var(--image-x);
+}
+
+.O {
+    background-color: rgb(255, 255, 255);
+    background-image: var(--image-o);
+}

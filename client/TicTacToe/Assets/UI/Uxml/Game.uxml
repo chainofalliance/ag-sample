@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Uss/Game.uss?fileID=7433441132597879392&amp;guid=1f5d0dec2a5c1f2469df058ff3de3755&amp;type=3#Game" />
+    <ui:VisualElement name="Background" style="flex-grow: 1; background-color: rgb(120, 120, 120); align-items: center; justify-content: space-around; flex-direction: row;">
+        <ui:VisualElement name="GameInfo" style="flex-grow: 0; height: 100%; justify-content: center;">
+            <ui:Label tabindex="-1" text="Player1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player1" style="-unity-text-align: upper-center; font-size: 32px; margin-top: auto;" />
+            <ui:Label tabindex="-1" text="vs" parse-escape-sequences="true" display-tooltip-when-elided="true" name="vs" style="-unity-text-align: upper-center; font-size: 22px;" />
+            <ui:Label tabindex="-1" text="Player2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player2" style="-unity-text-align: upper-center; font-size: 32px;" />
+            <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Info" style="-unity-text-align: upper-center; font-size: 24px; margin-top: auto; margin-bottom: 50px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Board" style="flex-direction: column; justify-content: center;">
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+            </ui:VisualElement>
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+                <ui:VisualElement name="Field" class="Empty" style="margin-top: 20px; margin-bottom: 20px; margin-right: 20px; margin-left: 20px; width: 150px; height: 150px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

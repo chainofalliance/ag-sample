@@ -18,7 +18,7 @@ fi
 envsubst < ${CONFDIR}/template/config_base_template.yml > ${ROOTDIR}/chromia.yml
 
 if [ -z ${TEST_MODULES} ]; then
-    for d in ${ROOTDIR}/src/ag/tests/*/ ; do
+    for d in ${ROOTDIR}/src/ttt/tests/*/ ; do
         MODULE=$(basename $d)
         if [[ "$MODULE" == *"tests"* ]]; then
             TEST_MODULES+=($MODULE)
@@ -27,7 +27,7 @@ if [ -z ${TEST_MODULES} ]; then
 fi
 
 for module in "${TEST_MODULES[@]}"; do
-    printf "    - ag.tests.${module}\n" >> ${ROOTDIR}/chromia.yml
+    printf "    - ttt.tests.${module}\n" >> ${ROOTDIR}/chromia.yml
 done
 
 if [ ! -z ${CONTAINER_ID_TESTNET} ]; then

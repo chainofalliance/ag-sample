@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Template name="Menu" src="project://database/Assets/UI/Uxml/Menu.uxml?fileID=9197481963319205126&amp;guid=243097bace451ab4fae05012b6764354&amp;type=3#Menu" />
+    <ui:Template name="Game" src="project://database/Assets/UI/Uxml/Game.uxml?fileID=9197481963319205126&amp;guid=605321c974b4e2d45b041d619f599fc8&amp;type=3#Game" />
+    <ui:Instance template="Menu" name="Menu" style="flex-grow: 1;" />
+    <ui:Instance template="Game" name="Game" style="display: none; flex-grow: 1;" />
+</ui:UXML>

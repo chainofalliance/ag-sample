@@ -6,7 +6,13 @@ import "google/protobuf/empty.proto";
 package core;
 
 service TicTacToeService {
+    rpc GetPlayerData(google.protobuf.Empty) returns (stream PlayerData);
     rpc ServerRequests (stream Response) returns (stream Request);
+}
+
+message PlayerData {
+    string address = 1;
+    bool hasX = 2;
 }
 
 message Request
@@ -14,7 +20,7 @@ message Request
   oneof request
   {
     NewTurnRequest new_turn = 1;
-    GameOverRequest game_over = 1;
+    GameOverRequest game_over = 2;
   }
 }
 
@@ -35,7 +41,7 @@ message NewTurnRequest
 
 message GameOverRequest
 {
-  bool winner = 1;
+  string winner = 1;
 }
 
 message MakeMoveResponse

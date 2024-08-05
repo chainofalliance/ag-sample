@@ -4,9 +4,6 @@ PROJECT=ttt_chromia
 ENV?=local
 export CHR_CLI_VERSION := 0.20.1
 
-include .env
-export
-
 .PHONY: start
 start: setenv
 	docker compose -p ${PROJECT} up blockchain -d
