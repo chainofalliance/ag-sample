@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 public class GameView
 {
     public event Action<int> OnClickField;
+    public event Action OnClickBack;
 
     private readonly VisualElement root;
 
@@ -14,6 +15,7 @@ public class GameView
     private readonly Label player1Label;
     private readonly Label player2Label;
     private readonly Label infoLabel;
+    private readonly Button cancelButton;
 
     public GameView(
         VisualElement root
@@ -25,6 +27,8 @@ public class GameView
         player1Label = root.Q<Label>("Player1");
         player2Label = root.Q<Label>("Player2");
         infoLabel = root.Q<Label>("Info");
+        cancelButton = root.Q<Button>("Cancel");
+        cancelButton.clicked += () => OnClickBack?.Invoke();
     }
 
     public void SetVisible(
@@ -42,13 +46,10 @@ public class GameView
         return $"<b>{playerData.Symbol}</b> {address} Points: {playerData.Points})";
     }
 
-    public void Initialize(
-        GameController.PlayerData player1,
-        GameController.PlayerData player2
-    )
+    public void Reset()
     {
-        player1Label.text = PlayerDataToString(player1);
-        player2Label.text = PlayerDataToString(player2);
+        player1Label.text = "Player1";
+        player2Label.text = "Player2";
         infoLabel.text = "";
         foreach (var field in board)
         {
@@ -58,6 +59,15 @@ public class GameView
             field.UnregisterCallback<ClickEvent>(OnClick);
             field.RegisterCallback<ClickEvent>(OnClick);
         }
+    }
+
+    public void Initialize(
+        GameController.PlayerData player1,
+        GameController.PlayerData player2
+    )
+    {
+        player1Label.text = PlayerDataToString(player1);
+        player2Label.text = PlayerDataToString(player2);
     }
 
     private void OnClick(

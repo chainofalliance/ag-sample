@@ -12,7 +12,7 @@ for d in $protos_dir/* ; do
     files="${files} -f ${d##*/} "
 done
 
-export MSYS_NO_PATHCONV=1 && docker run \
+export MSYS_NO_PATHCONV=1 && docker run --rm \
     -v "${current_dir}/${compiled_dir}":/out \
     -v "${protos_dir}":/defs \
     namely/protoc-all \

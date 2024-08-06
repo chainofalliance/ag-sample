@@ -1,13 +1,15 @@
 using System.Net.Http;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
+using UnityEngine;
+using Cysharp.Threading.Tasks;
+
 
 public class MenuController
 {
     private readonly MenuView view;
     private readonly Blockchain blockchain;
-    private readonly MatchmakingService matchmakingService;
+    private readonly IMatchmakingService matchmakingService;
     private readonly Action<Uri, string, string> onStartGame;
 
     private CancellationTokenSource cts;
@@ -15,7 +17,7 @@ public class MenuController
     public MenuController(
         MenuView view,
         Blockchain blockchain,
-        MatchmakingService matchmakingService,
+        IMatchmakingService matchmakingService,
         Action<Uri, string, string> onStartGame
     )
     {
@@ -36,12 +38,16 @@ public class MenuController
         view.SetVisible(visible);
     }
 
+    public async UniTask SyncPoints()
+    {
+        var points = await blockchain.GetPoints();
+        view.SetLogin(blockchain.SignatureProvider.PubKey, points);
+    }
+
     private async void OnLogin(string privKey)
     {
         await blockchain.Login(privKey);
-        
-        var points = await blockchain.GetPoints();
-        view.SetLogin(blockchain.SignatureProvider.PubKey, points);
+        await SyncPoints();
     }
 
     private async void OnPlay()
@@ -78,7 +84,7 @@ public class MenuController
             }
 
             view.SetInfo($"Waiting for match with ticket ID {ticketId}...\nStatus: {ticket.Status}");
-            await Task.Delay(1000);
+            await UniTask.Delay(1000);
         }
 
         view.SetInfo($"Match found! Getting server details for match ID {matchId}...");
@@ -99,12 +105,18 @@ public class MenuController
         onStartGame?.Invoke(node.Uri, matchId, opponent);
     }
 
-    private async Task<ushort> GetGamePort(
+    private async UniTask<ushort> GetGamePort(
         Uri serverUrl,
         string matchId,
         CancellationToken ct
     )
     {
+        if (Main.MOCK)
+        {
+            Debug.Log("Mocking game port resolution...");
+            return 5172;
+        }
+
         const int RETRIES = 5;
         var route = new Uri(serverUrl, $"/dapp/session/get-port/{matchId}");
         var client = new HttpClient();
@@ -119,7 +131,7 @@ public class MenuController
             catch (Exception)
             {
                 tries++;
-                await Task.Delay(1000, cancellationToken: ct);
+                await UniTask.Delay(1000, cancellationToken: ct);
             }
         }
         return 0;

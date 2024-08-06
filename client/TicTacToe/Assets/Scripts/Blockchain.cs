@@ -1,5 +1,5 @@
 using Chromia;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 using Buffer = Chromia.Buffer;
 
@@ -28,13 +28,13 @@ public class Blockchain
         this.nodeUrl = nodeUrl;
     }
 
-    public async Task Login(string privKey)
+    public async UniTask Login(string privKey)
     {
         client = await ChromiaClient.Create(nodeUrl, 0);
         SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));
     }
 
-    public async Task<int> GetPoints(string pubKey = null)
+    public async UniTask<int> GetPoints(string pubKey = null)
     {
         return await client.Query<int>(
             "ttt.ILeaderboard.get_points",

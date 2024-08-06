@@ -6,34 +6,55 @@ using Newtonsoft.Json;
 using Models;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
 public static class MatchmakingServiceFactory
 {
-    public static MatchmakingService Get()
+    public static IMatchmakingService Get(bool mock = false)
     {
 #if PROD_ENV
         return new MatchmakingService(new("https://mm.ttt.com/"));
 #else
-        return new MatchmakingService(new("http://localhost:8090/"));
+        if (mock)
+            return new MockMatchmakingService();
+        else
+            return new MatchmakingService(new("http://localhost:8090/"));
 #endif
     }
 }
 
-public class MatchmakingService
+public interface IMatchmakingService
+{
+    Task<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
+        CreateMatchmakingTicketRequest request,
+        CancellationToken ct
+    );
+    Task<GetMatchmakingTicketResult> GetMatchmakingTicket(
+        GetMatchmakingTicketRequest request,
+        CancellationToken ct
+    );
+    Task<GetMatchResult> GetMatch(
+        GetMatchRequest request,
+        CancellationToken ct
+    );
+    Task<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
+        CancelMatchmakingTicketRequest request,
+        CancellationToken ct
+    );
+
+    Task<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
+        CancelAllMatchmakingTicketsForPlayerRequest request,
+        CancellationToken ct
+    );
+}
+
+public class MatchmakingService : IMatchmakingService
 {
     private readonly Uri baseUri;
 
     public MatchmakingService(Uri baseUri)
     {
         this.baseUri = baseUri;
-    }
-
-    public Task<CreateMatchmakingTicketResult> OnboardingTicket(
-        OnboardingTicketRequest request,
-        CancellationToken ct
-    )
-    {
-        return HandleRequest<CreateMatchmakingTicketResult>(request, ct);
     }
 
     public Task<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
@@ -124,13 +145,6 @@ public class MatchmakingService
 
 namespace Models
 {
-    public class OnboardingTicketRequest : BaseRequest
-    {
-        public override string Path { get; protected set; } = "onboarding";
-        [JsonProperty("partyId")]
-        public string PartyId;
-    }
-
     public class CreateMatchmakingTicketRequest : BaseRequest
     {
         public override string Path { get; protected set; } = "create-ticket";
@@ -236,5 +250,83 @@ namespace Models
         Matched,
         Closed,
         Cancelled
+    }
+}
+
+public class MockMatchmakingService : IMatchmakingService
+{
+    public Task<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
+        CreateMatchmakingTicketRequest request,
+        CancellationToken ct
+    )
+    {
+        Debug.Log("Mock CreateMatchmakingTicket...");
+        return Task.FromResult(new CreateMatchmakingTicketResult()
+        {
+            TicketId = "mock-ticket-id",
+            Error = false,
+        });
+    }
+
+    public Task<GetMatchmakingTicketResult> GetMatchmakingTicket(
+        GetMatchmakingTicketRequest request,
+        CancellationToken ct
+    )
+    {
+        Debug.Log("Mock GetMatchmakingTicket...");
+        return Task.FromResult(new GetMatchmakingTicketResult()
+        {
+            TicketId = "mock-ticket-id",
+            CreatedAtTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+            Status = TicketState.Matched,
+            MatchId = "mock-match-id",
+            Error = false,
+        });
+    }
+
+    public Task<GetMatchResult> GetMatch(
+        GetMatchRequest request,
+        CancellationToken ct
+    )
+    {
+        Debug.Log("Mock GetMatch...");
+        return Task.FromResult(new GetMatchResult()
+        {
+            MatchId = "mock-match-id",
+            MatchedAtTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
+            ServerDetails = "http://localhost:5172",
+#if UNITY_EDITOR
+            OpponentId = "02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27",
+#else
+            OpponentId = "034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa",
+#endif
+            Error = false,
+        });
+    }
+
+
+    public Task<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
+        CancelMatchmakingTicketRequest request,
+        CancellationToken ct
+    )
+    {
+        Debug.Log("Mock CancelMatchmakingTicket...");
+        return Task.FromResult(new CancelMatchmakingTicketResult()
+        {
+            Error = false
+        });
+
+    }
+
+    public Task<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
+        CancelAllMatchmakingTicketsForPlayerRequest request,
+        CancellationToken ct
+    )
+    {
+        Debug.Log("Mock CancelAllMatchmakingTicketsForPlayer...");
+        return Task.FromResult(new CancelAllMatchmakingTicketsForPlayerResult()
+        {
+            Error = false
+        });
     }
 }

@@ -3,6 +3,7 @@ using AllianceGamesSdk;
 using AllianceGamesSdk.Common;
 using Grpc.Core;
 using Serilog;
+using System.Net.WebSockets;
 using System.Threading.Channels;
 
 internal class Logic
@@ -16,7 +17,7 @@ internal class Logic
 
     public IReadOnlyDictionary<string, Player> Players => players;
     public CancellationToken CancellationToken => cts.Token;
-    private readonly CancellationTokenSource cts = new();
+    private CancellationTokenSource cts = new CancellationTokenSource();
     private readonly Dictionary<string, Player> players = new();
 
     private Channel<Response> channel = Channel.CreateUnbounded<Response>();
@@ -37,6 +38,9 @@ internal class Logic
             return;
         }
 
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, CancellationToken);
+
+        Log.Information($"Open ServerRequest channel for {playerId}");
         var player = new Player(
             playerId,
             requestStream,
@@ -44,74 +48,104 @@ internal class Logic
             channel.Writer,
             ++turn
         );
+        players.Add(playerId, player);
 
-        await Task.Run(() => player.Process(CancellationToken), CancellationToken);
+        await player.Process(cts.Token);
+
+        players.Remove(playerId);
     }
 
     public async Task Run(Action<object?> onEnd)
     {
-        // wait until two players are connected
-        await TaskUtil.WaitWhile(() => players.Count == 2);
-
-        InitializeBoard();
-
-        // play game
-        Field? winner = null;
-        var currentPlayerId = players.Keys.First();
-        while (winner == null)
+        try
         {
-            foreach (var (id, player) in players)
+            Log.Information($"Waiting for both players to connect");
+            // wait until two players are connected
+            await TaskUtil.WaitUntil(() => players.Count == 2);
+
+            Log.Information($"Initializing board");
+            InitializeBoard();
+
+            Log.Information($"Giving players a sec...");
+            await Task.Delay(1000, CancellationToken);
+
+            // play game
+            Field? winner = null;
+            var currentPlayerId = players.Keys.First();
+            Log.Information($"Start with player {currentPlayerId}");
+            while (winner == null)
+            {
+                var validMove = false;
+                while (!validMove)
+                { 
+                    foreach (var (id, player) in players)
+                    {
+                        Log.Information($"Send request to player {id} with your turn == {id == currentPlayerId}");
+                        await player.Requests.WriteAsync(new Request
+                        {
+                            NewTurn = new NewTurnRequest()
+                            {
+                                Squares = { board.Cast<Field>().Select(f => (int)f) },
+                                YouTurn = id == currentPlayerId
+                            }
+                        }, CancellationToken);
+                    }
+
+                    var currentPlayer = players[currentPlayerId];
+                    Log.Information($"Waiting for sending his turn");
+                    var response = await channel.Reader.ReadAsync(CancellationToken);
+                    var move = response.MakeMove.Square;
+                    if (move < 0 || move >= 9 || board[move / 3, move % 3] != Field.Empty)
+                    {
+                        Log.Information($"Invalid move on square {move}, try again");
+                        continue;
+                    }
+                    board[move / 3, move % 3] = currentPlayer.Symbol;
+                    validMove = true;
+
+                    Log.Information($"Setting square [{move / 3}, {move % 3}] to {currentPlayer.Symbol}");
+                    currentPlayerId = players.First(p => p.Key != currentPlayerId).Key;
+                    winner = GetWinner();
+                }
+            }
+
+            // send game over message
+            var winnerPlayer = players.Values.First(p => p.Symbol == winner);
+            Log.Information($"Game is over, winner is {winnerPlayer?.Address}");
+            foreach (var (address, player) in players)
             {
                 await player.Requests.WriteAsync(new Request
                 {
-                    NewTurn = new NewTurnRequest()
+                    GameOver = new GameOverRequest()
                     {
                         Squares = { board.Cast<Field>().Select(f => (int)f) },
-                        YouTurn = id == currentPlayerId
+                        Winner = winnerPlayer?.Address,
+                        Points = winnerPlayer?.Address == player.Address ? 100 : 50
                     }
-                });
+                }, CancellationToken);
             }
 
-            var currentPlayer = players[currentPlayerId];
-            var response = await channel.Reader.ReadAsync(CancellationToken);
-            // TODO we should validate the response
-            var move = response.MakeMove.Square;
-            board[move / 3, move % 3] = currentPlayer.Symbol;
-
-            currentPlayerId = players.First(p => p.Key != currentPlayerId).Key;
-            winner = GetWinner();
-        }
-
-        // send game over message
-        var winnerPlayer = players.Values.First(p => p.Symbol == winner);
-        foreach (var (address, player) in players)
-        {
-            await player.Requests.WriteAsync(new Request
+            object[] blockchainReward;
+            if (winnerPlayer == null)
             {
-                GameOver = new GameOverRequest()
+                blockchainReward = players
+                    .Select(p => new object[] { p.Key, 50 })
+                    .ToArray();
+            }
+            else
+            {
+                blockchainReward = new object[]
                 {
-                    Winner = winnerPlayer?.Address
-                }
-            });
-        }
+                    new object[]{ winnerPlayer!.Address, 100 },
+                    new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Key, 50 }
+                };
 
-        object[] blockchainReward;
-        if (winnerPlayer == null)
-        {
-            blockchainReward = players
-                .Select(p => new object[] { p.Key, 50 })
-                .ToArray();
-        }
-        else
-        {
-            blockchainReward = new object[]
-            {
-                new object[]{ winnerPlayer!.Address, 100 },
-                new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Key, 50 }
-            };
+            }
+            onEnd?.Invoke(winnerPlayer?.Address);
 
         }
-        onEnd?.Invoke(winnerPlayer?.Address);
+        catch (WebSocketException) { }
+        catch (OperationCanceledException) { }
     }
 
     private void InitializeBoard()

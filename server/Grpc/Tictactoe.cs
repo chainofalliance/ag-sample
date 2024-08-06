@@ -32,12 +32,13 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
             "eRgBIAEoCzIWLmdvb2dsZS5wcm90b2J1Zi5FbXB0eUgAEisKCW1ha2VfbW92",
             "ZRgCIAEoCzIWLmNvcmUuTWFrZU1vdmVSZXNwb25zZUgAQgoKCHJlc3BvbnNl",
             "IjMKDk5ld1R1cm5SZXF1ZXN0EhAKCHlvdV90dXJuGAEgASgIEg8KB3NxdWFy",
-            "ZXMYAiADKAUiIQoPR2FtZU92ZXJSZXF1ZXN0Eg4KBndpbm5lchgBIAEoCSIi",
-            "ChBNYWtlTW92ZVJlc3BvbnNlEg4KBnNxdWFyZRgBIAEoBTKEAQoQVGljVGFj",
-            "VG9lU2VydmljZRI7Cg1HZXRQbGF5ZXJEYXRhEhYuZ29vZ2xlLnByb3RvYnVm",
-            "LkVtcHR5GhAuY29yZS5QbGF5ZXJEYXRhMAESMwoOU2VydmVyUmVxdWVzdHMS",
-            "Di5jb3JlLlJlc3BvbnNlGg0uY29yZS5SZXF1ZXN0KAEwAUImqgIjQWxsaWFu",
-            "Y2VHYW1lcy5TYW1wbGUuVGljVGFjVG9lLkdycGNiBnByb3RvMw=="));
+            "ZXMYAiADKAUiQgoPR2FtZU92ZXJSZXF1ZXN0Eg4KBndpbm5lchgBIAEoCRIP",
+            "CgdzcXVhcmVzGAIgAygFEg4KBnBvaW50cxgDIAEoBSIiChBNYWtlTW92ZVJl",
+            "c3BvbnNlEg4KBnNxdWFyZRgBIAEoBTKEAQoQVGljVGFjVG9lU2VydmljZRI7",
+            "Cg1HZXRQbGF5ZXJEYXRhEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GhAuY29y",
+            "ZS5QbGF5ZXJEYXRhMAESMwoOU2VydmVyUmVxdWVzdHMSDi5jb3JlLlJlc3Bv",
+            "bnNlGg0uY29yZS5SZXF1ZXN0KAEwAUImqgIjQWxsaWFuY2VHYW1lcy5TYW1w",
+            "bGUuVGljVGFjVG9lLkdycGNiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.EmptyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -45,7 +46,7 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
             new pbr::GeneratedClrTypeInfo(typeof(global::AllianceGames.Sample.TicTacToe.Grpc.Request), global::AllianceGames.Sample.TicTacToe.Grpc.Request.Parser, new[]{ "NewTurn", "GameOver" }, new[]{ "Request" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AllianceGames.Sample.TicTacToe.Grpc.Response), global::AllianceGames.Sample.TicTacToe.Grpc.Response.Parser, new[]{ "Empty", "MakeMove" }, new[]{ "Response" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AllianceGames.Sample.TicTacToe.Grpc.NewTurnRequest), global::AllianceGames.Sample.TicTacToe.Grpc.NewTurnRequest.Parser, new[]{ "YouTurn", "Squares" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::AllianceGames.Sample.TicTacToe.Grpc.GameOverRequest), global::AllianceGames.Sample.TicTacToe.Grpc.GameOverRequest.Parser, new[]{ "Winner" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::AllianceGames.Sample.TicTacToe.Grpc.GameOverRequest), global::AllianceGames.Sample.TicTacToe.Grpc.GameOverRequest.Parser, new[]{ "Winner", "Squares", "Points" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::AllianceGames.Sample.TicTacToe.Grpc.MakeMoveResponse), global::AllianceGames.Sample.TicTacToe.Grpc.MakeMoveResponse.Parser, new[]{ "Square" }, null, null, null, null)
           }));
     }
@@ -1101,6 +1102,8 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public GameOverRequest(GameOverRequest other) : this() {
       winner_ = other.winner_;
+      squares_ = other.squares_.Clone();
+      points_ = other.points_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1122,6 +1125,29 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
       }
     }
 
+    /// <summary>Field number for the "squares" field.</summary>
+    public const int SquaresFieldNumber = 2;
+    private static readonly pb::FieldCodec<int> _repeated_squares_codec
+        = pb::FieldCodec.ForInt32(18);
+    private readonly pbc::RepeatedField<int> squares_ = new pbc::RepeatedField<int>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<int> Squares {
+      get { return squares_; }
+    }
+
+    /// <summary>Field number for the "points" field.</summary>
+    public const int PointsFieldNumber = 3;
+    private int points_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Points {
+      get { return points_; }
+      set {
+        points_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -1138,6 +1164,8 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
         return true;
       }
       if (Winner != other.Winner) return false;
+      if(!squares_.Equals(other.squares_)) return false;
+      if (Points != other.Points) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1146,6 +1174,8 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
     public override int GetHashCode() {
       int hash = 1;
       if (Winner.Length != 0) hash ^= Winner.GetHashCode();
+      hash ^= squares_.GetHashCode();
+      if (Points != 0) hash ^= Points.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1168,6 +1198,11 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
         output.WriteRawTag(10);
         output.WriteString(Winner);
       }
+      squares_.WriteTo(output, _repeated_squares_codec);
+      if (Points != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Points);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1182,6 +1217,11 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
         output.WriteRawTag(10);
         output.WriteString(Winner);
       }
+      squares_.WriteTo(ref output, _repeated_squares_codec);
+      if (Points != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(Points);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1194,6 +1234,10 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
       int size = 0;
       if (Winner.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Winner);
+      }
+      size += squares_.CalculateSize(_repeated_squares_codec);
+      if (Points != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Points);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1209,6 +1253,10 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
       }
       if (other.Winner.Length != 0) {
         Winner = other.Winner;
+      }
+      squares_.Add(other.squares_);
+      if (other.Points != 0) {
+        Points = other.Points;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1229,6 +1277,15 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
             Winner = input.ReadString();
             break;
           }
+          case 18:
+          case 16: {
+            squares_.AddEntriesFrom(input, _repeated_squares_codec);
+            break;
+          }
+          case 24: {
+            Points = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -1246,6 +1303,15 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
             break;
           case 10: {
             Winner = input.ReadString();
+            break;
+          }
+          case 18:
+          case 16: {
+            squares_.AddEntriesFrom(ref input, _repeated_squares_codec);
+            break;
+          }
+          case 24: {
+            Points = input.ReadInt32();
             break;
           }
         }

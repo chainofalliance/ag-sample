@@ -42,6 +42,8 @@ message NewTurnRequest
 message GameOverRequest
 {
   string winner = 1;
+  repeated int32 squares = 2;
+  int32 points = 3;
 }
 
 message MakeMoveResponse

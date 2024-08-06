@@ -1,14 +1,17 @@
 using AllianceGamesSdk.Client;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using System.Collections.Generic;
+using GrpcWebSocketBridge.Client;
 
 using TicTacToe = AllianceGames.Sample.TicTacToe.Grpc.TicTacToeService.TicTacToeServiceClient;
 using RequestOneofCase = AllianceGames.Sample.TicTacToe.Grpc.Request.RequestOneofCase;
 using System.Linq;
+using Grpc.Net.Client;
+using System.Threading.Tasks;
 
 public class GameController
 {
@@ -34,11 +37,12 @@ public class GameController
     private TicTacToe service;
 
     private CancellationTokenSource cts;
-    private TaskCompletionSource<int> turn = null;
+    private UniTaskCompletionSource<int> turn = null;
 
     public GameController(
         GameView view,
-        Blockchain blockchain
+        Blockchain blockchain,
+        Action OnEndGame
     )
     {
         this.view = view;
@@ -47,11 +51,16 @@ public class GameController
         view.OnClickField += idx => 
         {
             if (turn != null 
-                && !turn.Task.IsCompleted
+                && !turn.Task.Status.IsCompleted()
                 && board[idx % 3, idx / 3] == Field.Empty)
             {
-                turn.SetResult(idx);
+                turn.TrySetResult(idx);
             }
+        };
+        view.OnClickBack += () =>
+        {
+            cts?.Cancel();
+            OnEndGame?.Invoke();
         };
     }
 
@@ -62,7 +71,7 @@ public class GameController
         view.SetVisible(visible);
     }
 
-    public async Task StartGame(
+    public async UniTask StartGame(
         Uri nodeUri,
         string matchId,
         string opponent
@@ -71,68 +80,95 @@ public class GameController
         cts?.Dispose();
         cts = new CancellationTokenSource();
 
-        var client = await AllianceGamesClient.Create(
-            nodeUri,
-            matchId,
-            blockchain.SignatureProvider,
-            ct: cts.Token
-        );
-
-        service = client.CreateService<TicTacToe>();
-        SetupRpcStream();
-
-        var response = service.GetPlayerData(new Empty());
-        await foreach (var msg in response.ResponseStream.ReadAllAsync())
+        view.Reset();
+        try
         {
-            playerData.Add(new PlayerData()
+            view.SetInfo("Creating channel...");
+            var options = new GrpcChannelOptions()
             {
-                Address = msg.Address,
-                Points = await blockchain.GetPoints(msg.Address),
-                Symbol = msg.HasX ? Field.X : Field.O
-            });
-        }
+                HttpHandler = new GrpcWebSocketBridgeHandler(true)
+            };
+            var client = await AllianceGamesClient.Create(
+                nodeUri,
+                matchId,
+                blockchain.SignatureProvider,
+                options: options,
+                ct: cts.Token
+            );
 
-        view.Initialize(
-            playerData.Find(p => p.Address != opponent),
-            playerData.Find(p => p.Address == opponent)
-        );
+            view.SetInfo("Creating grpc service...");
+            service = client.CreateService<TicTacToe>();
+            SetupRpcStream();
+
+            view.SetInfo("Sending request to get player data...");
+            var response = service.GetPlayerData(new Empty());
+            view.SetInfo("Waiting to read player data response...");
+            await foreach (var msg in response.ResponseStream.ReadAllAsync(cts.Token))
+            {
+                view.SetInfo($"Adding player {msg.Address}...");
+                playerData.Add(new PlayerData()
+                {
+                    Address = msg.Address,
+                    Points = await blockchain.GetPoints(msg.Address),
+                    Symbol = msg.HasX ? Field.X : Field.O
+                });
+            }
+
+            view.SetInfo($"Finalize startup...");
+            view.Initialize(
+                playerData.Find(p => p.Address != opponent),
+                playerData.Find(p => p.Address == opponent)
+            );
+        }
+        catch (OperationCanceledException) { }
     }
 
     private void SetupRpcStream()
     {
+        view.SetInfo("Setting up rpc streams...");
         var response = service.ServerRequests();
-        _ = Task.Run(async () =>
-        {
-            await foreach (var msg in response.ResponseStream.ReadAllAsync())
-            {
-                switch (msg.RequestCase)
-                {
-                    case RequestOneofCase.NewTurn:
-                        var request = msg.NewTurn;
-                        view.SetBoard(request.Squares.ToList());
-                        view.SetInfo(request.YouTurn ? "Your turn." : "Opponents turn.");
 
-                        if (request.YouTurn)
-                        {
-                            turn = new TaskCompletionSource<int>();
-                            var idx = await turn.Task;
-                            await response.RequestStream.WriteAsync(new()
+        RpcTask().Forget();
+
+        async UniTask RpcTask()
+        {
+            try
+            {
+                await foreach (var msg in response.ResponseStream.ReadAllAsync(cts.Token))
+                {
+                    view.SetInfo($"Received {msg.RequestCase} message...");
+                    switch (msg.RequestCase)
+                    {
+                        case RequestOneofCase.NewTurn:
+                            view.SetInfo($"Test...");
+                            var request = msg.NewTurn;
+                            view.SetInfo(request.YouTurn ? "Your turn." : "Opponents turn.");
+                            view.SetBoard(request.Squares.ToList());
+
+                            if (request.YouTurn)
                             {
-                                MakeMove = new()
+                                turn = new UniTaskCompletionSource<int>();
+                                var idx = await turn.Task;
+                                await response.RequestStream.WriteAsync(new()
                                 {
-                                    Square = idx
-                                }
-                            });
-                            turn = null;
-                        }
-                        break;
-                    case RequestOneofCase.GameOver:
-                        view.SetInfo($"{msg.GameOver.Winner} has won!");
-                        return;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                };
-            }
-        });
+                                    MakeMove = new()
+                                    {
+                                        Square = idx
+                                    }
+                                });
+                                turn = null;
+                            }
+                            break;
+                        case RequestOneofCase.GameOver:
+                            view.SetInfo($"{msg.GameOver.Winner} has won!");
+                            view.SetBoard(msg.GameOver.Squares.ToList());
+                            return;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    };
+                }
+            } 
+            catch (OperationCanceledException) { }
+        }
     }
 }

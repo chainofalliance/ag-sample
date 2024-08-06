@@ -1,6 +1,7 @@
 @mount('ttt')
 module;
 
+import .api.*;
 import .core.*;
 
 namespace icmf {

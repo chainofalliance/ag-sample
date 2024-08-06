@@ -5,7 +5,7 @@ using Grpc.Core;
 
 internal class TicTacToeService : AllianceGames.Sample.TicTacToe.Grpc.TicTacToeService.TicTacToeServiceBase
 {
-    private Logic logic;
+    private readonly Logic logic;
     public TicTacToeService(Logic logic)
     {
         this.logic = logic;
@@ -18,7 +18,7 @@ internal class TicTacToeService : AllianceGames.Sample.TicTacToe.Grpc.TicTacToeS
 
     public override async Task GetPlayerData(Empty request, IServerStreamWriter<PlayerData> responseStream, ServerCallContext context)
     {
-        await TaskUtil.WaitWhile(() => logic.Players.Count == 2);
+        await TaskUtil.WaitUntil(() => logic.Players.Count == 2);
 
         foreach (var player in logic.Players.Values)
         {

@@ -1,11 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Main : MonoBehaviour
 {
+    public static bool MOCK = true;
+
     [SerializeField]
     private UIDocument mainDocument;
 
@@ -30,14 +30,15 @@ public class Main : MonoBehaviour
         menuController = new MenuController(
             menuView,
             blockchain,
-            MatchmakingServiceFactory.Get(),
+            MatchmakingServiceFactory.Get(MOCK),
             OnStartGame
         );
 
         var gameView = new GameView(game);
         gameController = new GameController(
             gameView,
-            blockchain
+            blockchain,
+            OnEndGame
         );
 
         menuController.SetVisible(true);
@@ -52,6 +53,18 @@ public class Main : MonoBehaviour
     {
         menuController.SetVisible(false);
         gameController.SetVisible(true);
-        await gameController.StartGame(nodeUri, matchId, opponent);
+        await gameController.StartGame(
+            nodeUri,
+            matchId,
+            opponent
+        );
+    }
+
+
+    private async void OnEndGame()
+    {
+        menuController.SetVisible(true);
+        gameController.SetVisible(false);
+        await menuController.SyncPoints();
     }
 }

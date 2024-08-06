@@ -1,6 +1,8 @@
 ﻿using AllianceGames.Sample.TicTacToe.Grpc;
 using Grpc.Core;
 using System.Threading.Channels;
+using Serilog;
+using System.Net.WebSockets;
 
 internal class Player
 {
@@ -32,22 +34,35 @@ internal class Player
 
     public async Task Process(CancellationToken ct)
     {
+        Log.Information($"Start {Address} Process task");
         await Task.WhenAll(ClientToServer(), ServerToClient());
 
         async Task ClientToServer()
         {
-            await foreach (var request in requestStream.ReadAllAsync(ct))
+            try
             {
-                await responseChannel.WriteAsync(request, ct);
+                await foreach (var request in requestStream.ReadAllAsync(ct))
+                {
+                    Log.Information($"Got client request from {Address}");
+                    await responseChannel.WriteAsync(request, ct);
+                }
             }
+            catch (WebSocketException) { }
+            catch (OperationCanceledException) { }
         }
 
         async Task ServerToClient()
         {
-            await foreach (var request in channel.Reader.ReadAllAsync(ct))
+            try
             {
-                await responseStream.WriteAsync(request, ct);
+                await foreach (var request in channel.Reader.ReadAllAsync(ct))
+                {
+                    Log.Information($"Send server response to {Address}");
+                    await responseStream.WriteAsync(request, ct);
+                }
             }
+            catch (WebSocketException) { }
+            catch (OperationCanceledException) { }
         }
     }
 }
