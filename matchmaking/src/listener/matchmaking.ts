@@ -55,6 +55,7 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null = null) {
         ticket2?.waitForServer();
         const sessionId = guid();
         const nodes = await getActiveNodes();
+        log('info', `Checking ${nodes.length} nodes`);
 
         let chosenNodes: ActiveNode[] = [];
         let chosenCount: number = 0;
@@ -64,14 +65,17 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null = null) {
             if (await isNodeHealthy(node)) {
                 chosenNodes.push(node);
                 chosenCount++;
+                log('info', `Node ${node.address.toString('hex')} is healthy`);
 
                 if (chosenCount == NODES_NEEDED)
                     break;
+            } else {
+                log('info', `Node ${node.address.toString('hex')} is not healthy`);
             }
         }
 
         if (chosenNodes.length < NODES_NEEDED) {
-            log('error', `Not enough nodes available..`);
+            log('error', `Not enough nodes available, needed ${NODES_NEEDED}..`);
             ticket1.close();
             ticket2?.close();
             return;
