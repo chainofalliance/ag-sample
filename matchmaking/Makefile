@@ -1,5 +1,4 @@
-PROJECT=coa_matchmaking
-DEVNET_PROJECT=${PROJECT}_devnet
+PROJECT=ttt_matchmaking
 export NETWORK?=local
 
 GIT_SHA=$(shell git rev-parse --short HEAD)
@@ -17,14 +16,3 @@ stop:
 
 .PHONY: restart
 restart: stop start
-
-.PHONY: devnet
-devnet:
-	docker compose -p ${DEVNET_PROJECT} -f docker-compose-devnet.yml up --build -d
-
-.PHONY: devnet-stop
-devnet-stop:
-	docker compose -p ${DEVNET_PROJECT} down
-
-.PHONY: devnet-restart
-devnet-restart: devnet-stop devnet

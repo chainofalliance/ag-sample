@@ -5,7 +5,7 @@
             "version": "1.0.0"
         },
         "consensus": {
-            "observer_amount": 0
+            "node_amount": 1
         },
         "matchmaking": {
             "match_frequency": 2,

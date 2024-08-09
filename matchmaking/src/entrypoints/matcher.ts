@@ -54,6 +54,6 @@ async function startup() {
     logger.log('info', `Running matchmaking for ${network}`);
     matchmakingListener.run();
 
-    if (network === 'local' || network === 'local-windows')
+    if (network === 'local' || network === 'devnet')
         logger.log('info', `Server url: ${ipAddress()}`);
 }

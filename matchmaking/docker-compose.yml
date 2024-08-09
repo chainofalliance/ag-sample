@@ -1,15 +1,13 @@
 version: '3.3'
 
 services:
-  matchmaking:
+  ttt_matchmaking:
     container_name: matchmaking_service
     entrypoint: node --enable-source-maps entrypoints/matcher.js ${NETWORK}
     ports:
       - 9085:8080
     build:
       context: .
-      args:
-        - GIT_SHA=${GIT_SHA}
     restart:  on-failure
     env_file: ".env"
     links:

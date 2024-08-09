@@ -28,8 +28,7 @@ export const DAPP_PRIVATE_KEY = load('DAPP_PRIVATE_KEY');
 
 export const DAPP_NAME = loadFromConfig<string>("common.dapp.name");
 export const DAPP_VERSION = loadFromConfig<string>("common.dapp.version")
-export const OBSERVER_AMOUNT = loadFromConfig<number>("common.consensus.observer_amount")
-export const NODES_NEEDED = OBSERVER_AMOUNT + 1;
+export const NODES_NEEDED = loadFromConfig<number>("common.consensus.node_amount")
 
 function load(name: string) {
     const content = loadSilent(name);
