@@ -1,5 +1,4 @@
 import {
-    GIT_SHA,
     NETWORK,
     ipAddress
 } from '../env.js';
@@ -40,7 +39,7 @@ async function startup() {
             'Cache-Control',
             'no-store',
         );
-        ctx.response.body = `ok - BUILD_${GIT_SHA}`;
+        ctx.response.body = `ok`;
     });
     app.use(ctx => {
         ctx.response.body

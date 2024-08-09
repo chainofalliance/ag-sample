@@ -3,13 +3,13 @@ import * as dotenv from 'dotenv';
 import config from 'config';
 
 export type Network =
-    | 'local-windows'
+    | 'devnet'
     | 'local'
     | 'prod'
     | 'staging'
     | 'dev';
 export const NETWORKS: readonly Network[] = [
-    'local-windows',
+    'devnet',
     'local',
     'prod',
     'staging',
@@ -25,7 +25,6 @@ dotenv.config();
 
 export const NETWORK = network();
 export const DAPP_PRIVATE_KEY = load('DAPP_PRIVATE_KEY');
-export const GIT_SHA = loadSilent('GIT_SHA');
 
 export const DAPP_NAME = loadFromConfig<string>("common.dapp.name");
 export const DAPP_VERSION = loadFromConfig<string>("common.dapp.version")

@@ -6,7 +6,7 @@ import { PostgresService } from '../postgres.js';
 import { getActiveNodes } from '../services/blockchain/queries.js';
 import { addSession } from '../services/blockchain/operations.js';
 import { ActiveNode, MatchData, Participant, ParticipantRole } from '../services/blockchain/types.js';
-import { NODES_NEEDED, OBSERVER_AMOUNT } from '../env.js';
+import { NODES_NEEDED } from '../env.js';
 import { logger } from '../logger.js';
 
 let postgres: PostgresService;

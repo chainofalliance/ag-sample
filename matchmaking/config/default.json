@@ -2,7 +2,7 @@
     "common": {
         "dapp": {
             "name": "TicTacToe",
-            "version": "0.0.1"
+            "version": "1.0.0"
         },
         "consensus": {
             "observer_amount": 0
@@ -39,14 +39,12 @@
         "postchain": {
             "url": "http://localhost:7741",
             "chainId": 0
-        },
-        "build_alias": ""
+        }
     },
-    "local-windows": {
+    "devnet": {
         "postchain": {
-            "url": "http://host.docker.internal:7741",
-            "chainId": 0
-        },
-        "build_alias": ""
+            "url": "http://host.docker.internal:7740",
+            "chainId": 1
+        }
     }
 }
