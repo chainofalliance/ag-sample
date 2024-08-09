@@ -10,7 +10,7 @@ Log.Logger = logger;
 
 var logic = new Logic();
 
-var builder = AllianceGamesServer.CreateBuilder(HttpProtocols.Http1,logger);
+var builder = AllianceGamesServer.CreateBuilder(HttpProtocols.Http1, logger);
 builder.Services.AddSingleton(_ => logic);
 
 var app = builder.Build();

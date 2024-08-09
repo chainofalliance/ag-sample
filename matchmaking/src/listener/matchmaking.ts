@@ -42,10 +42,10 @@ function match() {
             resolve(ticket, matchedTicket);
         }
 
-        if (ticket.checkFallback()) {
-            log('info', `Start AI match for ${ticket.id}`);
-            resolve(ticket);
-        }
+        // if (ticket.checkFallback()) {
+        //     log('info', `Start AI match for ${ticket.id}`);
+        //     resolve(ticket);
+        // }
     }
 }
 
