@@ -10,7 +10,7 @@ public static class BlockchainFactory
 #if PROD_ENV
         return new Blockchain("http://bc.ttt.com/");
 #else
-        return new Blockchain("http://localhost:7740/");
+        return new Blockchain("http://localhost:7740/", 1);
 #endif
     }
 }
@@ -22,15 +22,17 @@ public class Blockchain
     private ChromiaClient client;
 
     private readonly string nodeUrl;
+    private readonly int chainId;
 
-    public Blockchain(string nodeUrl)
+    public Blockchain(string nodeUrl, int chainId)
     {
         this.nodeUrl = nodeUrl;
+        this.chainId = chainId;
     }
 
     public async UniTask Login(string privKey)
     {
-        client = await ChromiaClient.Create(nodeUrl, 0);
+        client = await ChromiaClient.Create(nodeUrl, chainId);
         SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));
     }
 
