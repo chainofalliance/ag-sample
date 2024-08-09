@@ -1,7 +1,7 @@
 version: '3.3'
 
 services:
-  ttt_matchmaking:
+  matchmaking-service:
     container_name: matchmaking_service
     entrypoint: node --enable-source-maps entrypoints/matcher.js ${NETWORK}
     ports:
@@ -11,11 +11,11 @@ services:
     restart:  on-failure
     env_file: ".env"
     links:
-    - db
+    - matchmaking-db
     depends_on:
-    - db
+    - matchmaking-db
 
-  db:
+  matchmaking-db:
     image: postgres:15.3-alpine
     container_name: matchmaking_db
     restart: always

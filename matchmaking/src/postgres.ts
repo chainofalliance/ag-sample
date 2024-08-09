@@ -44,7 +44,7 @@ export class PostgresService {
     private static async connect(env: Network): Promise<PostgresService> {
         if (this.client == undefined) {
             this.client = new Client({
-                host: "db",
+                host: "matchmaking-db",
                 port: 5432,
                 database: "matchmaking",
                 user: "postgres",
