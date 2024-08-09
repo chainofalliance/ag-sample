@@ -139,7 +139,7 @@ export class PostgresService {
     }
 
     public async updateTicket(ticket: Ticket): Promise<boolean> {
-        let result = await PostgresService.client.query(`UPDATE ${this.ticketTable} SET state = $1, match_id = $3 WHERE id = $4`, [
+        let result = await PostgresService.client.query(`UPDATE ${this.ticketTable} SET state = $1, match_id = $2 WHERE id = $3`, [
             ticket.state as number,
             ticket.matchId,
             ticket.id
