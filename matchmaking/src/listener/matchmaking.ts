@@ -1,5 +1,4 @@
 import config from 'config';
-import { logger } from '../logger.js';
 import { Ticket } from '../ticket.js';
 import { guid, now } from '../javascript-helper.js';
 import { Match } from '../match.js';
@@ -8,6 +7,7 @@ import { getActiveNodes } from '../services/blockchain/queries.js';
 import { addSession } from '../services/blockchain/operations.js';
 import { ActiveNode, MatchData, Participant, ParticipantRole } from '../services/blockchain/types.js';
 import { NODES_NEEDED, OBSERVER_AMOUNT } from '../env.js';
+import { logger } from '../logger.js';
 
 let postgres: PostgresService;
 
