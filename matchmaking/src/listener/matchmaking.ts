@@ -135,7 +135,7 @@ export function log(level: any, message: string): string {
 }
 
 async function isNodeHealthy(node: ActiveNode) {
-    const url = `${node.url}/connect`;
+    const url = `${node.url}/healthz`;
     const nodeAddress = node.address.toString('hex');
     try {
         const response = await fetch(url);
