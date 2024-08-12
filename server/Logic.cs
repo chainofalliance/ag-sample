@@ -129,15 +129,15 @@ internal class Logic
             if (winnerPlayer == null)
             {
                 blockchainReward = players
-                    .Select(p => new object[] { p.Key, 50 })
+                    .Select(p => new object[] { p.Value.PubKey, 50 })
                     .ToArray();
             }
             else
             {
                 blockchainReward = new object[]
                 {
-                    new object[]{ winnerPlayer!.Address, 100 },
-                    new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Key, 50 }
+                    new object[]{ winnerPlayer!.PubKey, 100 },
+                    new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Value.PubKey, 50 }
                 };
 
             }

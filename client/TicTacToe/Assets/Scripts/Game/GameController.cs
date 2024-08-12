@@ -83,7 +83,7 @@ public class GameController
         view.Reset();
         try
         {
-            view.SetInfo("Creating channel...");
+            view.SetInfo($"Creating channel to {nodeUri}...");
             var options = new GrpcChannelOptions()
             {
                 HttpHandler = new GrpcWebSocketBridgeHandler(true)

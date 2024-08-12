@@ -15,7 +15,7 @@ namespace Leaderboard {
 
     function ensure(player: pubkey) {
         val res = __def @? {player};
-        
+
         if(res == null) {
             return create __def(player, 0);
         }

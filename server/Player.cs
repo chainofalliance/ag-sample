@@ -3,10 +3,14 @@ using Grpc.Core;
 using System.Threading.Channels;
 using Serilog;
 using System.Net.WebSockets;
+using Chromia;
+
+using Buffer = Chromia.Buffer;
 
 internal class Player
 {
     public readonly string Address;
+    public Buffer PubKey => Buffer.From(Address);
     public ChannelWriter<Request> Requests => channel.Writer;
 
     private readonly Channel<Request> channel;
