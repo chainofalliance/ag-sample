@@ -86,18 +86,34 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null = null) {
         const mainNode: ActiveNode = chosenNodes.pop()!;
 
         participants.push(
-            [ticket1.address, ParticipantRole.PLAYER],
-            [mainNode.address.toString('hex'), ParticipantRole.MAIN]
+            {
+                address: ticket1.address,
+                role: ParticipantRole.PLAYER
+            },
+            {
+                address: mainNode.address.toString('hex'),
+                role: ParticipantRole.MAIN
+            }
         );
 
-        chosenNodes.forEach(e => participants.push([e.address.toString('hex'), ParticipantRole.OBSERVER]))
+        chosenNodes.forEach(e => participants.push(
+            {
+                address: e.address.toString('hex'),
+                role: ParticipantRole.OBSERVER
+            }
+        ));
 
         matchData.push({
             Id: ticket1.address
         });
 
         if (ticket2) {
-            participants.push([ticket2.address, ParticipantRole.PLAYER]);
+            participants.push(
+                {
+                    address: ticket2.address,
+                    role: ParticipantRole.PLAYER
+                }
+            );
             matchData.push({
                 Id: ticket2.address
             });

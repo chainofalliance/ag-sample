@@ -1,6 +1,7 @@
-export type Participant = [
-    string, ParticipantRole
-];
+export type Participant = {
+    address: string,
+    role: ParticipantRole
+};
 
 export type MatchData = {
     Id: string;
