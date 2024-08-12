@@ -7,6 +7,7 @@ using Models;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public static class MatchmakingServiceFactory
 {
@@ -25,24 +26,24 @@ public static class MatchmakingServiceFactory
 
 public interface IMatchmakingService
 {
-    Task<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
+    UniTask<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
         CreateMatchmakingTicketRequest request,
         CancellationToken ct
     );
-    Task<GetMatchmakingTicketResult> GetMatchmakingTicket(
+    UniTask<GetMatchmakingTicketResult> GetMatchmakingTicket(
         GetMatchmakingTicketRequest request,
         CancellationToken ct
     );
-    Task<GetMatchResult> GetMatch(
+    UniTask<GetMatchResult> GetMatch(
         GetMatchRequest request,
         CancellationToken ct
     );
-    Task<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
+    UniTask<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
         CancelMatchmakingTicketRequest request,
         CancellationToken ct
     );
 
-    Task<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
+    UniTask<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
         CancelAllMatchmakingTicketsForPlayerRequest request,
         CancellationToken ct
     );
@@ -57,7 +58,7 @@ public class MatchmakingService : IMatchmakingService
         this.baseUri = baseUri;
     }
 
-    public Task<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
+    public UniTask<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
         CreateMatchmakingTicketRequest request,
         CancellationToken ct
     )
@@ -65,7 +66,7 @@ public class MatchmakingService : IMatchmakingService
         return HandleRequest<CreateMatchmakingTicketResult>(request, ct);
     }
 
-    public Task<GetMatchmakingTicketResult> GetMatchmakingTicket(
+    public UniTask<GetMatchmakingTicketResult> GetMatchmakingTicket(
         GetMatchmakingTicketRequest request,
         CancellationToken ct
     )
@@ -73,7 +74,7 @@ public class MatchmakingService : IMatchmakingService
         return HandleRequest<GetMatchmakingTicketResult>(request, ct);
     }
 
-    public Task<GetMatchResult> GetMatch(
+    public UniTask<GetMatchResult> GetMatch(
         GetMatchRequest request,
         CancellationToken ct
     )
@@ -81,7 +82,7 @@ public class MatchmakingService : IMatchmakingService
         return HandleRequest<GetMatchResult>(request, ct);
     }
 
-    public Task<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
+    public UniTask<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
         CancelMatchmakingTicketRequest request,
         CancellationToken ct
     )
@@ -89,7 +90,7 @@ public class MatchmakingService : IMatchmakingService
         return HandleRequest<CancelMatchmakingTicketResult>(request, ct);
     }
 
-    public Task<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
+    public UniTask<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
         CancelAllMatchmakingTicketsForPlayerRequest request,
         CancellationToken ct
     )
@@ -98,7 +99,7 @@ public class MatchmakingService : IMatchmakingService
     }
 
 
-    private async Task<T> HandleRequest<T>(
+    private async UniTask<T> HandleRequest<T>(
         BaseRequest requestBody,
         CancellationToken ct
     ) where T : BaseResult, new()
@@ -115,7 +116,7 @@ public class MatchmakingService : IMatchmakingService
         }
     }
 
-    private async Task<UnityWebRequest> SendRequest(UnityWebRequest request, CancellationToken ct)
+    private async UniTask<UnityWebRequest> SendRequest(UnityWebRequest request, CancellationToken ct)
     {
         _ = request.SendWebRequest();
 
@@ -255,26 +256,26 @@ namespace Models
 
 public class MockMatchmakingService : IMatchmakingService
 {
-    public Task<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
+    public UniTask<CreateMatchmakingTicketResult> CreateMatchmakingTicket(
         CreateMatchmakingTicketRequest request,
         CancellationToken ct
     )
     {
         Debug.Log("Mock CreateMatchmakingTicket...");
-        return Task.FromResult(new CreateMatchmakingTicketResult()
+        return UniTask.FromResult(new CreateMatchmakingTicketResult()
         {
             TicketId = "mock-ticket-id",
             Error = false,
         });
     }
 
-    public Task<GetMatchmakingTicketResult> GetMatchmakingTicket(
+    public UniTask<GetMatchmakingTicketResult> GetMatchmakingTicket(
         GetMatchmakingTicketRequest request,
         CancellationToken ct
     )
     {
         Debug.Log("Mock GetMatchmakingTicket...");
-        return Task.FromResult(new GetMatchmakingTicketResult()
+        return UniTask.FromResult(new GetMatchmakingTicketResult()
         {
             TicketId = "mock-ticket-id",
             CreatedAtTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -284,13 +285,13 @@ public class MockMatchmakingService : IMatchmakingService
         });
     }
 
-    public Task<GetMatchResult> GetMatch(
+    public UniTask<GetMatchResult> GetMatch(
         GetMatchRequest request,
         CancellationToken ct
     )
     {
         Debug.Log("Mock GetMatch...");
-        return Task.FromResult(new GetMatchResult()
+        return UniTask.FromResult(new GetMatchResult()
         {
             MatchId = "mock-match-id",
             MatchedAtTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
@@ -305,26 +306,26 @@ public class MockMatchmakingService : IMatchmakingService
     }
 
 
-    public Task<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
+    public UniTask<CancelMatchmakingTicketResult> CancelMatchmakingTicket(
         CancelMatchmakingTicketRequest request,
         CancellationToken ct
     )
     {
         Debug.Log("Mock CancelMatchmakingTicket...");
-        return Task.FromResult(new CancelMatchmakingTicketResult()
+        return UniTask.FromResult(new CancelMatchmakingTicketResult()
         {
             Error = false
         });
 
     }
 
-    public Task<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
+    public UniTask<CancelAllMatchmakingTicketsForPlayerResult> CancelAllMatchmakingTicketsForPlayer(
         CancelAllMatchmakingTicketsForPlayerRequest request,
         CancellationToken ct
     )
     {
         Debug.Log("Mock CancelAllMatchmakingTicketsForPlayer...");
-        return Task.FromResult(new CancelAllMatchmakingTicketsForPlayerResult()
+        return UniTask.FromResult(new CancelAllMatchmakingTicketsForPlayerResult()
         {
             Error = false
         });

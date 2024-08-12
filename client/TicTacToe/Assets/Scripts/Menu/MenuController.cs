@@ -117,7 +117,7 @@ public class MenuController
             return 5172;
         }
 
-        const int RETRIES = 5;
+        const int RETRIES = 10;
         var route = new Uri(serverUrl, $"/dapp/session/get-port/{matchId}");
         var client = new HttpClient();
 
@@ -131,7 +131,7 @@ public class MenuController
             catch (Exception)
             {
                 tries++;
-                await UniTask.Delay(1000, cancellationToken: ct);
+                await UniTask.Delay(2000, cancellationToken: ct);
             }
         }
         return 0;

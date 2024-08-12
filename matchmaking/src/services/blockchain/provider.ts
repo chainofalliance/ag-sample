@@ -7,8 +7,6 @@ export function getProvider() {
     if (!signatureProvider) {
         const privKey = DAPP_PRIVATE_KEY;
         signatureProvider = newSignatureProvider({ privKey: privKey });
-    } else {
-        throw new Error("creating admin signature provider");
     }
 
     return signatureProvider;
