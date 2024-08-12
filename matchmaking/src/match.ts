@@ -8,5 +8,6 @@ export interface Match {
 export interface MatchDetails {
     id: string,
     serverDetails: string,
-    createdAt: number
+    createdAt: number,
+    opponent: string
 }

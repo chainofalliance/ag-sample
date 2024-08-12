@@ -214,13 +214,17 @@ export class PostgresService {
     }
 
     public async getMatch(id: string, address: string): Promise<MatchDetails | null> {
-        var result = await PostgresService.client.query(`SELECT id, created_at, server_details FROM ${this.matchTable} WHERE id = $1 AND (home_player = $2 OR away_player = $2)`, [
-            id,
-            address
-        ]);
+        var result = await PostgresService.client.query(`
+            SELECT id, created_at, server_details, home_player, away_player
+            FROM ${this.matchTable}
+            WHERE id = $1 AND (home_player = $2 OR away_player = $2)`
+            , [
+                id,
+                address
+            ]);
         if (result.rows.length == 0)
             return null;
-        return this.queryToMatchDetails(result.rows[0]!);
+        return this.queryToMatchDetails(result.rows[0]!, address);
     }
 
     private async doesTableExist(name: string) {
@@ -241,11 +245,14 @@ export class PostgresService {
         return ticket;
     }
 
-    private queryToMatchDetails(values: Value[]): MatchDetails {
+    private queryToMatchDetails(values: Value[], address: string): MatchDetails {
+        var p1 = values[3] as string;
+        var p2 = values[4] as string;
         return {
             id: values[0] as string,
             createdAt: Number(values[1]),
-            serverDetails: values[2] as string
+            serverDetails: values[2] as string,
+            opponent: p1 == address ? p2 : p1
         };
     }
 
