@@ -152,7 +152,7 @@ export class PostgresService {
     }
 
     public async cancelTicket(ticket: Ticket): Promise<boolean> {
-        let result = await PostgresService.client.query(`UPDATE public.${this.ticketTable} SET state = $1 WHERE id = $2 AND state = $3`, [
+        let result = await PostgresService.client.query(`UPDATE ${this.ticketTable} SET state = $1 WHERE id = $2 AND state = $3`, [
             TicketState.Cancelled as number,
             ticket.id,
             TicketState.Open as number
@@ -191,8 +191,7 @@ export class PostgresService {
     }
 
     public async addMatch(match: Match, home: Ticket, away: Ticket | null): Promise<boolean> {
-        PostgresService.client.query(`begin`);
-        PostgresService.client.query(`
+        var result = await PostgresService.client.query(`
             INSERT INTO ${this.matchTable}
             (id, created_at, server_details, home_player, away_player)
             VALUES
@@ -204,12 +203,6 @@ export class PostgresService {
                 home.address,
                 away?.address ?? null
             ]);
-        PostgresService.client.query(`UPDATE ${this.ticketTable} SET state = $1 WHERE id = $2 OR id = $3`, [
-            TicketState.Matched as number,
-            home.id,
-            away?.id ?? null
-        ]);
-        var result = await PostgresService.client.query(`commit`);
         return result.status != 'INSERT 0';
     }
 

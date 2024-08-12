@@ -44,12 +44,12 @@ function match() {
 
         // if (ticket.checkFallback()) {
         //     log('info', `Start AI match for ${ticket.id}`);
-        //     resolve(ticket);
+        //     resolve(ticket, null);
         // }
     }
 }
 
-async function resolve(ticket1: Ticket, ticket2: Ticket | null = null) {
+async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
     try {
         ticket1.waitForServer();
         ticket2?.waitForServer();
