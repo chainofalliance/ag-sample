@@ -22,14 +22,4 @@ namespace Leaderboard {
 
         return res;
     }
-
-
-    operation __icmf_message(sender: byte_array, topic: text, body: gtv) {
-        val rewards = list<s_reward>.from_gtv(body);
-
-        for(i in rewards) {
-            val entry = ensure(i.player);
-            entry.points += i.points;
-        }
-    }
 }
