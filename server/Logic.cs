@@ -141,7 +141,7 @@ internal class Logic
                 };
 
             }
-            onEnd?.Invoke(winnerPlayer?.Address);
+            onEnd?.Invoke(blockchainReward);
 
         }
         catch (WebSocketException) { }
