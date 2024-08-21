@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 
 using Models;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
@@ -123,7 +122,7 @@ public class MatchmakingService : IMatchmakingService
         while (!request.isDone)
         {
             ct.ThrowIfCancellationRequested();
-            await Task.Yield();
+            await UniTask.Yield();
         }
 
         return request;

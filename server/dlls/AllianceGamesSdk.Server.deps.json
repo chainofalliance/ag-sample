@@ -288,7 +288,6 @@
       "AllianceGamesSdk.Common/1.0.0": {
         "dependencies": {
           "Google.Protobuf": "3.27.2",
-          "Grpc.Net.Client": "2.64.0",
           "Grpc.Net.Common": "2.64.0",
           "PostchainClient": "0.6.5",
           "Serilog": "4.0.0",
@@ -297,7 +296,10 @@
           "System.Threading.Channels": "8.0.0"
         },
         "runtime": {
-          "AllianceGamesSdk.Common.dll": {}
+          "AllianceGamesSdk.Common.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }

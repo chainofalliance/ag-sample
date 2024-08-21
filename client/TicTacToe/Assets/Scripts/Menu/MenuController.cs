@@ -47,7 +47,9 @@ public class MenuController
 
     private async void OnLogin(string privKey)
     {
+        view.SetInfo("Logging in...");
         await blockchain.Login(privKey);
+        view.SetInfo("Syncing points...");
         await SyncPoints();
     }
 

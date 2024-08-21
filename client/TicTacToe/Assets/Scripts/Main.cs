@@ -1,10 +1,12 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class Main : MonoBehaviour
 {
-    public static bool MOCK = false;
+    public static bool MOCK = true;
 
     [SerializeField]
     private UIDocument mainDocument;
@@ -18,14 +20,25 @@ public class Main : MonoBehaviour
     private MenuController menuController;
     private GameController gameController;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void InitializeSynchronizationContext()
+    {
+        SynchronizationContext.SetSynchronizationContext(null);
+    }
+#endif
+
     private void Start()
     {
         root = mainDocument.rootVisualElement;
 
         menu = mainDocument.rootVisualElement.Q<VisualElement>("Menu");
         game = mainDocument.rootVisualElement.Q<VisualElement>("Game");
-
+        
         blockchain = BlockchainFactory.Get();
+#if ENABLE_IL2CPP
+        blockchain.AotTypeEnforce();
+#endif
         var menuView = new MenuView(menu);
         menuController = new MenuController(
             menuView,
@@ -59,7 +72,6 @@ public class Main : MonoBehaviour
             opponent
         );
     }
-
 
     private async void OnEndGame()
     {

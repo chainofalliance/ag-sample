@@ -11,7 +11,6 @@ using TicTacToe = AllianceGames.Sample.TicTacToe.Grpc.TicTacToeService.TicTacToe
 using RequestOneofCase = AllianceGames.Sample.TicTacToe.Grpc.Request.RequestOneofCase;
 using System.Linq;
 using Grpc.Net.Client;
-using System.Threading.Tasks;
 
 public class GameController
 {

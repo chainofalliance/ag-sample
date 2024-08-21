@@ -1,5 +1,7 @@
 using Chromia;
 using Cysharp.Threading.Tasks;
+using Chromia.Encoding;
+using Newtonsoft.Json.Utilities;
 
 using Buffer = Chromia.Buffer;
 
@@ -17,7 +19,7 @@ public static class BlockchainFactory
 
 public class Blockchain
 {
-    public SignatureProvider SignatureProvider { get; private set; }
+    public SignatureProvider SignatureProvider { get; set; }
 
     private ChromiaClient client;
 
@@ -28,11 +30,15 @@ public class Blockchain
     {
         this.nodeUrl = nodeUrl;
         this.chainId = chainId;
+
     }
 
     public async UniTask Login(string privKey)
     {
+        UnityEngine.Debug.Log("Creating Chromia Client...");
+        ChromiaClient.SetTransport(new UnityTransport());
         client = await ChromiaClient.Create(nodeUrl, chainId);
+        UnityEngine.Debug.Log("Creating SignatureProvider...");
         SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));
     }
 
@@ -42,5 +48,11 @@ public class Blockchain
             "ttt.ILeaderboard.get_points",
             ("pubkey", pubKey != null ? Buffer.From(pubKey) : SignatureProvider.PubKey)
         );
+    }
+
+    public void AotTypeEnforce()
+    {
+        AotHelper.EnsureType<BufferConverter>();
+        AotHelper.EnsureType<BigIntegerConverter>();
     }
 }

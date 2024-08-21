@@ -48,6 +48,13 @@ public class MenuView
 
         playButton.SetEnabled(false);
         cancelButton.SetEnabled(false);
+
+#if UNITY_EDITOR
+        var privKey = "1111111111111111111111111111111111111111111111111111111111111111";
+#else
+        var privKey = "2222222222222222222222222222222222222222222222222222222222222222";
+#endif
+        privKeyInput.SetValueWithoutNotify(privKey);
     }
 
     public void SetVisible(
