@@ -11,11 +11,10 @@
         "dependencies": {
           "AllianceGamesSdk.Common": "1.0.0",
           "Google.Protobuf": "3.27.2",
+          "Grpc.Net.Client": "2.64.0",
           "PostchainClient": "0.6.5",
           "Serilog": "4.0.0",
-          "System.Threading.Channels": "8.0.0",
-          "Grpc.Net.Client": "2.0.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "3.0.3.0"
+          "System.Threading.Channels": "8.0.0"
         },
         "runtime": {
           "AllianceGamesSdk.Client.dll": {}
@@ -41,6 +40,19 @@
           }
         }
       },
+      "Grpc.Net.Client/2.64.0": {
+        "dependencies": {
+          "Grpc.Net.Common": "2.64.0",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "System.Diagnostics.DiagnosticSource": "8.0.1"
+        },
+        "runtime": {
+          "lib/netstandard2.1/Grpc.Net.Client.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.64.0.0"
+          }
+        }
+      },
       "Grpc.Net.Common/2.64.0": {
         "dependencies": {
           "Grpc.Core.Api": "2.64.0"
@@ -49,6 +61,18 @@
           "lib/netstandard2.1/Grpc.Net.Common.dll": {
             "assemblyVersion": "2.0.0.0",
             "fileVersion": "2.64.0.0"
+          }
+        }
+      },
+      "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
+        "dependencies": {
+          "System.Buffers": "4.5.1",
+          "System.Memory": "4.5.5"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.52210"
           }
         }
       },
@@ -174,6 +198,7 @@
       "AllianceGamesSdk.Common/1.0.0": {
         "dependencies": {
           "Google.Protobuf": "3.27.2",
+          "Grpc.Net.Client": "2.64.0",
           "Grpc.Net.Common": "2.64.0",
           "PostchainClient": "0.6.5",
           "Serilog": "4.0.0",
@@ -185,22 +210,6 @@
           "AllianceGamesSdk.Common.dll": {
             "assemblyVersion": "1.0.0",
             "fileVersion": "1.0.0.0"
-          }
-        }
-      },
-      "Grpc.Net.Client/2.0.0.0": {
-        "runtime": {
-          "Grpc.Net.Client.dll": {
-            "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.37.0.0"
-          }
-        }
-      },
-      "Microsoft.Extensions.Logging.Abstractions/3.0.3.0": {
-        "runtime": {
-          "Microsoft.Extensions.Logging.Abstractions.dll": {
-            "assemblyVersion": "3.0.3.0",
-            "fileVersion": "3.0.320.7202"
           }
         }
       }
@@ -226,12 +235,26 @@
       "path": "grpc.core.api/2.64.0",
       "hashPath": "grpc.core.api.2.64.0.nupkg.sha512"
     },
+    "Grpc.Net.Client/2.64.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-48sLEzEyAi3sIxunCPlz6st3WDUtD3fwya4lv9eeNrkLqs/qo4AosImYsMleS638ShQ9DD4s9DAfyQW3k4LgZQ==",
+      "path": "grpc.net.client/2.64.0",
+      "hashPath": "grpc.net.client.2.64.0.nupkg.sha512"
+    },
     "Grpc.Net.Common/2.64.0": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-j0L9suu8a81/TuJmb6UgeZ/MHrYVjzI4clEYTOgAyA5P1onOkNMQkyMWSP+YwKLDYVIt0tmODK+yaau9Lgobpg==",
       "path": "grpc.net.common/2.64.0",
       "hashPath": "grpc.net.common.2.64.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/HggWBbTwy8TgebGSX5DBZ24ndhzi93sHUBDvP1IxbZD7FDokYzdAr6+vbWGjw2XAfR2EJ1sfKUotpjHnFWPxA==",
+      "path": "microsoft.extensions.logging.abstractions/6.0.0",
+      "hashPath": "microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512"
     },
     "NBitcoin.Secp256k1/3.1.5": {
       "type": "package",
@@ -319,16 +342,6 @@
     },
     "AllianceGamesSdk.Common/1.0.0": {
       "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Grpc.Net.Client/2.0.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Microsoft.Extensions.Logging.Abstractions/3.0.3.0": {
-      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }

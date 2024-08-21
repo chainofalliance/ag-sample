@@ -1,7 +1,8 @@
 {
     "name": "GrpcWebSocketBridge",
-    "rootNamespace": "",
-    "references": [],
+    "references": [
+        "UniTask"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
