@@ -23,19 +23,4 @@ namespace Leaderboard {
 
         return res;
     }
-
-    @extend(receive_icmf_message) function(sender: byte_array, topic: text, body: gtv) {
-        if(topic != "L_ttt_result") {
-            log("received message on unknown topic: ", topic);
-            return;
-        }
-
-        val rewards = list<s_reward>.from_gtv(body);
-
-        for(i in rewards) {
-            log("incrementing points for ", i.player, " by ", i.points);
-            val entry = ensure(i.player);
-            entry.points += i.points;
-        }
-    }
 }
