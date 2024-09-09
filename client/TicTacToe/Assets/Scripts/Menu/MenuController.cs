@@ -98,6 +98,12 @@ public class MenuController
         }, cts.Token);
 
         var node = new UriBuilder(match.ServerDetails);
+        // fix docker network mapping
+        if (node.Host == "host.docker.internal")
+        {
+            node.Host = "localhost";
+        }
+
         var opponent = match.OpponentId;
         view.SetInfo($"Playing against {opponent}, connecting to {node}...");
         var port = await GetGamePort(node.Uri, matchId, cts.Token);
@@ -137,7 +143,8 @@ public class MenuController
                 await UniTask.Delay(2000, cancellationToken: ct);
             }
         }
-        return 0;
+        
+        throw new Exception("Failed to get game port");
     }
 
     private void OnCancel()

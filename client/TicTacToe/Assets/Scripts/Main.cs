@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 public class Main : MonoBehaviour
 {
-    public static bool MOCK = true;
+    public static bool MOCK = false;
 
     [SerializeField]
     private UIDocument mainDocument;
