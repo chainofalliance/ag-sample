@@ -1,4 +1,4 @@
 module;
 
-import lib.icmf.*;
+import lib.icmf.receiver.*;
 import ttt.*;
