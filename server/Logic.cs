@@ -4,7 +4,6 @@ using AllianceGamesSdk.Common;
 using Grpc.Core;
 using Serilog;
 using System.Net.WebSockets;
-using System.Reflection;
 using System.Threading.Channels;
 
 internal class Logic

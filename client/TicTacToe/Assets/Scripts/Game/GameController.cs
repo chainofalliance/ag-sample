@@ -7,6 +7,7 @@ using Grpc.Core;
 using System.Collections.Generic;
 using GrpcWebSocketBridge.Client;
 
+using TicTacToeGrpc = AllianceGames.Sample.TicTacToe.Grpc;
 using TicTacToe = AllianceGames.Sample.TicTacToe.Grpc.TicTacToeService.TicTacToeServiceClient;
 using RequestOneofCase = AllianceGames.Sample.TicTacToe.Grpc.Request.RequestOneofCase;
 using System.Linq;
@@ -96,7 +97,7 @@ public class GameController
 
             view.SetInfo("Creating grpc service...");
             service = client.CreateService<TicTacToe>();
-            SetupRpcStream();
+            await SetupRpcStream();
 
             view.SetInfo("Sending request to get player data...");
             var response = service.GetPlayerData(new Empty());
@@ -132,10 +133,10 @@ public class GameController
         OnEndGame?.Invoke();
     }
 
-    private void SetupRpcStream()
+    private async UniTask SetupRpcStream()
     {
         view.SetInfo("Setting up rpc streams...");
-        var response = service.ServerRequests(cancellationToken: cts.Token);
+        var rpcStream = await CreateRpcStream();
 
         RpcTask().Forget();
 
@@ -143,7 +144,7 @@ public class GameController
         {
             try
             {
-                await foreach (var msg in response.ResponseStream.ReadAllAsync(cts.Token))
+                await foreach (var msg in rpcStream.ResponseStream.ReadAllAsync(cts.Token))
                 {
                     view.SetInfo($"Received {msg.RequestCase} message...");
                     switch (msg.RequestCase)
@@ -158,7 +159,7 @@ public class GameController
                             {
                                 turn = new UniTaskCompletionSource<int>();
                                 var idx = await turn.Task;
-                                await response.RequestStream.WriteAsync(new()
+                                await rpcStream.RequestStream.WriteAsync(new()
                                 {
                                     MakeMove = new()
                                     {
@@ -179,5 +180,37 @@ public class GameController
             } 
             catch (OperationCanceledException) { }
         }
+    }
+
+    private async UniTask<AsyncDuplexStreamingCall<TicTacToeGrpc.Response, TicTacToeGrpc.Request>> CreateRpcStream()
+    {
+        AsyncDuplexStreamingCall<TicTacToeGrpc.Response, TicTacToeGrpc.Request> rpcStream 
+            = service.ServerRequests(cancellationToken: cts.Token);
+
+        bool connected = false;
+        int retries = 0;
+        while (!connected)
+        {
+            if (retries > 5)
+            {
+                view.SetInfo("Failed to connect to server.");
+                throw new Exception("Failed to connect to server.");
+            }
+
+            try
+            {
+                await rpcStream.ResponseHeadersAsync;
+                connected = true;
+            }
+            catch (Exception)
+            {
+                rpcStream = service.ServerRequests(cancellationToken: cts.Token);
+            }
+
+            retries++;
+            await UniTask.Delay(500);
+        }
+
+        return rpcStream;
     }
 }
