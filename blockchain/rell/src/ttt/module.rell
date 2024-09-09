@@ -11,18 +11,3 @@ namespace Ft4 {
     import lib.ft4.assets.{asset, balance, get_asset_balances, format_amount_with_decimals,
         Unsafe.register_asset, increase_balance, deduct_balance};
 }
-
-operation __icmf_message(sender: byte_array, topic: text, body: gtv) {
-    if(topic != "L_ttt_result") {
-        log("received message on unknown topic: ", topic);
-        return;
-    }
-
-    val rewards = list<Leaderboard.s_reward>.from_gtv(body);
-
-    for(i in rewards) {
-        log("incrementing points for ", i.player, " by ", i.points);
-        val entry = Leaderboard.ensure(i.player);
-        entry.points += i.points;
-    }
-}

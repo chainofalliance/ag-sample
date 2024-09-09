@@ -1,7 +1,6 @@
 module;
 
 import ^.*;
-import lib.icmf.receiver.*;
 
 namespace Leaderboard {
     struct s_reward {
