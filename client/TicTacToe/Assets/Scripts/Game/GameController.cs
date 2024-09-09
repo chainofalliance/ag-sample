@@ -57,9 +57,10 @@ public class GameController
                 turn.TrySetResult(idx);
             }
         };
-        view.OnClickBack += async () =>
+        view.OnClickBack += () =>
         {
-            await Forfeit(OnEndGame);
+            Forfeit().Forget();
+            OnEndGame?.Invoke();
         };
     }
 
@@ -122,15 +123,13 @@ public class GameController
         catch (OperationCanceledException) { }
     }
 
-    public async UniTask Forfeit(Action OnEndGame)
+    public async UniTask Forfeit()
     {
         if (!cts.IsCancellationRequested)
         {
             await service.ForfeitAsync(new Empty(), cancellationToken: cts.Token);
             cts?.Cancel();
         }
-
-        OnEndGame?.Invoke();
     }
 
     private async UniTask SetupRpcStream()
@@ -172,6 +171,7 @@ public class GameController
                         case RequestOneofCase.GameOver:
                             view.SetInfo($"{msg.GameOver.Winner} has won!");
                             view.SetBoard(msg.GameOver.Squares.ToList());
+                            cts.Cancel();
                             return;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -187,9 +187,8 @@ public class GameController
         AsyncDuplexStreamingCall<TicTacToeGrpc.Response, TicTacToeGrpc.Request> rpcStream 
             = service.ServerRequests(cancellationToken: cts.Token);
 
-        bool connected = false;
         int retries = 0;
-        while (!connected)
+        while (true)
         {
             if (retries > 5)
             {
@@ -200,15 +199,13 @@ public class GameController
             try
             {
                 await rpcStream.ResponseHeadersAsync;
-                connected = true;
+                break;
             }
             catch (Exception)
             {
-                rpcStream = service.ServerRequests(cancellationToken: cts.Token);
+                retries++;
+                await UniTask.Delay(500);
             }
-
-            retries++;
-            await UniTask.Delay(500);
         }
 
         return rpcStream;
