@@ -4,8 +4,6 @@ module;
 import .api.*;
 import .core.*;
 
-import lib.icmf.*;
-
 namespace Ft4 {
     import lib.ft4.admin.{require_admin};
     import lib.ft4.core.accounts.{account, auth_descriptor, create_account_with_auth, auth_descriptor_signer};
