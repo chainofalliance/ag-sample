@@ -4,9 +4,7 @@ module;
 import .api.*;
 import .core.*;
 
-namespace icmf {
-    import lib.icmf.*;
-}
+import lib.icmf.*;
 
 namespace Ft4 {
     import lib.ft4.admin.{require_admin};
