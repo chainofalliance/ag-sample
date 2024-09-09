@@ -8,6 +8,7 @@ package core;
 service TicTacToeService {
     rpc GetPlayerData(google.protobuf.Empty) returns (stream PlayerData);
     rpc ServerRequests (stream Response) returns (stream Request);
+    rpc Forfeit (google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message PlayerData {

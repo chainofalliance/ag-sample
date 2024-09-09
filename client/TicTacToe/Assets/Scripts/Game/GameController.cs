@@ -56,10 +56,9 @@ public class GameController
                 turn.TrySetResult(idx);
             }
         };
-        view.OnClickBack += () =>
+        view.OnClickBack += async () =>
         {
-            cts?.Cancel();
-            OnEndGame?.Invoke();
+            await Forfeit(OnEndGame);
         };
     }
 
@@ -122,10 +121,21 @@ public class GameController
         catch (OperationCanceledException) { }
     }
 
+    public async UniTask Forfeit(Action OnEndGame)
+    {
+        if (!cts.IsCancellationRequested)
+        {
+            await service.ForfeitAsync(new Empty(), cancellationToken: cts.Token);
+            cts?.Cancel();
+        }
+
+        OnEndGame?.Invoke();
+    }
+
     private void SetupRpcStream()
     {
         view.SetInfo("Setting up rpc streams...");
-        var response = service.ServerRequests();
+        var response = service.ServerRequests(cancellationToken: cts.Token);
 
         RpcTask().Forget();
 

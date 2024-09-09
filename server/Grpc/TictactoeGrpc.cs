@@ -70,6 +70,14 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
         __Marshaller_core_Response,
         __Marshaller_core_Request);
 
+    [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+    static readonly grpc::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Empty> __Method_Forfeit = new grpc::Method<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Empty>(
+        grpc::MethodType.Unary,
+        __ServiceName,
+        "Forfeit",
+        __Marshaller_google_protobuf_Empty,
+        __Marshaller_google_protobuf_Empty);
+
     /// <summary>Service descriptor</summary>
     public static global::Google.Protobuf.Reflection.ServiceDescriptor Descriptor
     {
@@ -88,6 +96,12 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
 
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       public virtual global::System.Threading.Tasks.Task ServerRequests(grpc::IAsyncStreamReader<global::AllianceGames.Sample.TicTacToe.Grpc.Response> requestStream, grpc::IServerStreamWriter<global::AllianceGames.Sample.TicTacToe.Grpc.Request> responseStream, grpc::ServerCallContext context)
+      {
+        throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
+      }
+
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::System.Threading.Tasks.Task<global::Google.Protobuf.WellKnownTypes.Empty> Forfeit(global::Google.Protobuf.WellKnownTypes.Empty request, grpc::ServerCallContext context)
       {
         throw new grpc::RpcException(new grpc::Status(grpc::StatusCode.Unimplemented, ""));
       }
@@ -141,6 +155,26 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
       {
         return CallInvoker.AsyncDuplexStreamingCall(__Method_ServerRequests, null, options);
       }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty Forfeit(global::Google.Protobuf.WellKnownTypes.Empty request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return Forfeit(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual global::Google.Protobuf.WellKnownTypes.Empty Forfeit(global::Google.Protobuf.WellKnownTypes.Empty request, grpc::CallOptions options)
+      {
+        return CallInvoker.BlockingUnaryCall(__Method_Forfeit, null, options, request);
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.Empty> ForfeitAsync(global::Google.Protobuf.WellKnownTypes.Empty request, grpc::Metadata headers = null, global::System.DateTime? deadline = null, global::System.Threading.CancellationToken cancellationToken = default(global::System.Threading.CancellationToken))
+      {
+        return ForfeitAsync(request, new grpc::CallOptions(headers, deadline, cancellationToken));
+      }
+      [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
+      public virtual grpc::AsyncUnaryCall<global::Google.Protobuf.WellKnownTypes.Empty> ForfeitAsync(global::Google.Protobuf.WellKnownTypes.Empty request, grpc::CallOptions options)
+      {
+        return CallInvoker.AsyncUnaryCall(__Method_Forfeit, null, options, request);
+      }
       /// <summary>Creates a new instance of client from given <c>ClientBaseConfiguration</c>.</summary>
       [global::System.CodeDom.Compiler.GeneratedCode("grpc_csharp_plugin", null)]
       protected override TicTacToeServiceClient NewInstance(ClientBaseConfiguration configuration)
@@ -156,7 +190,8 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
     {
       return grpc::ServerServiceDefinition.CreateBuilder()
           .AddMethod(__Method_GetPlayerData, serviceImpl.GetPlayerData)
-          .AddMethod(__Method_ServerRequests, serviceImpl.ServerRequests).Build();
+          .AddMethod(__Method_ServerRequests, serviceImpl.ServerRequests)
+          .AddMethod(__Method_Forfeit, serviceImpl.Forfeit).Build();
     }
 
     /// <summary>Register service method with a service binder with or without implementation. Useful when customizing the service binding logic.
@@ -168,6 +203,7 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
     {
       serviceBinder.AddMethod(__Method_GetPlayerData, serviceImpl == null ? null : new grpc::ServerStreamingServerMethod<global::Google.Protobuf.WellKnownTypes.Empty, global::AllianceGames.Sample.TicTacToe.Grpc.PlayerData>(serviceImpl.GetPlayerData));
       serviceBinder.AddMethod(__Method_ServerRequests, serviceImpl == null ? null : new grpc::DuplexStreamingServerMethod<global::AllianceGames.Sample.TicTacToe.Grpc.Response, global::AllianceGames.Sample.TicTacToe.Grpc.Request>(serviceImpl.ServerRequests));
+      serviceBinder.AddMethod(__Method_Forfeit, serviceImpl == null ? null : new grpc::UnaryServerMethod<global::Google.Protobuf.WellKnownTypes.Empty, global::Google.Protobuf.WellKnownTypes.Empty>(serviceImpl.Forfeit));
     }
 
   }

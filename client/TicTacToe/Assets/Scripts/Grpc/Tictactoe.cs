@@ -34,11 +34,12 @@ namespace AllianceGames.Sample.TicTacToe.Grpc {
             "IjMKDk5ld1R1cm5SZXF1ZXN0EhAKCHlvdV90dXJuGAEgASgIEg8KB3NxdWFy",
             "ZXMYAiADKAUiQgoPR2FtZU92ZXJSZXF1ZXN0Eg4KBndpbm5lchgBIAEoCRIP",
             "CgdzcXVhcmVzGAIgAygFEg4KBnBvaW50cxgDIAEoBSIiChBNYWtlTW92ZVJl",
-            "c3BvbnNlEg4KBnNxdWFyZRgBIAEoBTKEAQoQVGljVGFjVG9lU2VydmljZRI7",
+            "c3BvbnNlEg4KBnNxdWFyZRgBIAEoBTK/AQoQVGljVGFjVG9lU2VydmljZRI7",
             "Cg1HZXRQbGF5ZXJEYXRhEhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5GhAuY29y",
             "ZS5QbGF5ZXJEYXRhMAESMwoOU2VydmVyUmVxdWVzdHMSDi5jb3JlLlJlc3Bv",
-            "bnNlGg0uY29yZS5SZXF1ZXN0KAEwAUImqgIjQWxsaWFuY2VHYW1lcy5TYW1w",
-            "bGUuVGljVGFjVG9lLkdycGNiBnByb3RvMw=="));
+            "bnNlGg0uY29yZS5SZXF1ZXN0KAEwARI5CgdGb3JmZWl0EhYuZ29vZ2xlLnBy",
+            "b3RvYnVmLkVtcHR5GhYuZ29vZ2xlLnByb3RvYnVmLkVtcHR5QiaqAiNBbGxp",
+            "YW5jZUdhbWVzLlNhbXBsZS5UaWNUYWNUb2UuR3JwY2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.EmptyReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {

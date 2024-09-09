@@ -1,5 +1,6 @@
 ﻿using AllianceGames.Sample.TicTacToe.Grpc;
 using AllianceGamesSdk;
+using AllianceGamesSdk.Common;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 
@@ -9,6 +10,12 @@ internal class TicTacToeService : AllianceGames.Sample.TicTacToe.Grpc.TicTacToeS
     public TicTacToeService(Logic logic)
     {
         this.logic = logic;
+    }
+
+    public override async Task<Empty> Forfeit(Empty request, ServerCallContext context)
+    {
+        await logic.Forfeit(context.GetAddress());
+        return new Empty();
     }
 
     public override Task ServerRequests(IAsyncStreamReader<Response> requestStream, IServerStreamWriter<Request> responseStream, ServerCallContext context)

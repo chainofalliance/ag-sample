@@ -4,6 +4,7 @@ using AllianceGamesSdk.Common;
 using Grpc.Core;
 using Serilog;
 using System.Net.WebSockets;
+using System.Reflection;
 using System.Threading.Channels;
 
 internal class Logic
@@ -24,6 +25,16 @@ internal class Logic
 
     private readonly Field[,] board = new Field[3, 3];
     private Field turn = Field.Empty;
+
+    private Action<object?>? onEnd = null;
+
+    public async Task Forfeit(Chromia.Buffer address)
+    {
+        Log.Information($"Player {address.Parse()} forfeited the game");
+
+        var winnerField = players.First(p => p.Key != address.Parse()).Value.Symbol;
+        await GameOver(winnerField);
+    }
 
     public async Task ServerRequests(
         IAsyncStreamReader<Response> requestStream,
@@ -57,6 +68,8 @@ internal class Logic
 
     public async Task Run(Action<object?> onEnd)
     {
+        this.onEnd = onEnd;
+
         try
         {
             Log.Information($"Waiting for both players to connect");
@@ -109,43 +122,48 @@ internal class Logic
                 }
             }
 
-            // send game over message
-            var winnerPlayer = players.Values.First(p => p.Symbol == winner);
-            Log.Information($"Game is over, winner is {winnerPlayer?.Address}");
-            foreach (var (address, player) in players)
-            {
-                await player.Requests.WriteAsync(new Request
-                {
-                    GameOver = new GameOverRequest()
-                    {
-                        Squares = { board.Cast<Field>().Select(f => (int)f) },
-                        Winner = winnerPlayer?.Address,
-                        Points = winnerPlayer?.Address == player.Address ? 100 : 50
-                    }
-                }, CancellationToken);
-            }
-
-            object[] blockchainReward;
-            if (winnerPlayer == null)
-            {
-                blockchainReward = players
-                    .Select(p => new object[] { p.Value.PubKey, 50 })
-                    .ToArray();
-            }
-            else
-            {
-                blockchainReward = new object[]
-                {
-                    new object[]{ winnerPlayer!.PubKey, 100 },
-                    new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Value.PubKey, 50 }
-                };
-
-            }
-            onEnd?.Invoke(blockchainReward);
-
+            await GameOver(winner);
         }
         catch (WebSocketException) { }
         catch (OperationCanceledException) { }
+    }
+
+    private async Task GameOver(Field? winner)
+    {
+        var winnerPlayer = players.Values.First(p => p.Symbol == winner);
+        Log.Information($"Game is over, winner is {winnerPlayer?.Address}");
+        foreach (var (address, player) in players)
+        {
+            await player.Requests.WriteAsync(new Request
+            {
+                GameOver = new GameOverRequest()
+                {
+                    Squares = { board.Cast<Field>().Select(f => (int)f) },
+                    Winner = winnerPlayer?.Address,
+                    Points = winnerPlayer?.Address == player.Address ? 100 : 50
+                }
+            }, CancellationToken);
+        }
+
+        object[] blockchainReward;
+        if (winnerPlayer == null)
+        {
+            blockchainReward = players
+                .Select(p => new object[] { p.Value.PubKey, 50 })
+                .ToArray();
+        }
+        else
+        {
+            blockchainReward = new object[]
+            {
+                    new object[]{ winnerPlayer!.PubKey, 100 },
+                    new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Value.PubKey, 50 }
+            };
+
+        }
+
+        onEnd?.Invoke(blockchainReward);
+        onEnd = null;
     }
 
     private void InitializeBoard()
