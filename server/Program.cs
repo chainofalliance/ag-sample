@@ -8,44 +8,50 @@ using Chromia;
 
 using Buffer = Chromia.Buffer;
 
+var MOCK = true;
+
 var logger = Logger.Create("Server");
 Log.Logger = logger;
 
 var logic = new Logic();
 
-var serverPrivKey = KeyPair.GeneratePrivKey();
-var serverSigner = SignatureProvider.Create(serverPrivKey);
+Buffer? serverPrivKey = null;
+if (MOCK)
+{
+    serverPrivKey = KeyPair.GeneratePrivKey();
+    var serverSigner = SignatureProvider.Create(serverPrivKey.Value);
 
-var client1Signer = SignatureProvider.Create(Buffer.From("1111111111111111111111111111111111111111111111111111111111111111"));
-var client2Signer = SignatureProvider.Create(Buffer.From("2222222222222222222222222222222222222222222222222222222222222222"));
+    var client1Signer = SignatureProvider.Create(Buffer.From("1111111111111111111111111111111111111111111111111111111111111111"));
+    var client2Signer = SignatureProvider.Create(Buffer.From("2222222222222222222222222222222222222222222222222222222222222222"));
 
-MockEnv.SetTestMode(true);
-MockEnv.Setup(
-    "TicTacToe",
-    "mock-match-id",
-    "{}",
-    new()
-    {
+    MockEnv.SetTestMode(true);
+    MockEnv.Setup(
+        "TicTacToe",
+        "mock-match-id",
+        "{}",
         new()
         {
-            Host = "http://localhost:5172",
-            PubKey = serverSigner.PubKey,
-            Role = ParticipantRole.Main
-        },
-        new()
-        {
-            Host = "",
-            PubKey = client1Signer.PubKey,
-            Role = ParticipantRole.Player
-        },
-        new()
-        {
-            Host = "",
-            PubKey = client2Signer.PubKey,
-            Role = ParticipantRole.Player
-        },
-    }
-);
+            new()
+            {
+                Host = "http://localhost:5172",
+                PubKey = serverSigner.PubKey,
+                Role = ParticipantRole.Main
+            },
+            new()
+            {
+                Host = "",
+                PubKey = client1Signer.PubKey,
+                Role = ParticipantRole.Player
+            },
+            new()
+            {
+                Host = "",
+                PubKey = client2Signer.PubKey,
+                Role = ParticipantRole.Player
+            },
+        }
+    );
+}
 
 var builder = AllianceGamesServer.CreateBuilder(HttpProtocols.Http1AndHttp2, serverPrivKey, logger);
 builder.Services.AddSingleton(_ => logic);
