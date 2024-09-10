@@ -8,6 +8,7 @@ import { addSession } from '../services/blockchain/operations.js';
 import { ActiveNode, MatchData, Participant, ParticipantRole } from '../services/blockchain/types.js';
 import { NODES_NEEDED } from '../env.js';
 import { logger } from '../logger.js';
+import { formatter } from 'postchain-client';
 
 let postgres: PostgresService;
 
@@ -87,18 +88,21 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
 
         participants.push(
             {
-                address: ticket1.address,
+                address: "",
+                pubkey: formatter.toBuffer(ticket1.address),
                 role: ParticipantRole.PLAYER
             },
             {
-                address: mainNode.address.toString('hex'),
+                address: mainNode.url,
+                pubkey: mainNode.address,
                 role: ParticipantRole.MAIN
             }
         );
 
         chosenNodes.forEach(e => participants.push(
             {
-                address: e.address.toString('hex'),
+                address: e.url,
+                pubkey: e.address,
                 role: ParticipantRole.OBSERVER
             }
         ));
@@ -110,7 +114,8 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
         if (ticket2) {
             participants.push(
                 {
-                    address: ticket2.address,
+                    address: "",
+                    pubkey: formatter.toBuffer(ticket2.address),
                     role: ParticipantRole.PLAYER
                 }
             );

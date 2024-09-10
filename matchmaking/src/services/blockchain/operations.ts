@@ -4,7 +4,6 @@ import { getClient } from "./postchain";
 import { getProvider } from "./provider";
 import { MatchData, Participant } from "./types";
 import { DAPP_NAME, DAPP_VERSION } from "../../env";
-import { formatter } from "postchain-client";
 
 export async function addSession(sessionId: string, participants: Participant[], matchData: MatchData[]) {
     try {
@@ -15,7 +14,7 @@ export async function addSession(sessionId: string, participants: Participant[],
                 args: [
                     DAPP_NAME, DAPP_VERSION,
                     sessionId,
-                    participants.map(elem => [formatter.toBuffer(elem.address), elem.role as number]),
+                    participants.map(elem => [elem.address, elem.pubkey, elem.role as number]),
                     JSON.stringify(matchData)
                 ]
             },
