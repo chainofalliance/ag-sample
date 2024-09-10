@@ -15,7 +15,7 @@ export async function addSession(sessionId: string, participants: Participant[],
                 args: [
                     DAPP_NAME, DAPP_VERSION,
                     sessionId,
-                    participants.map(elem => [formatter.toBuffer(elem.address), elem.role as number]),
+                    participants.map(elem => [elem.pubkey, elem.role as number]),
                     JSON.stringify(matchData)
                 ]
             },

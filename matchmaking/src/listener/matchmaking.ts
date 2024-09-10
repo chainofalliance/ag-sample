@@ -87,18 +87,18 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
 
         participants.push(
             {
-                address: ticket1.address,
+                pubkey: Buffer.from(ticket1.address, 'hex'),
                 role: ParticipantRole.PLAYER
             },
             {
-                address: mainNode.address.toString('hex'),
+                pubkey: mainNode.address,
                 role: ParticipantRole.MAIN
             }
         );
 
         chosenNodes.forEach(e => participants.push(
             {
-                address: e.address.toString('hex'),
+                pubkey: e.address,
                 role: ParticipantRole.OBSERVER
             }
         ));
@@ -110,7 +110,7 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
         if (ticket2) {
             participants.push(
                 {
-                    address: ticket2.address,
+                    pubkey: Buffer.from(ticket2.address, 'hex'),
                     role: ParticipantRole.PLAYER
                 }
             );
