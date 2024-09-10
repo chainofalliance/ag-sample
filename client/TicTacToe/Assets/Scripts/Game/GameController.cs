@@ -1,4 +1,5 @@
 using AllianceGamesSdk.Client;
+using AllianceGamesSdk.Common;
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -135,7 +136,7 @@ public class GameController
     private async UniTask SetupRpcStream()
     {
         view.SetInfo("Setting up rpc streams...");
-        var rpcStream = await CreateRpcStream();
+        var rpcStream = await service.ServerRequests(cancellationToken: cts.Token).ConnectAsync(cancellationToken: cts.Token);
 
         RpcTask().Forget();
 
@@ -180,34 +181,5 @@ public class GameController
             } 
             catch (OperationCanceledException) { }
         }
-    }
-
-    private async UniTask<AsyncDuplexStreamingCall<TicTacToeGrpc.Response, TicTacToeGrpc.Request>> CreateRpcStream()
-    {
-        AsyncDuplexStreamingCall<TicTacToeGrpc.Response, TicTacToeGrpc.Request> rpcStream 
-            = service.ServerRequests(cancellationToken: cts.Token);
-
-        int retries = 0;
-        while (true)
-        {
-            if (retries > 5)
-            {
-                view.SetInfo("Failed to connect to server.");
-                throw new Exception("Failed to connect to server.");
-            }
-
-            try
-            {
-                await rpcStream.ResponseHeadersAsync;
-                break;
-            }
-            catch (Exception)
-            {
-                retries++;
-                await UniTask.Delay(500);
-            }
-        }
-
-        return rpcStream;
     }
 }
