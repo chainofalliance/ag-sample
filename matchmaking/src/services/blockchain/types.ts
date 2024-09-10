@@ -1,5 +1,5 @@
 export type Participant = {
-    pubkey: Buffer,
+    address: string,
     role: ParticipantRole
 };
 
