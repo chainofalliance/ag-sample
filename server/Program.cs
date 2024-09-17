@@ -53,7 +53,7 @@ if (MOCK)
     );
 }
 
-var builder = AllianceGamesServer.CreateBuilder(HttpProtocols.Http1AndHttp2, serverPrivKey, logger);
+var builder = AllianceGamesServer.CreateBuilder(HttpProtocols.Http1, serverPrivKey, logger);
 builder.Services.AddSingleton(_ => logic);
 builder.Services.AddCors(options =>
 {
