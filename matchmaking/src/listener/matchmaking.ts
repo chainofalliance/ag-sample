@@ -6,7 +6,7 @@ import { PostgresService } from '../postgres.js';
 import { getActiveNodes } from '../services/blockchain/queries.js';
 import { addSession } from '../services/blockchain/operations.js';
 import { ActiveNode, MatchData, Participant, ParticipantRole } from '../services/blockchain/types.js';
-import { NODES_NEEDED } from '../env.js';
+import { DAPP_VERSION, NODES_NEEDED } from '../env.js';
 import { logger } from '../logger.js';
 import { formatter } from 'postchain-client';
 
@@ -158,12 +158,13 @@ export function log(level: any, message: string): string {
 async function isNodeHealthy(node: ActiveNode) {
     const url = `${node.url}/healthz`;
     const nodeAddress = node.address.toString('hex');
+    const dappVersion = DAPP_VERSION;
     try {
         const response = await fetch(url);
 
         if (response.status == 200) {
             const json = await response.json();
-            return json.address == nodeAddress;
+            return json.address == nodeAddress && json.version == dappVersion;
         }
 
         return false;
