@@ -3,16 +3,16 @@ import { logger } from "../../logger";
 import { getClient } from "./postchain";
 import { getProvider } from "./provider";
 import { MatchData, Participant } from "./types";
-import { DAPP_NAME, DAPP_VERSION } from "../../env";
+import { DAPP_NAME } from "../../env";
 
 export async function addSession(sessionId: string, participants: Participant[], matchData: MatchData[]) {
     try {
         const client = await getClient();
         client.signAndSendUniqueTransaction(
             {
-                name: "ag.IDappProvider.add_session",
+                name: "ag.ISession.add",
                 args: [
-                    DAPP_NAME, DAPP_VERSION,
+                    DAPP_NAME,
                     sessionId,
                     participants.map(elem => [elem.address, elem.pubkey, elem.role as number]),
                     JSON.stringify(matchData)
