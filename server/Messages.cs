@@ -4,6 +4,8 @@
     {
         Forfeit,
         MoveRequest,
+        MoveResponse,
+        GameOver
     }
 
 

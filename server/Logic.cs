@@ -1,236 +1,232 @@
-﻿//using AllianceGamesSdk;
-//using AllianceGamesSdk.Server;
-//using Serilog;
-//using System.Net.WebSockets;
-//using System.Threading.Channels;
+﻿using AllianceGamesSdk.Server;
+using Chromia;
+using Newtonsoft.Json;
+using Serilog;
+using System.Net.WebSockets;
 
-//internal class Logic
-//{
-//    public enum Field
-//    {
-//        Empty,
-//        X,
-//        O
-//    }
+using Buffer = Chromia.Buffer;
 
-//    public IReadOnlyDictionary<string, Player> Players => players;
-//    public CancellationToken CancellationToken => cts.Token;
-//    private readonly CancellationTokenSource cts = new CancellationTokenSource();
-//    private readonly AllianceGamesServer server;
-//    private readonly Dictionary<string, Player> players = new();
+internal class Logic
+{
+    public enum Field
+    {
+        Empty,
+        X,
+        O
+    }
 
-//    private readonly Channel<Response> channel = Channel.CreateUnbounded<Response>();
+    public event Action<string?>? OnGameEnd;
 
-//    private readonly Field[,] board = new Field[3, 3];
-//    private Field turn = Field.Empty;
+    public CancellationToken CancellationToken => cts.Token;
+    private readonly CancellationTokenSource cts = new();
+    private readonly TaskCompletionSource connectCs = new();
+    private readonly AllianceGamesServer server;
+    private readonly List<Buffer> players = [];
 
-//    private Action<object?>? onEnd = null;
+    private readonly Field[,] board = new Field[3, 3];
 
-//    public Logic(AllianceGamesServer server)
-//    {
-//        this.server = server;
+    public Logic(AllianceGamesServer server)
+    {
+        this.server = server;
 
-//        RegisterHandlers();
-//    }
+        RegisterHandlers();
+    }
 
-//    public async Task Forfeit(Chromia.Buffer address)
-//    {
-//        Log.Information($"Player {address.Parse()} forfeited the game");
+    public async Task Forfeit(Buffer address)
+    {
+        Log.Information($"Player {address.Parse()} forfeited the game");
 
-//        var winnerField = players.First(p => p.Key != address.Parse()).Value.Symbol;
-//        await GameOver(winnerField);
-//    }
+        var winnerField = GetField(players.First(p => p != address.Parse()));
+        await GameOver(winnerField);
+    }
 
-//    public async Task ServerRequests(
-//        IAsyncStreamReader<Response> requestStream,
-//        IServerStreamWriter<Request> responseStream,
-//        ServerCallContext context
-//    )
-//    {
-//        var playerId = context.GetAddress();
-//        if (players.ContainsKey(playerId))
-//        {
-//            Log.Error($"Player {playerId} has a ServerRequest channel open already");
-//            return;
-//        }
+    public async Task Run()
+    {
+        try
+        {
+            server.OnClientConnect += OnClientConnect;
+            Log.Information($"Waiting for both players to connect");
+            await connectCs.Task;
 
-//        var cts = CancellationTokenSource.CreateLinkedTokenSource(context.CancellationToken, CancellationToken);
+            Log.Information($"Initializing board");
+            InitializeBoard();
 
-//        Log.Information($"Open ServerRequest channel for {playerId}");
-//        var player = new Player(
-//            playerId,
-//            requestStream,
-//            responseStream,
-//            channel.Writer,
-//            ++turn
-//        );
-//        players.Add(playerId, player);
+            // play game
+            Field? winner = null;
+            var currentPlayerId = players[0];
+            Log.Information($"Start with player {currentPlayerId}");
+            while (winner == null)
+            {
+                var validMove = false;
+                while (!validMove)
+                {
+                    Log.Information($"Send request to player {currentPlayerId}");
 
-//        await player.Process(cts.Token);
+                    var response = await server.Request(
+                        (int)Messages.Header.MoveRequest,
+                        currentPlayerId,
+                        new(),
+                        CancellationToken,
+                        30000
+                    );
 
-//        players.Remove(playerId);
-//    }
+                    var move = response == null ? RandomMove()
+                        : (int)(long)ChromiaClient.DecodeFromGtv(response.Value);
 
-//    public async Task Run(Action<object?> onEnd)
-//    {
-//        this.onEnd = onEnd;
+                    if (move < 0 || move >= 9 || board[move / 3, move % 3] != Field.Empty)
+                    {
+                        Log.Information($"Invalid move on square {move}, try again");
+                        continue;
+                    }
 
-//        try
-//        {
-//            Log.Information($"Waiting for both players to connect");
-//            // wait until two players are connected
-//            await TaskUtil.WaitUntil(() => players.Count == 2);
+                    var symbol = GetField(currentPlayerId);
+                    board[move / 3, move % 3] = symbol;
+                    validMove = true;
 
-//            Log.Information($"Initializing board");
-//            InitializeBoard();
+                    Log.Information($"Setting square [{move / 3}, {move % 3}] to {symbol}");
+                    foreach (var player in players)
+                    {
+                        await server.Send(
+                            (int)Messages.Header.MoveResponse,
+                            player,
+                            ChromiaClient.EncodeToGtv(new object[] { move, (int)symbol }),
+                            CancellationToken
+                        );
+                    }
+                    currentPlayerId = players.First(p => p != currentPlayerId);
+                    winner = GetWinner();
+                }
+            }
 
-//            Log.Information($"Giving players a sec...");
-//            await Task.Delay(1000, CancellationToken);
+            await GameOver(winner);
+        }
+        catch (WebSocketException) { }
+        catch (OperationCanceledException) { }
+    }
 
-//            // play game
-//            Field? winner = null;
-//            var currentPlayerId = players.Keys.First();
-//            Log.Information($"Start with player {currentPlayerId}");
-//            while (winner == null)
-//            {
-//                var validMove = false;
-//                while (!validMove)
-//                {
-//                    foreach (var (id, player) in players)
-//                    {
-//                        Log.Information($"Send request to player {id} with your turn == {id == currentPlayerId}");
+    private async Task GameOver(Field? winner)
+    {
+        Buffer? winnerPlayer = winner != null ? players[(int)winner.Value - 1] : null;
+        Log.Information($"Game is over, winner is {winnerPlayer}");
+        foreach (var player in players)
+        {
+            await server.Send((int)Messages.Header.GameOver, player, new(), default);
+        }
 
-//                        await server.Send((int)Messages.Header.MoveRequest, new(), CancellationToken);
+        Reward[] blockchainReward;
+        if (winnerPlayer == null)
+        {
+            blockchainReward = players
+                .Select(p => new Reward(p, 50))
+                .ToArray();
+        }
+        else
+        {
+            blockchainReward = [
+                new Reward(winnerPlayer.Value, 100),
+                new Reward(players.First(p => p != winnerPlayer.Value), 50)
+            ];
 
-//                        await player.Requests.WriteAsync(new Request
-//                        {
-//                            NewTurn = new NewTurnRequest()
-//                            {
-//                                Squares = { board.Cast<Field>().Select(f => (int)f) },
-//                                YouTurn = id == currentPlayerId
-//                            }
-//                        }, CancellationToken);
-//                    }
+        }
 
-//                    var currentPlayer = players[currentPlayerId];
-//                    Log.Information($"Waiting for sending his turn");
-//                    var response = await channel.Reader.ReadAsync(CancellationToken);
-//                    var move = response.MakeMove.Square;
-//                    if (move < 0 || move >= 9 || board[move / 3, move % 3] != Field.Empty)
-//                    {
-//                        Log.Information($"Invalid move on square {move}, try again");
-//                        continue;
-//                    }
-//                    board[move / 3, move % 3] = currentPlayer.Symbol;
-//                    validMove = true;
+        OnGameEnd?.Invoke(JsonConvert.SerializeObject(blockchainReward, Formatting.Indented));
+    }
 
-//                    Log.Information($"Setting square [{move / 3}, {move % 3}] to {currentPlayer.Symbol}");
-//                    currentPlayerId = players.First(p => p.Key != currentPlayerId).Key;
-//                    winner = GetWinner();
-//                }
-//            }
+    private void OnClientConnect(Buffer pubKey)
+    {
+        players.Add(pubKey);
+        if (players.Count == 2)
+        {
+            server.OnClientConnect -= OnClientConnect;
+            connectCs.SetResult();
+        }
+    }
 
-//            await GameOver(winner);
-//        }
-//        catch (WebSocketException) { }
-//        catch (OperationCanceledException) { }
-//    }
+    private Field GetField(Buffer player) => (Field)players.IndexOf(player) + 1;
 
-//    private async Task GameOver(Field? winner)
-//    {
-//        var winnerPlayer = players.Values.First(p => p.Symbol == winner);
-//        Log.Information($"Game is over, winner is {winnerPlayer?.Address}");
-//        foreach (var (address, player) in players)
-//        {
-//            await player.Requests.WriteAsync(new Request
-//            {
-//                GameOver = new GameOverRequest()
-//                {
-//                    Squares = { board.Cast<Field>().Select(f => (int)f) },
-//                    Winner = winnerPlayer?.Address,
-//                    Points = winnerPlayer?.Address == player.Address ? 100 : 50
-//                }
-//            }, CancellationToken);
-//        }
+    private void InitializeBoard()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                board[i, j] = Field.Empty;
+            }
+        }
+    }
 
-//        object[] blockchainReward;
-//        if (winnerPlayer == null)
-//        {
-//            blockchainReward = players
-//                .Select(p => new object[] { p.Value.PubKey, 50 })
-//                .ToArray();
-//        }
-//        else
-//        {
-//            blockchainReward = new object[]
-//            {
-//                    new object[]{ winnerPlayer!.PubKey, 100 },
-//                    new object[]{ players.First(p => p.Key != winnerPlayer!.Address).Value.PubKey, 50 }
-//            };
+    private int RandomMove()
+    {
+        var validMoves = new List<int>();
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                if (board[i, j] == Field.Empty)
+                {
+                    validMoves.Add(i * 3 + j);
+                }
+            }
+        }
+        return validMoves[server.Random.Next(validMoves.Count)];
+    }
 
-//        }
+    private void RegisterHandlers()
+    {
+        server.RegisterMessageHandler((int)Messages.Header.Forfeit, async (address, data) =>
+        {
+            if (!players.Contains(address))
+            {
+                Log.Error($"Player {address} is not in the game");
+                return;
+            }
 
-//        onEnd?.Invoke(blockchainReward);
-//        onEnd = null;
-//    }
+            await Forfeit(address);
+        });
+    }
 
-//    private void InitializeBoard()
-//    {
-//        for (int i = 0; i < 3; i++)
-//        {
-//            for (int j = 0; j < 3; j++)
-//            {
-//                board[i, j] = Field.Empty;
-//            }
-//        }
-//    }
+    private Field? GetWinner()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            // Check rows
+            if (board[i, 0] != Field.Empty && board[i, 0] == board[i, 1] && board[i, 1] == board[i, 2])
+            {
+                return board[i, 0];
+            }
 
-//    private void RegisterHandlers()
-//    {
-//        server.RegisterMessageHandler((int)Messages.Header.Forfeit, (address, data) =>
-//        {
-//            if (!players.ContainsKey(address))
-//            {
-//                Log.Error($"Player {address} is not in the game");
-//                return;
-//            }
-//        });
-//    }
+            // Check columns
+            if (board[0, i] != Field.Empty && board[0, i] == board[1, i] && board[1, i] == board[2, i])
+            {
+                return board[0, i];
+            }
+        }
 
-//    private Field? GetWinner()
-//    {
-//        for (int i = 0; i < 3; i++)
-//        {
-//            // Check rows
-//            if (board[i, 0] != Field.Empty && board[i, 0] == board[i, 1] && board[i, 1] == board[i, 2])
-//            {
-//                return board[i, 0];
-//            }
+        // Check diagonals
+        if (board[0, 0] != Field.Empty && board[0, 0] == board[1, 1] && board[1, 1] == board[2, 2])
+        {
+            return board[0, 0];
+        }
+        if (board[0, 2] != Field.Empty && board[0, 2] == board[1, 1] && board[1, 1] == board[2, 0])
+        {
+            return board[0, 2];
+        }
 
-//            // Check columns
-//            if (board[0, i] != Field.Empty && board[0, i] == board[1, i] && board[1, i] == board[2, i])
-//            {
-//                return board[0, i];
-//            }
-//        }
+        if (board.Cast<Field>().All(f => f != Field.Empty))
+        {
+            // Draw
+            return Field.Empty;
+        }
 
-//        // Check diagonals
-//        if (board[0, 0] != Field.Empty && board[0, 0] == board[1, 1] && board[1, 1] == board[2, 2])
-//        {
-//            return board[0, 0];
-//        }
-//        if (board[0, 2] != Field.Empty && board[0, 2] == board[1, 1] && board[1, 1] == board[2, 0])
-//        {
-//            return board[0, 2];
-//        }
+        // No winner
+        return null;
+    }
 
-//        if (board.Cast<Field>().All(f => f != Field.Empty))
-//        {
-//            // Draw
-//            return Field.Empty;
-//        }
-
-//        // No winner
-//        return null;
-//    }
-//}
+    private class Reward(Buffer pubKey, int points)
+    {
+        [JsonProperty("pubkey")]
+        public Buffer PubKey { get; } = pubKey;
+        [JsonProperty("points")]
+        public int Points { get; } = points;
+    }
+}

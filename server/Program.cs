@@ -7,9 +7,10 @@ var logger = Logger.Create("Server");
 Log.Logger = logger;
 
 var server = await AllianceGamesServer.Create(
-    new WebSocketTransport(logger),
-    null
+    new WebSocketTransport(logger)
 );
-await Task.Delay(10000);
-await server.Stop(null, default);
+
+var logic = new Logic(server);
+logic.OnGameEnd += server.Stop;
+await logic.Run();
 
