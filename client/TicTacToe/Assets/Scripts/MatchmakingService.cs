@@ -1,12 +1,12 @@
+using AllianceGamesSdk.Client;
+using Cysharp.Threading.Tasks;
+using Models;
+using Newtonsoft.Json;
 using System;
 using System.Text;
-using UnityEngine.Networking;
-using Newtonsoft.Json;
-
-using Models;
 using System.Threading;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
+using UnityEngine.Networking;
 
 public static class MatchmakingServiceFactory
 {
@@ -294,7 +294,7 @@ public class MockMatchmakingService : IMatchmakingService
         {
             MatchId = "mock-match-id",
             MatchedAtTimestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds(),
-            ServerDetails = "http://localhost:5172",
+            ServerDetails = $"http://localhost:{IClientConfig.DEFAULT_NODE_PORT}",
 #if UNITY_EDITOR
             OpponentId = "02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27",
 #else

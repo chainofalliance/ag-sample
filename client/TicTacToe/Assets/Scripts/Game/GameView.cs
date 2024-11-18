@@ -92,7 +92,7 @@ public class GameView
         int idx = 0;
         foreach (var symbolIdx in fields)
         {
-            var symbol = (GameController.Field)symbolIdx;
+            var symbol = (Messages.Field)symbolIdx;
             var field = board[idx];
             field.RemoveFromClassList("Empty");
             field.RemoveFromClassList("X");

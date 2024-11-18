@@ -400,3 +400,6 @@ FodyWeavers.xsd
 
 build/*
 log*.txt
+
+out/*
+.server.zip
