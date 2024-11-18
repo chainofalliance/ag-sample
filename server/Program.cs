@@ -13,4 +13,3 @@ var server = await AllianceGamesServer.Create(
 var logic = new Logic(server);
 logic.OnGameEnd += server.Stop;
 await logic.Run();
-
