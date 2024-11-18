@@ -1,9 +1,5 @@
-using Chromia;
+﻿using Chromia;
 using Chromia.Transport;
-using Cysharp.Threading.Tasks;
-using Chromia.Encoding;
-using Newtonsoft.Json.Utilities;
-
 using Buffer = Chromia.Buffer;
 
 public static class BlockchainFactory
@@ -20,6 +16,8 @@ public static class BlockchainFactory
 
 public class Blockchain
 {
+    public const string DEFAULT_ADMIN_PRIVKEY = "854D8402085EC5F737B1BE63FFD980981EED2A0DA5FAC6B4468CB1F176BA0321";
+
     public SignatureProvider SignatureProvider { get; set; }
     public ITransport Transport { get; set; }
 
@@ -35,27 +33,17 @@ public class Blockchain
 
     }
 
-    public async UniTask Login(string privKey)
+    public async Task Login(string privKey)
     {
-        Transport = new UnityTransport();
-        UnityEngine.Debug.Log("Creating Chromia Client...");
-        ChromiaClient.SetTransport(Transport);
         client = await ChromiaClient.Create(nodeUrl, chainId);
-        UnityEngine.Debug.Log("Creating SignatureProvider...");
         SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));
     }
 
-    public async UniTask<int> GetPoints(string pubKey = null)
+    public async Task<int> GetPoints(string pubKey = null)
     {
         return await client.Query<int>(
             "ttt.ILeaderboard.get_points",
             ("pubkey", pubKey != null ? Buffer.From(pubKey) : SignatureProvider.PubKey)
         );
-    }
-
-    public void AotTypeEnforce()
-    {
-        AotHelper.EnsureType<BufferConverter>();
-        AotHelper.EnsureType<BigIntegerConverter>();
     }
 }

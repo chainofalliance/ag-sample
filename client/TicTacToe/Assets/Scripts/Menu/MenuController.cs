@@ -1,8 +1,6 @@
-using System.Net.Http;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
-using UnityEngine;
-using Cysharp.Threading.Tasks;
 
 public class MenuController
 {
@@ -10,6 +8,7 @@ public class MenuController
     private readonly Blockchain blockchain;
     private readonly IMatchmakingService matchmakingService;
     private readonly Action<Uri, string, string> onStartGame;
+
 
     private CancellationTokenSource cts;
 
@@ -58,9 +57,9 @@ public class MenuController
 
         view.SetInfo("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
-            {
-                Address = blockchain.SignatureProvider.PubKey
-            }, cts.Token);
+        {
+            Address = blockchain.SignatureProvider.PubKey
+        }, cts.Token);
 
         view.SetInfo("Creating ticket...");
         var response = await matchmakingService.CreateMatchmakingTicket(new()
@@ -70,7 +69,7 @@ public class MenuController
         var ticketId = response.TicketId;
         view.SetInfo($"Waiting for match with ticket ID {ticketId}...");
         string matchId = null;
-        while(!cts.Token.IsCancellationRequested)
+        while (!cts.Token.IsCancellationRequested)
         {
             var ticket = await matchmakingService.GetMatchmakingTicket(new()
             {
@@ -78,7 +77,7 @@ public class MenuController
                 TicketId = ticketId
             }, cts.Token);
 
-            if(ticket.MatchId != null)
+            if (ticket.MatchId != null)
             {
                 matchId = ticket.MatchId;
                 break;
@@ -104,45 +103,7 @@ public class MenuController
 
         var opponent = match.OpponentId;
         view.SetInfo($"Playing against {opponent}, connecting to {node}...");
-        var port = await GetGamePort(node.Uri, matchId, cts.Token);
-
-        node.Port = port;
-        view.SetInfo($"Received game port {port}. Connecting to {node}...");
-
         onStartGame?.Invoke(node.Uri, matchId, opponent);
-    }
-
-    private async UniTask<ushort> GetGamePort(
-        Uri serverUrl,
-        string matchId,
-        CancellationToken ct
-    )
-    {
-        if (Main.MOCK)
-        {
-            Debug.Log("Mocking game port resolution...");
-            return 5172;
-        }
-
-        const int RETRIES = 10;
-        var route = new Uri(serverUrl, $"/dapp/session/get-port/{matchId}");
-        var client = new HttpClient();
-
-        var tries = 0;
-        while (!ct.IsCancellationRequested && tries < RETRIES)
-        {
-            try
-            {
-                return ushort.Parse(await client.GetStringAsync(route));
-            }
-            catch (Exception)
-            {
-                tries++;
-                await UniTask.Delay(2000, cancellationToken: ct);
-            }
-        }
-        
-        throw new Exception("Failed to get game port");
     }
 
     private void OnCancel()

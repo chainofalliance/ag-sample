@@ -1,7 +1,8 @@
 ﻿using Chromia;
+using System.Linq;
 using Buffer = Chromia.Buffer;
 
-internal class Messages
+public class Messages
 {
     public enum Field
     {

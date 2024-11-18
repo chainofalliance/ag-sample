@@ -1,6 +1,9 @@
+using AllianceGamesSdk.Common;
+using AllianceGamesSdk.Common.Transport;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,6 +20,8 @@ public class Main : MonoBehaviour
     private VisualElement game;
 
     private Blockchain blockchain;
+    private ITaskRunner taskRunner;
+    private IHttpClient httpClient;
     private MenuController menuController;
     private GameController gameController;
 
@@ -34,8 +39,10 @@ public class Main : MonoBehaviour
 
         menu = mainDocument.rootVisualElement.Q<VisualElement>("Menu");
         game = mainDocument.rootVisualElement.Q<VisualElement>("Game");
-        
+
+        taskRunner = new UniTaskRunner();
         blockchain = BlockchainFactory.Get();
+        httpClient = new UnityHttpClient(blockchain);
 #if ENABLE_IL2CPP
         blockchain.AotTypeEnforce();
 #endif
@@ -51,6 +58,8 @@ public class Main : MonoBehaviour
         gameController = new GameController(
             gameView,
             blockchain,
+            taskRunner,
+            httpClient,
             OnEndGame
         );
 
@@ -78,5 +87,33 @@ public class Main : MonoBehaviour
         menuController.SetVisible(true);
         gameController.SetVisible(false);
         await menuController.SyncPoints();
+    }
+
+    class UniTaskRunner : ITaskRunner
+    {
+        public async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
+        {
+            await UniTask.Delay(millisecondsDelay, cancellationToken: cancellationToken);
+        }
+
+        public async Task<TResult> Run<TResult>(Func<TResult> function)
+        {
+            return await UniTask.RunOnThreadPool(function);
+        }
+    }
+
+    class UnityHttpClient : IHttpClient
+    {
+        private readonly Blockchain blockchain;
+
+        public UnityHttpClient(Blockchain blockchain)
+        {
+            this.blockchain = blockchain;
+        }
+
+        public async Task<string> Get(Uri uri, CancellationToken ct)
+        {
+            return await blockchain.Transport.Get(uri, ct);
+        }
     }
 }
