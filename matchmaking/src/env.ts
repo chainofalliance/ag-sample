@@ -27,6 +27,7 @@ export const NETWORK = network();
 export const DAPP_PRIVATE_KEY = load('DAPP_PRIVATE_KEY');
 
 export function DAPP_NAME() { return loadFromConfig<string>("application.dapp.name"); }
+export function DAPP_VERSION() { return loadFromConfig<string>("application.dapp.version"); }
 export function NODES_NEEDED() { return loadFromConfig<number>("application.consensus.node_amount"); }
 
 function load(name: string) {

@@ -1,7 +1,8 @@
 {
     "application": {
         "dapp": {
-            "name": "TicTacToe"
+            "name": "TicTacToe",
+            "version": "1.0.0"
         },
         "consensus": {
             "node_amount": 1
