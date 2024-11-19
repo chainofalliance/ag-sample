@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 public class Main : MonoBehaviour
 {
-    public static bool MOCK = false;
+    public static bool MOCK = true;
 
     [SerializeField]
     private UIDocument mainDocument;
@@ -69,16 +69,14 @@ public class Main : MonoBehaviour
 
     private async void OnStartGame(
         Uri nodeUri,
-        string matchId,
-        string opponent
+        string matchId
     )
     {
         menuController.SetVisible(false);
         gameController.SetVisible(true);
         await gameController.StartGame(
             nodeUri,
-            matchId,
-            opponent
+            matchId
         );
     }
 

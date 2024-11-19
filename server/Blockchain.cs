@@ -9,16 +9,13 @@ public static class BlockchainFactory
 #if PROD_ENV
         return new Blockchain("http://bc.ttt.com/");
 #else
-        return new Blockchain("http://localhost:7740/", 2);
+        return new Blockchain("http://localhost:7740/", 0);
 #endif
     }
 }
 
 public class Blockchain
 {
-    public const string DEFAULT_ADMIN_PRIVKEY = "854D8402085EC5F737B1BE63FFD980981EED2A0DA5FAC6B4468CB1F176BA0321";
-
-    public SignatureProvider SignatureProvider { get; set; }
     public ITransport Transport { get; set; }
 
     private ChromiaClient client;
@@ -33,17 +30,21 @@ public class Blockchain
 
     }
 
-    public async Task Login(string privKey)
+    public async Task Login()
     {
         client = await ChromiaClient.Create(nodeUrl, chainId);
-        SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));
     }
 
-    public async Task<int> GetPoints(string pubKey = null)
+    public async Task<int> GetPoints(Buffer pubKey)
     {
         return await client.Query<int>(
             "ttt.ILeaderboard.get_points",
-            ("pubkey", pubKey != null ? Buffer.From(pubKey) : SignatureProvider.PubKey)
+            ("pubkey", Buffer.From(pubKey))
         );
+    }
+
+    public async Task<int> GetPoints(string pubKey)
+    {
+        return await GetPoints(Buffer.From(pubKey));
     }
 }

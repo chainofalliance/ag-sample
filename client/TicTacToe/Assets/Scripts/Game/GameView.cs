@@ -42,6 +42,7 @@ public class GameView
         GameController.PlayerData playerData
     )
     {
+        Debug.Log($"PlayerData: {playerData.Address}, {playerData.Points}, {playerData.Symbol}");
         var address = $"{playerData.Address[..4]}..{playerData.Address[^4..]}";
         return $"<b>{playerData.Symbol}</b> {address} Points: {playerData.Points})";
     }
@@ -69,7 +70,6 @@ public class GameView
         player1Label.text = PlayerDataToString(player1);
         player2Label.text = PlayerDataToString(player2);
     }
-
     private void OnClick(
         ClickEvent clickEvent
     )

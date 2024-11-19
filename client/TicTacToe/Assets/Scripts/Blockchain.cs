@@ -1,9 +1,8 @@
 using Chromia;
+using Chromia.Encoding;
 using Chromia.Transport;
 using Cysharp.Threading.Tasks;
-using Chromia.Encoding;
 using Newtonsoft.Json.Utilities;
-
 using Buffer = Chromia.Buffer;
 
 public static class BlockchainFactory
@@ -13,7 +12,7 @@ public static class BlockchainFactory
 #if PROD_ENV
         return new Blockchain("http://bc.ttt.com/");
 #else
-        return new Blockchain("http://localhost:7740/", 2);
+        return new Blockchain("http://localhost:7740/", 0);
 #endif
     }
 }

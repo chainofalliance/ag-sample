@@ -73,8 +73,7 @@ public class GameController
 
     public async UniTask StartGame(
         Uri nodeUri,
-        string matchId,
-        string opponent
+        string matchId
     )
     {
         cts?.Dispose();
@@ -98,6 +97,7 @@ public class GameController
                 ct: cts.Token
             );
             RegisterHandlers();
+            await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
 
             view.SetInfo("Sending request to get player data...");
             var response = await Request<Messages.PlayerDataResponse>(
@@ -115,16 +115,17 @@ public class GameController
                 view.SetInfo($"Adding player {player.PubKey.Parse()}...");
                 playerData.Add(new PlayerData()
                 {
-                    Address = player.PubKey,
+                    Address = player.PubKey.Parse(),
                     Points = player.Points,
                     Symbol = player.Symbol
                 });
             }
 
             view.SetInfo($"Finalize startup...");
+            var pubKey = blockchain.SignatureProvider.PubKey.Parse();
             view.Initialize(
-                playerData.Find(p => p.Address != opponent),
-                playerData.Find(p => p.Address == opponent)
+                playerData.Find(p => p.Address == pubKey),
+                playerData.Find(p => p.Address != pubKey)
             );
         }
         catch (OperationCanceledException) { }
@@ -156,9 +157,11 @@ public class GameController
 
         agClient.RegisterRequestHandler((int)Messages.Header.MoveRequest, async data =>
         {
+            view.SetInfo("Received move request.");
             turn = new UniTaskCompletionSource<int>();
             var idx = await turn.Task;
             turn = null;
+            view.SetInfo($"Send move response {idx}.");
             return new Messages.MoveResponse(idx).Encode();
         });
     }
