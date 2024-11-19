@@ -3,12 +3,11 @@ import { guid, now } from './javascript-helper';
 import { TicketStatusResponse } from './services/requests';
 import { PostgresService } from './postgres';
 
-const FALLBACK_TIMEOUT: number = config.get(`common.matchmaking.fallback_timeout`);
-
 export class Ticket {
     private _state: TicketState;
     private _matchId: string | null = null;
     private _dirty: boolean = false;
+    private fallbackTimeout: number = 0;
 
     public get state(): TicketState { return this._state; }
     public get matchId(): string | null { return this._matchId; }
@@ -22,6 +21,7 @@ export class Ticket {
     ) {
         this._state = TicketState.Open;
         this._matchId = matchId;
+        this.fallbackTimeout = config.get(`application.matchmaking.fallback_timeout`);
     }
 
     public update() {
@@ -51,7 +51,7 @@ export class Ticket {
             return false;
 
         const diffTime = now() - this.createdAt;
-        return diffTime > FALLBACK_TIMEOUT;
+        return diffTime > this.fallbackTimeout;
     }
 
     public waitForServer() {

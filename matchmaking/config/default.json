@@ -1,8 +1,7 @@
 {
-    "common": {
+    "application": {
         "dapp": {
-            "name": "TicTacToe",
-            "version": "1.0.0"
+            "name": "TicTacToe"
         },
         "consensus": {
             "node_amount": 1
@@ -34,17 +33,5 @@
         "url": "jdbc:postgresql://postgres/matchmaking",
         "user": "postgres",
         "password": "postgres"
-    },
-    "local": {
-        "postchain": {
-            "url": "http://localhost:7741",
-            "chainId": 0
-        }
-    },
-    "devnet": {
-        "postchain": {
-            "url": "http://host.docker.internal:7740",
-            "chainId": 1
-        }
     }
 }

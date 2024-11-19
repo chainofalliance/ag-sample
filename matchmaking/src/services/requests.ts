@@ -6,12 +6,11 @@ type RateLimitKey = [string, Request];
 type RateLimitValue = [number, number];
 const RATE_LIMIT_MAP: Map<RateLimitKey, RateLimitValue> = new Map();
 
-interface Rule {
+export interface Rule {
     type: Request;
     requests: number;
     in_time: number;
 };
-const RULES: Rule[] = config.get(`common.rate_limit`);
 
 export enum Request {
     CreateTicket = "create-ticket",
@@ -59,6 +58,7 @@ export interface CancelTicketRequest extends BaseTicketRequest {
 
 export function rateLimit(request: Request, ctx: any) {
     let id = ctx.request.body.playfabId;
+    const RULES: Rule[] = config.get(`application.rate_limit`);
 
     const key: [string, Request] = [id, request];
     const rule = RULES.find(e => e.type == request)!;

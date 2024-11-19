@@ -1,0 +1,8 @@
+{
+  "network": {
+    "postchain": {
+      "url": "http://localhost:7740",
+      "chainId": 2
+    }
+  }
+}

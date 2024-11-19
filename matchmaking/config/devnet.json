@@ -1,0 +1,8 @@
+{
+  "network": {
+    "postchain": {
+      "url": "http://host.docker.internal:7740",
+      "chainId": 2
+    }
+  }
+}

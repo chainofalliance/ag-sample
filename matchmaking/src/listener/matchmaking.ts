@@ -19,7 +19,7 @@ export function init(
 }
 
 export async function run() {
-    const MATCH_FREQUENCY: number = config.get(`common.matchmaking.match_frequency`) as number * 1000;
+    const MATCH_FREQUENCY: number = config.get(`application.matchmaking.match_frequency`) as number * 1000;
 
     try {
         postgres.ticketCache.forEach(t => t.update());
@@ -68,14 +68,14 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
                 chosenCount++;
                 log('info', `Node ${node.address.toString('hex')} is healthy`);
 
-                if (chosenCount == NODES_NEEDED)
+                if (chosenCount == NODES_NEEDED())
                     break;
             } else {
                 log('info', `Node ${node.address.toString('hex')} is not healthy`);
             }
         }
 
-        if (chosenNodes.length < NODES_NEEDED) {
+        if (chosenNodes.length < NODES_NEEDED()) {
             log('error', `Not enough nodes available, needed ${NODES_NEEDED}..`);
             ticket1.close();
             ticket2?.close();
@@ -158,7 +158,7 @@ export function log(level: any, message: string): string {
 async function isNodeHealthy(node: ActiveNode) {
     const url = `${node.url}/healthz`;
     const nodeAddress = node.address.toString('hex');
-    const dappVersion = DAPP_VERSION;
+    const dappVersion = DAPP_VERSION();
     try {
         const response = await fetch(url);
 

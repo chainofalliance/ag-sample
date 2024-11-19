@@ -1,17 +1,16 @@
-import {
-    NETWORK,
-    ipAddress
-} from '../env.js';
-import { logger } from '../logger.js';
 import * as matchmakingListener from '../listener/matchmaking.js';
 import * as matchmakingService from '../services/matchmaking.js';
+import * as configLoader from './../config-loader.js';
 import { PostgresService } from '../postgres.js';
+import { NETWORK, ipAddress } from '../env.js';
+import bodyParser from 'koa-bodyparser';
+import { logger } from '../logger.js';
+import Router from '@koa/router';
 import cors from '@koa/cors';
 import Koa from 'koa';
-import Router from '@koa/router';
-import bodyParser from 'koa-bodyparser';
 
 if (require.main === module) {
+    configLoader.load();
     startup();
 }
 
@@ -43,7 +42,7 @@ async function startup() {
     });
     app.use(ctx => {
         ctx.response.body
-            = 'Not Found\n\nWant to check out https://www.chainofalliance.com ?\n';
+            = 'Not Found\n\nWant to check out https://www.ttt.com ?\n';
         ctx.response.status = 404;
     });
 

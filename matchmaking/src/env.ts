@@ -26,9 +26,8 @@ dotenv.config();
 export const NETWORK = network();
 export const DAPP_PRIVATE_KEY = load('DAPP_PRIVATE_KEY');
 
-export const DAPP_NAME = loadFromConfig<string>("common.dapp.name");
-export const DAPP_VERSION = loadFromConfig<string>("common.dapp.version")
-export const NODES_NEEDED = loadFromConfig<number>("common.consensus.node_amount")
+export function DAPP_NAME() { return loadFromConfig<string>("application.dapp.name"); }
+export function NODES_NEEDED() { return loadFromConfig<number>("application.consensus.node_amount"); }
 
 function load(name: string) {
     const content = loadSilent(name);
@@ -52,10 +51,6 @@ function loadSilent(name: string) {
     return process.env[name];
 }
 
-function isNetwork(network: unknown): network is Network {
-    return typeof network === 'string' && NETWORKS.includes(network as Network);
-}
-
 export function network() {
     const network = process.argv[2] as Network;
     if (!network || !NETWORKS.includes(network)) {
@@ -70,7 +65,7 @@ export function ipAddress() {
 }
 
 export function getNextPort() {
-    const maxPort: number = config.get(`common.matchmaking.max_devnet_servers`);
+    const maxPort: number = config.get(`application.matchmaking.max_devnet_servers`);
     const currentPort = loadSilent('PORT_POSTFIX') || "0";
     const nextPort = (parseInt(currentPort) + 1) % maxPort;
     process.env['PORT_POSTFIX'] = nextPort.toString();

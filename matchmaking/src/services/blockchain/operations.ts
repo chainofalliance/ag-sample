@@ -12,7 +12,7 @@ export async function addSession(sessionId: string, participants: Participant[],
             {
                 name: "ag.ISession.add",
                 args: [
-                    DAPP_NAME,
+                    DAPP_NAME(),
                     sessionId,
                     participants.map(elem => [elem.address, elem.pubkey, elem.role as number]),
                     JSON.stringify(matchData)
