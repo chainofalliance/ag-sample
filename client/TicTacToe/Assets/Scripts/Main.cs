@@ -12,7 +12,7 @@ public class Main : MonoBehaviour
     public static bool MOCK = true;
 
     [SerializeField]
-    private UIDocument mainDocument;
+    private readonly UIDocument mainDocument;
 
     private VisualElement root;
 
@@ -111,7 +111,8 @@ public class Main : MonoBehaviour
 
         public async Task<string> Get(Uri uri, CancellationToken ct)
         {
-            return await blockchain.Transport.Get(uri, ct);
+            var response = await blockchain.Transport.Get(uri, ct);
+            return System.Text.Encoding.UTF8.GetString(response.Bytes);
         }
     }
 }
