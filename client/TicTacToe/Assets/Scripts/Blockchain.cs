@@ -12,7 +12,7 @@ public static class BlockchainFactory
 #if PROD_ENV
         return new Blockchain("http://bc.ttt.com/");
 #else
-        return new Blockchain("http://localhost:7740/", 0);
+        return new Blockchain("http://localhost:7740/", 2);
 #endif
     }
 }
