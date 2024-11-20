@@ -22,7 +22,7 @@ var config = new InjectedNodeConfig(
         Buffer.From("034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa"),
     ],
     [],
-    privKey,
+    signatureProvider,
     logger
 );
 var server = await AllianceGamesServer.Create(
