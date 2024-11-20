@@ -1,4 +1,4 @@
-FROM docker.io/library/node:18.15.0-alpine AS builder
+FROM docker.io/library/node:20.16.0-alpine AS builder
 WORKDIR /build
 
 COPY package.json package-lock.json tsconfig.json ./
@@ -8,13 +8,13 @@ COPY src src
 RUN node_modules/.bin/tsc
 
 
-FROM docker.io/library/node:18.15.0-alpine AS packages
+FROM docker.io/library/node:20.16.0-alpine AS packages
 WORKDIR /build
 COPY package.json package-lock.json ./
 RUN npm ci --production
 
 
-FROM docker.io/library/node:18.15.0-alpine
+FROM docker.io/library/node:20.16.0-alpine
 RUN apk upgrade --no-cache
 RUN apk add --update docker openrc bash
 RUN rc-update add docker boot
