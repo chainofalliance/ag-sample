@@ -32,5 +32,5 @@ var server = await AllianceGamesServer.Create(
 );
 
 var logic = new Logic(server, blockchain, true);
-logic.OnGameEnd += server.Stop;
+logic.OnGameEnd += result => server.Stop(result);
 await logic.Run();
