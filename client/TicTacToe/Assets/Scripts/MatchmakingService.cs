@@ -18,7 +18,7 @@ public static class MatchmakingServiceFactory
         if (mock)
             return new MockMatchmakingService();
         else
-            return new MatchmakingService(new("http://localhost:9085/"));
+            return new MatchmakingService(new("http://localhost:8090/"));
 #endif
     }
 }
