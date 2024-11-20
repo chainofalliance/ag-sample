@@ -23,10 +23,10 @@ internal class Logic
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
 
-    public Logic(AllianceGamesServer server, Blockchain blockchain, bool isAi)
+    public Logic(AllianceGamesServer server, bool isAi)
     {
         this.server = server;
-        this.blockchain = blockchain;
+        blockchain = BlockchainFactory.Get();
         this.isAi = isAi;
 
         RegisterHandlers();

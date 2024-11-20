@@ -13,7 +13,6 @@ var logger = Logger.Create("Server");
 Log.Logger = logger;
 
 var signatureProvider = SignatureProvider.Create(privKey);
-var blockchain = BlockchainFactory.Get();
 var config = new InjectedNodeConfig(
     "mock-match-id",
     "",
@@ -31,6 +30,6 @@ var server = await AllianceGamesServer.Create(
     config
 );
 
-var logic = new Logic(server, blockchain, true);
+var logic = new Logic(server, true);
 logic.OnGameEnd += result => server.Stop(result);
 await logic.Run();
