@@ -1,7 +1,10 @@
-import { IClient, createClient } from "postchain-client";
+import { createInMemoryFtKeyStore, createKeyStoreInteractor, Session } from "@chromia/ft4";
+import { IClient, KeyPair, createClient } from "postchain-client";
 import config from 'config';
+import { getProvider } from "./provider";
 
 let client: IClient | null = null
+let session: Session | null = null;
 
 export async function getClient() {
     if (!client) {
@@ -29,4 +32,23 @@ export async function getClient() {
     }
 
     return client
+}
+
+export async function getSession() {
+    if (!session) {
+
+        const client = await getClient();
+
+        const keyStore = createInMemoryFtKeyStore(getProvider());
+        const { getAccounts, getSession } = createKeyStoreInteractor(client, keyStore);
+        const accountsData = await getAccounts();
+        const account = accountsData[0];
+
+        if (account == undefined || account == null)
+            throw new Error("Account not registered for KeyPair");
+
+        session = await getSession(account.id);
+    }
+
+    return session;
 }

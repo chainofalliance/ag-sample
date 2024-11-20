@@ -13,6 +13,7 @@
         "node": ">=16"
     },
     "dependencies": {
+        "@chromia/ft4": "0.8.0",
         "@ethersproject/keccak256": "^5.6.1",
         "@koa/cors": "^3.3.0",
         "@koa/router": "^10.1.1",
