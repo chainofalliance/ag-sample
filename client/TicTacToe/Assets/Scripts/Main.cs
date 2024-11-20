@@ -9,10 +9,10 @@ using UnityEngine.UIElements;
 
 public class Main : MonoBehaviour
 {
-    public static bool MOCK = true;
+    public static bool MOCK = false;
 
     [SerializeField]
-    private readonly UIDocument mainDocument;
+    private UIDocument mainDocument;
 
     private VisualElement root;
 
