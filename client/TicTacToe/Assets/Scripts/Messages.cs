@@ -13,6 +13,7 @@ public class Messages
 
     public enum Header
     {
+        Ready,
         Sync,
         PlayerDataRequest,
         PlayerDataResponse,
@@ -58,8 +59,8 @@ public class Messages
         public void Decode(Buffer data)
         {
             var obj = ChromiaClient.DecodeFromGtv(data) as object[];
-            Turn = (Field)obj[0];
-            Fields = ((long[])obj[1]).Select(i => (int)i).ToArray();
+            Turn = (Field)(long)obj[0];
+            Fields = ((object[])obj[1]).Select(i => (int)(long)i).ToArray();
         }
     }
 

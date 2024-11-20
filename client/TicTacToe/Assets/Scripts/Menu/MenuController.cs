@@ -7,7 +7,7 @@ public class MenuController
     private readonly MenuView view;
     private readonly Blockchain blockchain;
     private readonly IMatchmakingService matchmakingService;
-    private readonly Action<Uri, string, string> onStartGame;
+    private readonly Action<Uri, string> onStartGame;
 
 
     private CancellationTokenSource cts;
@@ -16,7 +16,7 @@ public class MenuController
         MenuView view,
         Blockchain blockchain,
         IMatchmakingService matchmakingService,
-        Action<Uri, string, string> onStartGame
+        Action<Uri, string> onStartGame
     )
     {
         this.view = view;
@@ -102,8 +102,8 @@ public class MenuController
         }
 
         var opponent = match.OpponentId;
-        view.SetInfo($"Playing against {opponent}, connecting to {node}...");
-        onStartGame?.Invoke(node.Uri, matchId, opponent);
+        view.SetInfo($"Connecting to {node}...");
+        onStartGame?.Invoke(node.Uri, matchId);
     }
 
     private void OnCancel()

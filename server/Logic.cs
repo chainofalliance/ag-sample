@@ -7,7 +7,8 @@ using Buffer = Chromia.Buffer;
 
 internal class Logic
 {
-
+    private const string AI_ADDRESS = "0000000000000000000000000000000000000000000000000000000000000000";
+    private readonly Buffer aiAddress = Buffer.From(AI_ADDRESS);
     public event Action<string?>? OnGameEnd;
 
     public CancellationToken CancellationToken => cts.Token;
@@ -17,13 +18,16 @@ internal class Logic
     private readonly AllianceGamesServer server;
     private readonly List<Buffer> players = [];
     private readonly Dictionary<Buffer, int> points = new();
+    private readonly bool isAi;
+    private int readyPlayers = 0;
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
 
-    public Logic(AllianceGamesServer server)
+    public Logic(AllianceGamesServer server, Blockchain blockchain, bool isAi)
     {
         this.server = server;
-        blockchain = BlockchainFactory.Get();
+        this.blockchain = blockchain;
+        this.isAi = isAi;
 
         RegisterHandlers();
     }
@@ -41,7 +45,7 @@ internal class Logic
         try
         {
             Log.Information($"Login to blockchain");
-            await blockchain.Login(Blockchain.DEFAULT_ADMIN_PRIVKEY);
+            await blockchain.Login();
 
             Log.Information($"Waiting for both players to connect");
             server.OnClientConnect += OnClientConnect;
@@ -52,25 +56,38 @@ internal class Logic
 
             // play game
             Messages.Field? winner = null;
-            var currentPlayerId = players[0];
+            Buffer currentPlayerId = players[0];
             Log.Information($"Start with player {currentPlayerId}");
             while (winner == null)
             {
                 var validMove = false;
                 while (!validMove)
                 {
+                    await server.Send(
+                        (int)Messages.Header.Sync,
+                        new Messages.Sync(GetField(currentPlayerId), board).Encode(),
+                        CancellationToken
+                    );
                     Log.Information($"Send request to player {currentPlayerId}");
 
-                    var response = await server.Request(
-                        (int)Messages.Header.MoveRequest,
-                        currentPlayerId,
-                        new(),
-                        CancellationToken,
-                        30000
-                    );
-
-                    var move = response == null ? RandomMove()
-                        : new Messages.MoveResponse(response.Value).Move;
+                    int move;
+                    if (isAi && currentPlayerId == aiAddress)
+                    {
+                        move = RandomMove();
+                        await Task.Delay(1000);
+                    }
+                    else
+                    {
+                        var response = await server.Request(
+                            (int)Messages.Header.MoveRequest,
+                            currentPlayerId,
+                            Buffer.Empty(),
+                            CancellationToken,
+                            30000
+                        );
+                        move = response == null ? RandomMove()
+                            : new Messages.MoveResponse(response.Value).Move;
+                    }
 
                     if (move < 0 || move >= 9 || board[move / 3, move % 3] != Messages.Field.Empty)
                     {
@@ -81,17 +98,18 @@ internal class Logic
                     var symbol = GetField(currentPlayerId);
                     board[move / 3, move % 3] = symbol;
                     validMove = true;
-                    currentPlayerId = players.First(p => p != currentPlayerId);
+                    currentPlayerId = NextPlayer(currentPlayerId);
 
                     Log.Information($"Setting square [{move / 3}, {move % 3}] to {symbol}");
-                    await server.Send(
-                        (int)Messages.Header.Sync,
-                        new Messages.Sync(GetField(currentPlayerId), board).Encode(),
-                        CancellationToken
-                    );
                     winner = GetWinner();
                 }
             }
+
+            await server.Send(
+                (int)Messages.Header.Sync,
+                new Messages.Sync(GetField(currentPlayerId), board).Encode(),
+                CancellationToken
+            );
 
             await GameOver(winner);
         }
@@ -101,7 +119,7 @@ internal class Logic
 
     private async Task GameOver(Messages.Field? winner)
     {
-        Buffer? winnerPlayer = winner != null ? players[(int)winner.Value - 1] : null;
+        Buffer? winnerPlayer = winner == null ? null : players[(int)winner - 1];
         Log.Information($"Game is over, winner is {winnerPlayer}");
         await server.Send(
             (int)Messages.Header.GameOver,
@@ -128,7 +146,8 @@ internal class Logic
         OnGameEnd?.Invoke(JsonConvert.SerializeObject(blockchainReward, Formatting.Indented));
     }
 
-    private Messages.Field GetField(Buffer player) => (Messages.Field)players.IndexOf(player) + 1;
+    private Messages.Field GetField(Buffer? player) =>
+        player == null ? Messages.Field.O : (Messages.Field)players.IndexOf(player.Value) + 1;
 
     private void InitializeBoard()
     {
@@ -157,8 +176,14 @@ internal class Logic
         return validMoves[server.Random.Next(validMoves.Count)];
     }
 
+    private Buffer NextPlayer(Buffer currentPlayer)
+    {
+        return players.First(p => p != currentPlayer);
+    }
+
     private async void OnClientConnect(Buffer address)
     {
+        Log.Information($"Player {address} connected");
         int playerPoints = 0;
         try
         {
@@ -171,15 +196,34 @@ internal class Logic
 
         points.Add(address, playerPoints);
         players.Add(address);
-        Log.Information($"Player {address} connected");
-        if (players.Count == 2)
+        Log.Information($"Add player {address} with {playerPoints} points");
+
+        if (isAi)
         {
-            connectCs.SetResult();
+            var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
+            points.Add(aiAddress, aiPoints);
+            players.Add(aiAddress);
+            Log.Information($"Add AI player with {aiPoints} points");
         }
     }
 
     private void RegisterHandlers()
     {
+        server.RegisterMessageHandler((int)Messages.Header.Ready, (address, _) =>
+        {
+            if (!players.Contains(address))
+            {
+                Log.Error($"Player {address} is not in the game");
+                return;
+            }
+
+            readyPlayers++;
+            if (readyPlayers == (isAi ? 1 : 2))
+            {
+                connectCs.SetResult();
+            }
+        });
+
         server.RegisterMessageHandler((int)Messages.Header.Forfeit, async (address, _) =>
         {
             if (!players.Contains(address))
