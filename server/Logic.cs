@@ -143,7 +143,7 @@ internal class Logic
 
         }
 
-        OnGameEnd?.Invoke(JsonConvert.SerializeObject(blockchainReward, Formatting.Indented));
+        OnGameEnd?.Invoke(JsonConvert.SerializeObject(blockchainReward));
     }
 
     private Messages.Field GetField(Buffer? player) =>
