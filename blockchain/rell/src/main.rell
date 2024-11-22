@@ -11,8 +11,8 @@ operation __icmf_message(sender: byte_array, topic: text, body: gtv) {
     val rewards = list<Leaderboard.s_reward>.from_gtv_pretty(body);
 
     for(i in rewards) {
-        log("incrementing points for ", i.player, " by ", i.points);
-        val entry = Leaderboard.ensure(i.player);
+        log("incrementing points for ", i.pubkey, " by ", i.points);
+        val entry = Leaderboard.ensure(i.pubkey);
         entry.points += i.points;
     }
 }
