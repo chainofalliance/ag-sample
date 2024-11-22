@@ -291,7 +291,7 @@ internal class Logic
     private class Reward(Buffer pubKey, int points)
     {
         [JsonProperty("pubkey")]
-        public Buffer PubKey { get; } = pubKey;
+        public string PubKey { get; } = pubKey.Parse();
         [JsonProperty("points")]
         public int Points { get; } = points;
     }

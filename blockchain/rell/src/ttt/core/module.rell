@@ -4,7 +4,7 @@ import ^.*;
 
 namespace Leaderboard {
     struct s_reward {
-        player: pubkey;
+        pubkey: pubkey;
         points: integer;
     }
 
