@@ -8,7 +8,7 @@ import { DAPP_NAME } from "../../env";
 export async function addSession(sessionId: string, participants: Participant[], matchData: MatchData[]) {
     try {
         const session = await getSession();
-        var uid = session.query("ag.IDappProvider.get_uid", {display_name: DAPP_NAME()});
+        var uid = await session.query("ag.IDappProvider.get_uid", {display_name: DAPP_NAME()});
         session.call(
             {
                 name: "ag.ISession.add",
