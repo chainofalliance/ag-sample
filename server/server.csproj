@@ -47,6 +47,9 @@
       <Reference Include="Serilog.Sinks.Console">
         <HintPath>dlls\Serilog.Sinks.Console.dll</HintPath>
       </Reference>
+        <Reference Include="Serilog.Enrichers.Thread">
+            <HintPath>dlls\Serilog.Enrichers.Thread.dll</HintPath>
+        </Reference>
       <Reference Include="Serilog.Sinks.File">
         <HintPath>dlls\Serilog.Sinks.File.dll</HintPath>
       </Reference>

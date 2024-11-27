@@ -42,7 +42,6 @@ public class GameView
         GameController.PlayerData playerData
     )
     {
-        Debug.Log($"PlayerData: {playerData.Address}, {playerData.Points}, {playerData.Symbol}");
         var address = $"{playerData.Address[..4]}..{playerData.Address[^4..]}";
         return $"<b>{playerData.Symbol}</b> {address} Points: {playerData.Points})";
     }

@@ -92,7 +92,11 @@ public class GameController
                 resolveSessionPort: !Main.MOCK
             );
             agClient = await AllianceGamesClient.Create(
+#if UNITY_WEBGL && !UNITY_EDITOR
+                new UnityWebSocket(),
+#else
                 new WebSocketTransport(config.Logger),
+#endif
                 config,
                 ct: cts.Token
             );
