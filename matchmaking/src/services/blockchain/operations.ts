@@ -1,21 +1,22 @@
 import { guid } from "../../javascript-helper";
 import { logger } from "../../logger";
-import { getClient, getSession } from "./postchain";
-import { getProvider } from "./provider";
+import { getSession } from "./postchain";
 import { MatchData, Participant } from "./types";
 import { DAPP_NAME } from "../../env";
 
 export async function addSession(sessionId: string, participants: Participant[], matchData: MatchData[]) {
     try {
         const session = await getSession();
-        var uid = await session.query("ag.IDappProvider.get_uid", {display_name: DAPP_NAME()});
+        var uid = await session.query("ag.IDappProvider.get_uid", { display_name: DAPP_NAME() });
+        const parti = participants.map(elem => [elem.address, elem.pubkey, elem.role as number]);
+        console.log("addSession with: " + parti);
         session.call(
             {
                 name: "ag.ISession.add",
                 args: [
                     String(uid),
                     sessionId,
-                    participants.map(elem => [elem.address, elem.pubkey, elem.role as number]),
+                    parti,
                     JSON.stringify(matchData)
                 ]
             }
