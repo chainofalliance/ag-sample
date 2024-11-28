@@ -14,6 +14,9 @@
       <Reference Include="AllianceGamesSdk.Server">
         <HintPath>AllianceGamesSdk.Server.dll</HintPath>
       </Reference>
+        <Reference Include="AllianceGamesSdk.Transport.WebSocket">
+            <HintPath>AllianceGamesSdk.Transport.WebSocket.dll</HintPath>
+        </Reference>
       <Reference Include="Google.Protobuf">
         <HintPath>dlls\Google.Protobuf.dll</HintPath>
       </Reference>

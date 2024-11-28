@@ -1,9 +1,8 @@
 ﻿using AllianceGamesSdk.Common;
-using AllianceGamesSdk.Common.Transport.WebSocket;
 using AllianceGamesSdk.Server;
+using AllianceGamesSdk.Transport.WebSocket;
 using Chromia;
 using Serilog;
-
 using Buffer = Chromia.Buffer;
 
 const string DEFAULT_ADMIN_PRIVKEY = "854D8402085EC5F737B1BE63FFD980981EED2A0DA5FAC6B4468CB1F176BA0321";
