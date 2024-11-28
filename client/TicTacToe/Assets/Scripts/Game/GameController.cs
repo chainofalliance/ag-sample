@@ -1,7 +1,7 @@
 using AllianceGamesSdk.Client;
 using AllianceGamesSdk.Common;
 using AllianceGamesSdk.Common.Transport;
-using AllianceGamesSdk.Common.Transport.WebSocket;
+using AllianceGamesSdk.Transport.WebSocket;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
