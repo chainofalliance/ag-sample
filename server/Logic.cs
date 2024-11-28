@@ -26,6 +26,7 @@ internal class Logic
     public Logic(AllianceGamesServer server, bool isAi)
     {
         this.server = server;
+        server.OnClientConnect += OnClientConnect;
         blockchain = BlockchainFactory.Get();
         this.isAi = isAi;
 
@@ -48,7 +49,6 @@ internal class Logic
             await blockchain.Login();
 
             Log.Information($"Waiting for both players to connect");
-            server.OnClientConnect += OnClientConnect;
             await connectCs.Task;
 
             Log.Information($"Initializing board");
