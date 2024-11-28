@@ -2,6 +2,8 @@ using AllianceGamesSdk.Common;
 using AllianceGamesSdk.Common.Transport;
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -9,7 +11,7 @@ using UnityEngine.UIElements;
 
 public class Main : MonoBehaviour
 {
-    public static bool MOCK = false;
+    public static bool MOCK = true;
 
     [SerializeField]
     private UIDocument mainDocument;
@@ -24,14 +26,6 @@ public class Main : MonoBehaviour
     private IHttpClient httpClient;
     private MenuController menuController;
     private GameController gameController;
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void InitializeSynchronizationContext()
-    {
-        SynchronizationContext.SetSynchronizationContext(null);
-    }
-#endif
 
     private void Start()
     {
@@ -94,9 +88,14 @@ public class Main : MonoBehaviour
             await UniTask.Delay(millisecondsDelay, cancellationToken: cancellationToken);
         }
 
-        public async Task<TResult> Run<TResult>(Func<TResult> function)
+        public async IAsyncEnumerable<T> Yield<T>(
+            System.Threading.Channels.ChannelReader<T> reader,
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            return await UniTask.RunOnThreadPool(function);
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                yield return await reader.ReadAsync(cancellationToken).AsUniTask();
+            }
         }
     }
 
