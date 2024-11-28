@@ -1,10 +1,13 @@
 import { createInMemoryFtKeyStore, createKeyStoreInteractor, Session } from "@chromia/ft4";
-import { IClient, KeyPair, createClient } from "postchain-client";
+import { IClient, createClient } from "postchain-client";
 import config from 'config';
 import { getProvider } from "./provider";
+import { DappInfo } from "./types";
+import { queryDappInfo } from "./queries";
 
 let client: IClient | null = null
 let session: Session | null = null;
+let dappInfo: DappInfo | null = null;
 
 export async function getClient() {
     if (!client) {
@@ -51,4 +54,17 @@ export async function getSession() {
     }
 
     return session;
+}
+
+export async function getDappInfo() {
+    if (!dappInfo) {
+        const version = await queryDappInfo();
+
+        if (version == undefined || version == null)
+            throw new Error("Cannot query active version");
+
+        dappInfo = version;
+    }
+
+    return dappInfo;
 }

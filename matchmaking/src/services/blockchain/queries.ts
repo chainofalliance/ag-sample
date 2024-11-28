@@ -1,7 +1,8 @@
+import { DAPP_NAME } from "../../env";
 import { guid } from "../../javascript-helper";
 import { logger } from "../../logger";
 import { getClient } from "./postchain";
-import { ActiveNode } from "./types";
+import { ActiveNode, DappInfo, Version } from "./types";
 
 export async function getActiveNodes(): Promise<ActiveNode[]> {
     try {
@@ -12,6 +13,23 @@ export async function getActiveNodes(): Promise<ActiveNode[]> {
     }
 
     return [];
+}
+
+export async function queryDappInfo(): Promise<DappInfo | null> {
+    try {
+        const client = await getClient();
+        const uid = await client.query<string>('ag.IDappProvider.get_uid', { display_name: DAPP_NAME() });
+        const version = await client.query<Version>('ag.IDappProvider.get_active_version', { uid: uid });
+
+        return {
+            uid: uid,
+            version: version.version
+        }
+    } catch (e: unknown) {
+        log("error", `API error: ${(e as Error).message}`);
+    }
+
+    return null;
 }
 
 function log(level: any, message: string): string {

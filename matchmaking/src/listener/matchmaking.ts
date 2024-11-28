@@ -5,10 +5,11 @@ import { Match } from '../match.js';
 import { PostgresService } from '../postgres.js';
 import { getActiveNodes } from '../services/blockchain/queries.js';
 import { addSession } from '../services/blockchain/operations.js';
-import { ActiveNode, MatchData, Participant, ParticipantRole } from '../services/blockchain/types.js';
-import { DAPP_NAME, DAPP_VERSION, NODES_NEEDED } from '../env.js';
+import { ActiveNode, DappInfo, MatchData, Participant, ParticipantRole, Version } from '../services/blockchain/types.js';
+import { NODES_NEEDED } from '../env.js';
 import { logger } from '../logger.js';
 import { formatter } from 'postchain-client';
+import { getDappInfo } from '../services/blockchain/postchain.js';
 
 let postgres: PostgresService;
 
@@ -58,21 +59,22 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
         const nodes = await getActiveNodes();
         log('info', `Checking ${nodes.length} nodes`);
 
+        const dappInfo = await getDappInfo();
         let chosenNodes: ActiveNode[] = [];
         let chosenCount: number = 0;
 
         nodes.sort(() => Math.random() - 0.5);
         for (let node of nodes) {
-            // if (await isNodeHealthy(node)) {
-            chosenNodes.push(node);
-            chosenCount++;
-            log('info', `Node ${node.address.toString('hex')} is healthy`);
+            if (await isNodeHealthy(node, dappInfo)) {
+                chosenNodes.push(node);
+                chosenCount++;
+                log('info', `Node ${node.address.toString('hex')} is healthy`);
 
-            if (chosenCount == NODES_NEEDED())
-                break;
-            // } else {
-            //     log('info', `Node ${node.address.toString('hex')} is not healthy`);
-            // }
+                if (chosenCount == NODES_NEEDED())
+                    break;
+            } else {
+                log('info', `Node ${node.address.toString('hex')} is not healthy`);
+            }
         }
 
         if (chosenNodes.length < NODES_NEEDED()) {
@@ -155,9 +157,8 @@ export function log(level: any, message: string): string {
     return id;
 }
 
-async function isNodeHealthy(node: ActiveNode) {
+async function isNodeHealthy(node: ActiveNode, info: DappInfo) {
     try {
-        const version = DAPP_VERSION();
         const headers: Headers = new Headers();
         headers.set('Content-Type', 'application/json');
         headers.set('Accept', 'application/json');
@@ -166,8 +167,8 @@ async function isNodeHealthy(node: ActiveNode) {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({
-                name: DAPP_NAME(),
-                version: version
+                uid: info.uid,
+                version: info.version
             })
         })
 
@@ -175,8 +176,7 @@ async function isNodeHealthy(node: ActiveNode) {
 
         if (response.status == 200) {
             const json = await response.json();
-            console.log(json.message);
-            return json.result;
+            return !json.error;
         }
 
         return false;

@@ -19,3 +19,13 @@ export enum ParticipantRole {
     MAIN,
     OBSERVER
 }
+
+export type Version = {
+    version: string;
+    version_hash: string;
+}
+
+export type DappInfo = {
+    uid: string,
+    version: string
+}
