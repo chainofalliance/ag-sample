@@ -45,7 +45,7 @@ public class UnityWebSocketConnection : ConnectionBase
         return connection;
     }
 
-    public UnityWebSocketConnection(Uri uri) : base(uri)
+    public UnityWebSocketConnection(Uri uri)
     {
         webSocket = new WebSocket(uri.ToString());
 
