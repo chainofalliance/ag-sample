@@ -15,7 +15,7 @@ export async function getActiveNodes(): Promise<ActiveNode[]> {
     return [];
 }
 
-export async function queryDappInfo(): Promise<DappInfo | null> {
+export async function queryDappInfo(): Promise<DappInfo | undefined> {
     try {
         const client = await getClient();
         const uid = await client.query<string>('ag.IDappProvider.get_uid', { display_name: DAPP_NAME() });
@@ -27,9 +27,8 @@ export async function queryDappInfo(): Promise<DappInfo | null> {
         }
     } catch (e: unknown) {
         log("error", `API error: ${(e as Error).message}`);
+        return undefined;
     }
-
-    return null;
 }
 
 function log(level: any, message: string): string {

@@ -3,13 +3,12 @@ import { Ticket } from '../ticket.js';
 import { guid, now } from '../javascript-helper.js';
 import { Match } from '../match.js';
 import { PostgresService } from '../postgres.js';
-import { getActiveNodes } from '../services/blockchain/queries.js';
+import { getActiveNodes, queryDappInfo } from '../services/blockchain/queries.js';
 import { addSession } from '../services/blockchain/operations.js';
-import { ActiveNode, DappInfo, MatchData, Participant, ParticipantRole, Version } from '../services/blockchain/types.js';
+import { ActiveNode, DappInfo, MatchData, Participant, ParticipantRole } from '../services/blockchain/types.js';
 import { NODES_NEEDED } from '../env.js';
 import { logger } from '../logger.js';
 import { formatter } from 'postchain-client';
-import { getDappInfo } from '../services/blockchain/postchain.js';
 
 let postgres: PostgresService;
 
@@ -59,7 +58,10 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
         const nodes = await getActiveNodes();
         log('info', `Checking ${nodes.length} nodes`);
 
-        const dappInfo = await getDappInfo();
+        const dappInfo = await queryDappInfo();
+        if (dappInfo == undefined)
+            throw new Error("Cannot query dapp info");
+
         let chosenNodes: ActiveNode[] = [];
         let chosenCount: number = 0;
 

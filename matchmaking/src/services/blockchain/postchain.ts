@@ -55,16 +55,3 @@ export async function getSession() {
 
     return session;
 }
-
-export async function getDappInfo() {
-    if (!dappInfo) {
-        const version = await queryDappInfo();
-
-        if (version == undefined || version == null)
-            throw new Error("Cannot query active version");
-
-        dappInfo = version;
-    }
-
-    return dappInfo;
-}
