@@ -4,7 +4,7 @@
             "name": "TicTacToe"
         },
         "consensus": {
-            "node_amount": 2
+            "node_amount": 1
         },
         "matchmaking": {
             "match_frequency": 2,
