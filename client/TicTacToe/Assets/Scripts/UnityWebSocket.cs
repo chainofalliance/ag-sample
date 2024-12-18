@@ -16,7 +16,7 @@ public class UnityWebSocket : ITransport
         return await UnityWebSocketConnection.Create(uri);
     }
 
-    public IAsyncEnumerable<ConnectionBase> Listen(int port, CancellationToken ct)
+    public IAsyncEnumerable<ConnectionBase> Listen(string ip, int port, CancellationToken ct)
     {
         throw new NotImplementedException();
     }
