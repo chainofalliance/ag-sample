@@ -20,6 +20,8 @@ internal class Logic
     private readonly Dictionary<Buffer, int> points = new();
     private readonly bool isAi;
     private int readyPlayers = 0;
+    private Buffer currentPlayerId = Buffer.Empty();
+    private TaskCompletionSource<Messages.MoveResponse> moveCts;
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
 
@@ -56,7 +58,7 @@ internal class Logic
 
             // play game
             Messages.Field? winner = null;
-            Buffer currentPlayerId = players[0];
+            currentPlayerId = players[0];
             Log.Information($"Start with player {currentPlayerId}");
             while (winner == null)
             {
@@ -78,15 +80,8 @@ internal class Logic
                     }
                     else
                     {
-                        var response = await server.Request(
-                            (int)Messages.Header.MoveRequest,
-                            currentPlayerId,
-                            Buffer.Empty(),
-                            CancellationToken,
-                            30000
-                        );
-                        move = response == null ? RandomMove()
-                            : new Messages.MoveResponse(response.Value).Move;
+                        var response = await RequestMove(currentPlayerId, CancellationToken);
+                        move = response == null ? RandomMove() : response.Move;
                     }
 
                     if (move < 0 || move >= 9 || board[move / 3, move % 3] != Messages.Field.Empty)
@@ -207,6 +202,39 @@ internal class Logic
         }
     }
 
+    private async Task<Messages.MoveResponse?> RequestMove(Buffer currentPlayerId, CancellationToken ct)
+    {
+        var delayCts = new CancellationTokenSource();
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await server.Delay("move", 30000, ct);
+                delayCts.Cancel();
+            }
+            catch (TaskCanceledException)
+            { }
+        });
+        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, delayCts.Token);
+        var moveTcs = new TaskCompletionSource<Messages.MoveResponse>();
+
+        await server.Send(
+            (int)Messages.Header.MoveRequest,
+            currentPlayerId,
+            Buffer.Empty(),
+            ct
+        );
+
+        try
+        {
+            return await Task.Run(async () => await moveCts.Task, linkedCts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+    }
+
     private void RegisterHandlers()
     {
         server.RegisterMessageHandler((int)Messages.Header.Ready, (address, _) =>
@@ -222,6 +250,16 @@ internal class Logic
             {
                 connectCs.SetResult();
             }
+        });
+
+        server.RegisterMessageHandler((int)Messages.Header.MoveResponse, (address, data) =>
+        {
+            if (address != currentPlayerId)
+            {
+                Log.Error($"Its not players {address} turn");
+                return;
+            }
+            moveCts.SetResult(new Messages.MoveResponse(data));
         });
 
         server.RegisterMessageHandler((int)Messages.Header.Forfeit, async (address, _) =>

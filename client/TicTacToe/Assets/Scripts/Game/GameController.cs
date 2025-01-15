@@ -1,6 +1,5 @@
 using AllianceGamesSdk.Client;
 using AllianceGamesSdk.Common;
-using AllianceGamesSdk.Common.Transport;
 using AllianceGamesSdk.Transport.WebSocket;
 using Cysharp.Threading.Tasks;
 using System;
@@ -26,7 +25,6 @@ public class GameController
     private readonly GameView view;
     private readonly Blockchain blockchain;
     private readonly ITaskRunner taskRunner;
-    private readonly IHttpClient httpClient;
 
     private AllianceGamesClient agClient;
 
@@ -37,14 +35,12 @@ public class GameController
         GameView view,
         Blockchain blockchain,
         ITaskRunner taskRunner,
-        IHttpClient httpClient,
         Action OnEndGame
     )
     {
         this.view = view;
         this.blockchain = blockchain;
         this.taskRunner = taskRunner;
-        this.httpClient = httpClient;
 
         view.OnClickField += idx =>
         {
@@ -87,9 +83,7 @@ public class GameController
                 matchId,
                 nodeUri,
                 blockchain.SignatureProvider,
-                httpClient,
-                taskRunner,
-                resolveSessionPort: !Main.MOCK
+                taskRunner
             );
             agClient = await AllianceGamesClient.Create(
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -175,7 +169,7 @@ public class GameController
         CancellationToken ct
     ) where T : class, IMessage, new()
     {
-        var response = await agClient.Request((int)message.Header, message.Encode(), ct);
+        var response = await agClient.RequestUnverified((int)message.Header, message.Encode(), ct);
         if (response == null)
             return null;
 
