@@ -64,6 +64,7 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
 
         let chosenNodes: ActiveNode[] = [];
         let chosenCount: number = 0;
+        const nodesNeeded = NODES_NEEDED();
 
         nodes.sort(() => Math.random() - 0.5);
         for (let node of nodes) {
@@ -72,15 +73,15 @@ async function resolve(ticket1: Ticket, ticket2: Ticket | null) {
                 chosenCount++;
                 log('info', `Node ${node.address.toString('hex')} is healthy`);
 
-                if (chosenCount == NODES_NEEDED())
+                if (chosenCount == nodesNeeded)
                     break;
             } else {
                 log('info', `Node ${node.address.toString('hex')} is not healthy`);
             }
         }
 
-        if (chosenNodes.length < NODES_NEEDED()) {
-            log('error', `Not enough nodes available, needed ${NODES_NEEDED}..`);
+        if (chosenNodes.length < nodesNeeded) {
+            log('error', `Not enough nodes available, needed ${nodesNeeded}..`);
             ticket1.close();
             ticket2?.close();
             return;
@@ -165,6 +166,7 @@ async function isNodeHealthy(node: ActiveNode, info: DappInfo) {
         headers.set('Content-Type', 'application/json');
         headers.set('Accept', 'application/json');
 
+        log('debug', `Fetching ${node.url}/status`);
         const request: RequestInfo = new Request(`${node.url}/status`, {
             method: 'POST',
             headers: headers,
