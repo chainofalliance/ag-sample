@@ -14,7 +14,7 @@ export async function addSession(sessionId: string, participants: Buffer[], matc
             console.log(`PubKey: ${formatter.toString(p)}`)
         });
 
-        session.call(
+        await session.call(
             {
                 name: "ag.IMatchmaking.add_session",
                 args: [
