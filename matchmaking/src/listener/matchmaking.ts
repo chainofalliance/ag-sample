@@ -166,7 +166,6 @@ async function isNodeHealthy(node: ActiveNode, info: DappInfo) {
         headers.set('Content-Type', 'application/json');
         headers.set('Accept', 'application/json');
 
-        log('debug', `Fetching ${node.url}/status`);
         const request: RequestInfo = new Request(`${node.url}/status`, {
             method: 'POST',
             headers: headers,
