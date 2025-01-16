@@ -1,6 +1,5 @@
 ﻿using AllianceGamesSdk.Common;
 using AllianceGamesSdk.Server;
-using AllianceGamesSdk.Transport.WebSocket;
 using Chromia;
 using Serilog;
 using Buffer = Chromia.Buffer;
@@ -24,11 +23,7 @@ var config = new InjectedNodeConfig(
     signatureProvider,
     logger
 );
-var server = await AllianceGamesServer.Create(
-    new WebSocketTransport(logger),
-    config
-);
 
-var logic = new Logic(server, true);
-logic.OnGameEnd += result => server.Stop(result);
+
+var logic = new Logic(config, true);
 await logic.Run();

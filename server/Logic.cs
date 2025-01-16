@@ -1,4 +1,5 @@
 ﻿using AllianceGamesSdk.Server;
+using AllianceGamesSdk.Transport.WebSocket;
 using Newtonsoft.Json;
 using Serilog;
 using System.Net.WebSockets;
@@ -9,30 +10,27 @@ internal class Logic
 {
     private const string AI_ADDRESS = "0000000000000000000000000000000000000000000000000000000000000000";
     private readonly Buffer aiAddress = Buffer.From(AI_ADDRESS);
-    public event Action<string?>? OnGameEnd;
 
     public CancellationToken CancellationToken => cts.Token;
     private readonly Blockchain blockchain;
     private readonly CancellationTokenSource cts = new();
     private readonly TaskCompletionSource connectCs = new();
-    private readonly AllianceGamesServer server;
-    private readonly List<Buffer> players = [];
+    private readonly INodeConfig config;
+    private List<Buffer> players => points.Keys.ToList();
     private readonly Dictionary<Buffer, int> points = new();
     private readonly bool isAi;
+    private AllianceGamesServer? server = null;
     private int readyPlayers = 0;
     private Buffer currentPlayerId = Buffer.Empty();
     private TaskCompletionSource<Messages.MoveResponse>? moveTcs;
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
 
-    public Logic(AllianceGamesServer server, bool isAi)
+    public Logic(INodeConfig config, bool isAi)
     {
-        this.server = server;
-        server.OnClientConnect += OnClientConnect;
+        this.config = config;
         blockchain = BlockchainFactory.Get();
         this.isAi = isAi;
-
-        RegisterHandlers();
     }
 
     public async Task Forfeit(Buffer address)
@@ -45,6 +43,19 @@ internal class Logic
 
     public async Task Run()
     {
+        server = await AllianceGamesServer.Create(
+            new WebSocketTransport(config.Logger),
+            config
+        );
+
+        RegisterHandlers();
+
+        if (server == null)
+        {
+            config.Logger.Error("Failed to create server");
+            return;
+        }
+
         try
         {
             Log.Information($"Login to blockchain");
@@ -59,7 +70,7 @@ internal class Logic
             // play game
             Messages.Field? winner = null;
             currentPlayerId = players[0];
-            Log.Information($"Start with player {currentPlayerId}");
+            Log.Information($"Start with player {currentPlayerId.Parse()}");
             while (winner == null)
             {
                 var validMove = false;
@@ -70,7 +81,7 @@ internal class Logic
                         new Messages.Sync(GetField(currentPlayerId), board).Encode(),
                         CancellationToken
                     );
-                    Log.Information($"Send request to player {currentPlayerId}");
+                    Log.Information($"Send request to player {currentPlayerId.Parse()}");
 
                     int move;
                     if (isAi && currentPlayerId == aiAddress)
@@ -115,8 +126,8 @@ internal class Logic
     private async Task GameOver(Messages.Field? winner)
     {
         Buffer? winnerPlayer = winner == null ? null : players[(int)winner - 1];
-        Log.Information($"Game is over, winner is {winnerPlayer}");
-        await server.Send(
+        Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}");
+        await server!.Send(
             (int)Messages.Header.GameOver,
             winnerPlayer ?? Buffer.Empty(),
             default
@@ -138,7 +149,7 @@ internal class Logic
 
         }
 
-        OnGameEnd?.Invoke(JsonConvert.SerializeObject(blockchainReward));
+        await server.Stop(JsonConvert.SerializeObject(blockchainReward));
     }
 
     private Messages.Field GetField(Buffer? player) =>
@@ -168,7 +179,7 @@ internal class Logic
                 }
             }
         }
-        return validMoves[server.Random.Next(validMoves.Count)];
+        return validMoves[server!.Random.Next(validMoves.Count)];
     }
 
     private Buffer NextPlayer(Buffer currentPlayer)
@@ -176,40 +187,16 @@ internal class Logic
         return players.First(p => p != currentPlayer);
     }
 
-    private async void OnClientConnect(Buffer address)
-    {
-        Log.Information($"Player {address} connected");
-        int playerPoints = 0;
-        try
-        {
-            playerPoints = await blockchain.GetPoints(address.Parse());
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, $"Failed to get points for player {address}");
-        }
-
-        points.Add(address, playerPoints);
-        players.Add(address);
-        Log.Information($"Add player {address} with {playerPoints} points");
-
-        if (isAi)
-        {
-            var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
-            points.Add(aiAddress, aiPoints);
-            players.Add(aiAddress);
-            Log.Information($"Add AI player with {aiPoints} points");
-        }
-    }
-
     private async Task<Messages.MoveResponse?> RequestMove(Buffer currentPlayerId, CancellationToken ct)
     {
+        var delayCts = new CancellationTokenSource();
         _ = Task.Run(async () =>
         {
             try
             {
+                ct.Register(() => delayCts.Cancel());
                 Log.Information($"Starting timeout");
-                await server.Delay("move", 5000, ct);
+                await server!.Delay("move", 5000, delayCts.Token);
                 Log.Information($"Timeout invoked");
                 moveTcs?.TrySetCanceled();
             }
@@ -226,7 +213,7 @@ internal class Logic
         moveTcs = new TaskCompletionSource<Messages.MoveResponse>();
 
         Log.Information($"Send request start");
-        await server.Send(
+        await server!.Send(
             (int)Messages.Header.MoveRequest,
             currentPlayerId,
             Buffer.Empty(),
@@ -255,19 +242,44 @@ internal class Logic
             Log.Error(e, $"Error while waiting for response");
             return null;
         }
+        finally
+        {
+            delayCts.Cancel();
+        }
     }
 
     private void RegisterHandlers()
     {
-        server.RegisterMessageHandler((int)Messages.Header.Ready, (address, _) =>
+        server!.RegisterMessageHandler((int)Messages.Header.Ready, async (address, _) =>
         {
-            if (!players.Contains(address))
+            if (!server.Clients.Contains(address))
             {
-                Log.Error($"Player {address} is not in the game");
+                Log.Error($"Message.Ready:: Player {address.Parse()} is not in the game");
                 return;
             }
 
+            int playerPoints = 0;
+            try
+            {
+                playerPoints = await blockchain.GetPoints(address.Parse());
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Failed to get points for player {address.Parse()}");
+            }
+
+            points.Add(address, playerPoints);
+
+            if (isAi)
+            {
+                var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
+                points.Add(aiAddress, aiPoints);
+                players.Add(aiAddress);
+                Log.Information($"Add AI player with {aiPoints} points");
+            }
+
             readyPlayers++;
+            Log.Information($"Player {address.Parse()} is ready");
             if (readyPlayers == (isAi ? 1 : 2))
             {
                 connectCs.SetResult();
@@ -278,7 +290,7 @@ internal class Logic
         {
             if (address != currentPlayerId)
             {
-                Log.Error($"Its not players {address} turn");
+                Log.Error($"Its not players {address.Parse()} turn");
                 return;
             }
             else if (moveTcs == null)
@@ -294,7 +306,7 @@ internal class Logic
         {
             if (!players.Contains(address))
             {
-                Log.Error($"Player {address} is not in the game");
+                Log.Error($"Player {address.Parse()} is not in the game");
                 return;
             }
 
@@ -307,7 +319,7 @@ internal class Logic
 
             if (!players.Contains(address))
             {
-                Log.Error($"Player {address} is not in the game");
+                Log.Error($"Player {address.Parse()} is not in the game");
                 return Buffer.Empty();
             }
 
