@@ -153,14 +153,16 @@ public class GameController
             cts.Cancel();
         });
 
-        agClient.RegisterRequestHandler((int)Messages.Header.MoveRequest, async data =>
+        agClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
         {
             view.SetInfo("Received move request.");
             turn = new UniTaskCompletionSource<int>();
             var idx = await turn.Task;
             turn = null;
             view.SetInfo($"Send move response {idx}.");
-            return new Messages.MoveResponse(idx).Encode();
+
+            var response = new Messages.MoveResponse(idx).Encode();
+            await agClient.Send((int)Messages.Header.MoveResponse, response, cts.Token);
         });
     }
 

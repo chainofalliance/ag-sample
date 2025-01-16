@@ -21,7 +21,7 @@ internal class Logic
     private readonly bool isAi;
     private int readyPlayers = 0;
     private Buffer currentPlayerId = Buffer.Empty();
-    private TaskCompletionSource<Messages.MoveResponse> moveCts;
+    private TaskCompletionSource<Messages.MoveResponse>? moveTcs;
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
 
@@ -76,7 +76,7 @@ internal class Logic
                     if (isAi && currentPlayerId == aiAddress)
                     {
                         move = RandomMove();
-                        await Task.Delay(1000);
+                        await server.Delay("ai-move", 1000, CancellationToken);
                     }
                     else
                     {
@@ -204,33 +204,55 @@ internal class Logic
 
     private async Task<Messages.MoveResponse?> RequestMove(Buffer currentPlayerId, CancellationToken ct)
     {
-        var delayCts = new CancellationTokenSource();
         _ = Task.Run(async () =>
         {
             try
             {
-                await server.Delay("move", 30000, ct);
-                delayCts.Cancel();
+                Log.Information($"Starting timeout");
+                await server.Delay("move", 5000, ct);
+                Log.Information($"Timeout invoked");
+                moveTcs?.TrySetCanceled();
             }
             catch (TaskCanceledException)
-            { }
+            {
+                Log.Information($"TaskCanceledException Timeout");
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Information($"OperationCanceledException Timeout");
+            }
         });
-        var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, delayCts.Token);
-        var moveTcs = new TaskCompletionSource<Messages.MoveResponse>();
 
+        moveTcs = new TaskCompletionSource<Messages.MoveResponse>();
+
+        Log.Information($"Send request start");
         await server.Send(
             (int)Messages.Header.MoveRequest,
             currentPlayerId,
             Buffer.Empty(),
             ct
         );
+        Log.Information($"Send request done");
 
         try
         {
-            return await Task.Run(async () => await moveCts.Task, linkedCts.Token);
+            var res = await moveTcs.Task;
+            moveTcs = null;
+            return res;
+        }
+        catch (TaskCanceledException)
+        {
+            Log.Information($"TaskCanceledException Response canceled");
+            return null;
         }
         catch (OperationCanceledException)
         {
+            Log.Information($"OperationCanceledException Response canceled");
+            return null;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, $"Error while waiting for response");
             return null;
         }
     }
@@ -259,7 +281,13 @@ internal class Logic
                 Log.Error($"Its not players {address} turn");
                 return;
             }
-            moveCts.SetResult(new Messages.MoveResponse(data));
+            else if (moveTcs == null)
+            {
+                Log.Error($"Not waiting for a move");
+                return;
+            }
+
+            moveTcs.SetResult(new Messages.MoveResponse(data));
         });
 
         server.RegisterMessageHandler((int)Messages.Header.Forfeit, async (address, _) =>
