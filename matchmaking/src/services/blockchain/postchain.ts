@@ -2,12 +2,9 @@ import { createInMemoryFtKeyStore, createKeyStoreInteractor, Session } from "@ch
 import { IClient, createClient } from "postchain-client";
 import config from 'config';
 import { getProvider } from "./provider";
-import { DappInfo } from "./types";
-import { queryDappInfo } from "./queries";
 
 let client: IClient | null = null
 let session: Session | null = null;
-let dappInfo: DappInfo | null = null;
 
 export async function getClient() {
     if (!client) {
