@@ -121,6 +121,10 @@ internal class Logic
         }
         catch (WebSocketException) { }
         catch (OperationCanceledException) { }
+        finally
+        {
+            await Stop(null);
+        }
     }
 
     private async Task GameOver(Messages.Field? winner)
@@ -146,10 +150,9 @@ internal class Logic
                 new Reward(winnerPlayer.Value, 100),
                 new Reward(players.First(p => p != winnerPlayer.Value), 50)
             ];
-
         }
 
-        await server.Stop(JsonConvert.SerializeObject(blockchainReward));
+        await Stop(JsonConvert.SerializeObject(blockchainReward));
     }
 
     private Messages.Field GetField(Buffer? player) =>
@@ -327,6 +330,23 @@ internal class Logic
                 p => new Messages.PlayerDataResponse.Player(p, points[p], GetField(p))
             ).ToArray()).Encode();
         });
+    }
+
+    private async Task Stop(string? reward)
+    {
+        if (server != null)
+        {
+            await server.Stop(reward);
+            server = null;
+        }
+
+        try
+        {
+            cts.Cancel();
+            cts.Dispose();
+        }
+        catch (Exception)
+        { }
     }
 
     private Messages.Field? GetWinner()

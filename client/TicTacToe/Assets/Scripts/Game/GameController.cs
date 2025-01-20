@@ -2,11 +2,12 @@ using AllianceGamesSdk.Client;
 using AllianceGamesSdk.Common;
 using AllianceGamesSdk.Transport.WebSocket;
 using Cysharp.Threading.Tasks;
+using Serilog;
+using Serilog.Sinks.Unity3D;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-
 using Buffer = Chromia.Buffer;
 using IMessage = Messages.IMessage;
 
@@ -51,11 +52,10 @@ public class GameController
                 turn.TrySetResult(idx);
             }
         };
-        view.OnClickBack += () =>
+        view.OnClickBack += async () =>
         {
-            Forfeit().Forget();
-            if (cts != null && !cts.IsCancellationRequested)
-                cts.Cancel();
+            view.SetInfo("Forfeiting...");
+            await GameOver(true);
             OnEndGame?.Invoke();
         };
     }
@@ -72,18 +72,22 @@ public class GameController
         string matchId
     )
     {
-        cts?.Dispose();
         cts = new CancellationTokenSource();
 
         view.Reset();
         try
         {
             view.SetInfo($"Creating connection to {nodeUri}...");
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Unity3D()
+                .CreateLogger();
             var config = new ClientConfig(
                 matchId,
                 nodeUri,
                 blockchain.SignatureProvider,
-                taskRunner
+                taskRunner,
+                logger
             );
             agClient = await AllianceGamesClient.Create(
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -133,8 +137,7 @@ public class GameController
 
     public async UniTask Forfeit()
     {
-        if (!cts.IsCancellationRequested)
-            await agClient.Send((int)Messages.Header.Forfeit, Buffer.Empty(), cts.Token);
+        await agClient.Send((int)Messages.Header.Forfeit, Buffer.Empty(), cts.Token);
     }
 
     private void RegisterHandlers()
@@ -149,10 +152,10 @@ public class GameController
                 view.SetInfo("Opponents turn.");
         });
 
-        agClient.RegisterMessageHandler((int)Messages.Header.GameOver, winner =>
+        agClient.RegisterMessageHandler((int)Messages.Header.GameOver, async winner =>
         {
             view.SetInfo($"{winner} has won!");
-            cts.Cancel();
+            await GameOver(false);
         });
 
         agClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
@@ -180,5 +183,29 @@ public class GameController
         var responseMessage = new T();
         responseMessage.Decode(response.Value);
         return responseMessage;
+    }
+
+    private async UniTask GameOver(bool forfeit)
+    {
+        view.SetInfo("GameOver...");
+        if (agClient != null)
+        {
+            if (forfeit)
+                await Forfeit();
+
+            view.SetInfo("Disposing client...");
+            await agClient.DisposeAsync();
+            agClient = null;
+            view.SetInfo("Client disposed...");
+        }
+
+        if (cts != null)
+        {
+            view.SetInfo("Canceling cts...");
+            cts.Cancel();
+            cts.Dispose();
+            cts = null;
+        }
+        view.SetInfo("GameOver done...");
     }
 }
