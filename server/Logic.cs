@@ -12,7 +12,7 @@ internal class Logic
     private readonly Buffer aiAddress = Buffer.From(AI_ADDRESS);
 
     public CancellationToken CancellationToken => cts.Token;
-    private readonly Blockchain blockchain;
+    private readonly Blockchain blockchain = new();
     private readonly CancellationTokenSource cts = new();
     private readonly TaskCompletionSource connectCs = new();
     private readonly INodeConfig config;
@@ -29,7 +29,6 @@ internal class Logic
     public Logic(INodeConfig config, bool isAi)
     {
         this.config = config;
-        blockchain = BlockchainFactory.Get();
         this.isAi = isAi;
     }
 
@@ -59,7 +58,7 @@ internal class Logic
         try
         {
             Log.Information($"Login to blockchain");
-            await blockchain.Login();
+            await blockchain.Login(BlockchainConfig.TTT(config.SessionId != server.SessionId));
 
             Log.Information($"Waiting for both players to connect");
             await connectCs.Task;
