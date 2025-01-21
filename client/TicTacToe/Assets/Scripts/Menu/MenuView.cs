@@ -17,6 +17,9 @@ public class MenuView
     private readonly Button playButton;
     private readonly Button cancelButton;
     private readonly Label infoLabel;
+    private readonly Toggle devnetToggle;
+
+    public bool ConnectToDevnet => devnetToggle.value;
 
     public MenuView(
         VisualElement root
@@ -43,8 +46,9 @@ public class MenuView
             playButton.SetEnabled(true);
             OnCancel?.Invoke();
         };
-        
+
         infoLabel = root.Q<Label>("Info");
+        devnetToggle = root.Q<Toggle>("DevnetToggle");
 
         playButton.SetEnabled(false);
         cancelButton.SetEnabled(false);

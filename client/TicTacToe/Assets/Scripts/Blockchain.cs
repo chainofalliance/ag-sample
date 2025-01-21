@@ -3,38 +3,43 @@ using Chromia.Encoding;
 using Chromia.Transport;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json.Utilities;
-using System.Collections.Generic;
 using System.Linq;
 using Buffer = Chromia.Buffer;
 
-public static class BlockchainFactory
+public struct BlockchainConfig
 {
-    public static Blockchain Get()
+    public string[] NodeUrls;
+    public string Brid;
+    public int ChainId;
+
+    public static BlockchainConfig TTT(bool devnet)
     {
-#if PROD_ENV
-        return new Blockchain("8F9530C6A159EE2108953462AE74A5F8D6C26EBC84F07DF763E4315D973D5205",
-            "https://node8.devnet1.chromia.dev:7740/",
-            "https://node9.devnet1.chromia.dev:7740/",
-            "https://node10.devnet1.chromia.dev:7740/",
-            "https://node11.devnet1.chromia.dev:7740/"
-        );
-#else
-        return new Blockchain(2, "http://localhost:7740/");
-#endif
+        return !devnet ? new() { ChainId = 2, NodeUrls = new[] { "http://localhost:7740/" } } : new()
+        {
+            Brid = "8F9530C6A159EE2108953462AE74A5F8D6C26EBC84F07DF763E4315D973D5205",
+            NodeUrls = new[]
+            {
+                "https://node8.devnet1.chromia.dev:7740/",
+                "https://node9.devnet1.chromia.dev:7740/",
+                "https://node10.devnet1.chromia.dev:7740/",
+                "https://node11.devnet1.chromia.dev:7740/"
+            }
+        };
     }
 
-    public static Blockchain GetAg()
+    public static BlockchainConfig AG(bool devnet)
     {
-#if PROD_ENV
-        return new Blockchain("2840DCF725182C0D7731FE41A110A2FEC3A7B5CF944DF02596D423091364F62C",
-            "https://node8.devnet1.chromia.dev:7740/",
-            "https://node9.devnet1.chromia.dev:7740/",
-            "https://node10.devnet1.chromia.dev:7740/",
-            "https://node11.devnet1.chromia.dev:7740/"
-        );
-#else
-        return new Blockchain(1, "http://localhost:7740/");
-#endif
+        return !devnet ? new() { ChainId = 1, NodeUrls = new[] { "http://localhost:7740/" } } : new()
+        {
+            Brid = "2840DCF725182C0D7731FE41A110A2FEC3A7B5CF944DF02596D423091364F62C",
+            NodeUrls = new[]
+            {
+                "https://node8.devnet1.chromia.dev:7740/",
+                "https://node9.devnet1.chromia.dev:7740/",
+                "https://node10.devnet1.chromia.dev:7740/",
+                "https://node11.devnet1.chromia.dev:7740/"
+            }
+        };
     }
 }
 
@@ -45,35 +50,21 @@ public class Blockchain
 
     public ChromiaClient Client;
 
-    private readonly List<string> nodeUrls;
-    private readonly int chainId = 0;
-    private readonly string brid = string.Empty;
-
-    public Blockchain(int chainId, params string[] nodeUrls)
-    {
-        this.nodeUrls = nodeUrls.ToList();
-        this.chainId = chainId;
-    }
-
-    public Blockchain(string brid, params string[] nodeUrls)
-    {
-        this.nodeUrls = nodeUrls.ToList();
-        this.brid = brid;
-    }
-
-    public async UniTask Login(string privKey)
+    public async UniTask Login(BlockchainConfig config, string privKey)
     {
         Transport = new UnityTransport();
         UnityEngine.Debug.Log("Creating Chromia Client...");
         ChromiaClient.SetTransport(Transport);
-        if (brid != string.Empty)
+
+        if (!string.IsNullOrEmpty(config.Brid))
         {
-            Client = await ChromiaClient.Create(nodeUrls, Buffer.From(brid));
+            Client = await ChromiaClient.Create(config.NodeUrls.ToList(), Buffer.From(config.Brid));
         }
         else
         {
-            Client = await ChromiaClient.Create(nodeUrls, chainId);
+            Client = await ChromiaClient.Create(config.NodeUrls.ToList(), config.ChainId);
         }
+
 
         UnityEngine.Debug.Log("Creating SignatureProvider...");
         SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));

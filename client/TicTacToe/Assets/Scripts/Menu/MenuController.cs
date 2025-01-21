@@ -48,8 +48,8 @@ public class MenuController
     private async void OnLogin(string privKey)
     {
         view.SetInfo("Logging in...");
-        await blockchain.Login(privKey);
-        await agBlockchain.Login(privKey);
+        await blockchain.Login(BlockchainConfig.TTT(view.ConnectToDevnet), privKey);
+        await agBlockchain.Login(BlockchainConfig.AG(view.ConnectToDevnet), privKey);
         view.SetInfo("Syncing points...");
         await SyncPoints();
     }

@@ -20,8 +20,8 @@ public class Main : MonoBehaviour
     private VisualElement menu;
     private VisualElement game;
 
-    private Blockchain blockchain;
-    private Blockchain agBlockchain;
+    private Blockchain blockchain = new();
+    private Blockchain agBlockchain = new();
     private ITaskRunner taskRunner;
     private MenuController menuController;
     private GameController gameController;
@@ -34,8 +34,6 @@ public class Main : MonoBehaviour
         game = mainDocument.rootVisualElement.Q<VisualElement>("Game");
 
         taskRunner = new UniTaskRunner();
-        blockchain = BlockchainFactory.Get();
-        agBlockchain = BlockchainFactory.GetAg();
 #if ENABLE_IL2CPP
         blockchain.AotTypeEnforce();
 #endif
