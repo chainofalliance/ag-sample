@@ -10,12 +10,14 @@ public class GameView
 
     private readonly VisualElement root;
 
-    private readonly List<VisualElement> board;
+    private readonly Button[] cells;
 
     private readonly Label player1Label;
     private readonly Label player2Label;
+    private readonly Button backButton;
+
+
     private readonly Label infoLabel;
-    private readonly Button cancelButton;
 
     public GameView(
         VisualElement root
@@ -23,12 +25,25 @@ public class GameView
     {
         this.root = root;
 
-        board = root.Q("Board").Query<VisualElement>("Field").ToList();
+        cells = new Button[9];
+        for (int i = 0; i < 9; i++)
+        {
+            cells[i] = root.Q<Button>($"Cell{i}");
+            int index = i;
+            cells[i].clicked += () =>
+            {
+                OnClickField?.Invoke(index);
+            };
+        }
+
+        Debug.Log("cells"  + cells.Length);
+
         player1Label = root.Q<Label>("Player1");
         player2Label = root.Q<Label>("Player2");
-        infoLabel = root.Q<Label>("Info");
-        cancelButton = root.Q<Button>("Cancel");
-        cancelButton.clicked += () => OnClickBack?.Invoke();
+        infoLabel = root.Q<Label>("InfoLabel");
+
+        backButton = root.Q<Button>("BackButton");
+        backButton.clicked += () => OnClickBack?.Invoke();
     }
 
     public void SetVisible(
@@ -37,6 +52,8 @@ public class GameView
     {
         root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
+
+
 
     private string PlayerDataToString(
         GameController.PlayerData playerData
@@ -51,13 +68,10 @@ public class GameView
         player1Label.text = "Player1";
         player2Label.text = "Player2";
         infoLabel.text = "";
-        foreach (var field in board)
+        for (int i = 0; i < 9; i++)
         {
-            field.AddToClassList("Empty");
-            field.RemoveFromClassList("X");
-            field.RemoveFromClassList("O");
-            field.UnregisterCallback<ClickEvent>(OnClick);
-            field.RegisterCallback<ClickEvent>(OnClick);
+            cells[i].text = "";
+            cells[i].SetEnabled(true);
         }
     }
 
@@ -68,14 +82,6 @@ public class GameView
     {
         player1Label.text = PlayerDataToString(player1);
         player2Label.text = PlayerDataToString(player2);
-    }
-    private void OnClick(
-        ClickEvent clickEvent
-    )
-    {
-        var field = clickEvent.target as VisualElement;
-        var index = board.IndexOf(field);
-        OnClickField?.Invoke(index);
     }
 
     public void SetInfo(
@@ -92,11 +98,11 @@ public class GameView
         foreach (var symbolIdx in fields)
         {
             var symbol = (Messages.Field)symbolIdx;
-            var field = board[idx];
-            field.RemoveFromClassList("Empty");
-            field.RemoveFromClassList("X");
-            field.RemoveFromClassList("O");
-            field.AddToClassList(symbol.ToString());
+            if(symbol != Messages.Field.Empty)
+            {
+                cells[idx].text =  symbol.ToString();
+                cells[idx].SetEnabled(false);
+            }
             idx++;
         }
     }

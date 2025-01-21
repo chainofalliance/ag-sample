@@ -11,7 +11,7 @@ namespace AgMatchmaking
 {
     public static class MatchmakingServiceFactory
     {
-        public static string DUID = "awesome-dewdney-4058";
+        public static string DUID = "happy-kowalevski-6532";
         public static string QUEUE = "1Vs1";
 
         public static IMatchmakingService Get(Blockchain blockchain)

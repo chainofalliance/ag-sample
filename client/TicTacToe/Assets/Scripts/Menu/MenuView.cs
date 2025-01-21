@@ -47,7 +47,7 @@ public class MenuView
             OnCancel?.Invoke();
         };
 
-        infoLabel = root.Q<Label>("Info");
+        infoLabel = root.Q<Label>("InfoLabel");
         devnetToggle = root.Q<Toggle>("DevnetToggle");
 
         playButton.SetEnabled(false);

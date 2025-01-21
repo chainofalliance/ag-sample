@@ -29,8 +29,7 @@ public class Main : MonoBehaviour
     private void Start()
     {
         root = mainDocument.rootVisualElement;
-
-        menu = mainDocument.rootVisualElement.Q<VisualElement>("Menu");
+        menu = mainDocument.rootVisualElement.Q<VisualElement>("LoginScreen");
         game = mainDocument.rootVisualElement.Q<VisualElement>("Game");
 
         taskRunner = new UniTaskRunner();
