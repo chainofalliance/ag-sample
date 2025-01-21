@@ -99,7 +99,6 @@ public class GameController
                 ct: cts.Token
             );
             RegisterHandlers();
-            await UniTask.Delay(2000);
 
             await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
 
