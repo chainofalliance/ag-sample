@@ -6,7 +6,8 @@ public class MenuController
 {
     private readonly MenuView view;
     private readonly Blockchain blockchain;
-    private readonly IMatchmakingService matchmakingService;
+    private readonly Blockchain agBlockchain;
+    private readonly AgMatchmaking.IMatchmakingService matchmakingService;
     private readonly Action<Uri, string> onStartGame;
 
 
@@ -15,13 +16,15 @@ public class MenuController
     public MenuController(
         MenuView view,
         Blockchain blockchain,
-        IMatchmakingService matchmakingService,
+        Blockchain agBlockchain,
+        AgMatchmaking.IMatchmakingService agMatchmakingService,
         Action<Uri, string> onStartGame
     )
     {
         this.view = view;
         this.blockchain = blockchain;
-        this.matchmakingService = matchmakingService;
+        this.agBlockchain = agBlockchain;
+        this.matchmakingService = agMatchmakingService;
         this.onStartGame = onStartGame;
 
         view.OnLogin += OnLogin;
@@ -46,6 +49,7 @@ public class MenuController
     {
         view.SetInfo("Logging in...");
         await blockchain.Login(privKey);
+        await agBlockchain.Login(privKey);
         view.SetInfo("Syncing points...");
         await SyncPoints();
     }
@@ -58,28 +62,44 @@ public class MenuController
         view.SetInfo("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {
-            Address = blockchain.SignatureProvider.PubKey
+            Creator = blockchain.SignatureProvider.PubKey,
+            Duid = AgMatchmaking.MatchmakingServiceFactory.DUID
         }, cts.Token);
 
         view.SetInfo("Creating ticket...");
         var response = await matchmakingService.CreateMatchmakingTicket(new()
         {
-            Address = blockchain.SignatureProvider.PubKey,
+            Creator = blockchain.SignatureProvider.PubKey,
+            Duid = AgMatchmaking.MatchmakingServiceFactory.DUID,
+            QueueName = AgMatchmaking.MatchmakingServiceFactory.QUEUE
         }, cts.Token);
-        var ticketId = response.TicketId;
+
+
+        if (response.Status == Chromia.TransactionReceipt.ResponseStatus.Rejected)
+        {
+            view.SetInfo("Creating ticket transaction got rejected " + response.RejectReason);
+            return;
+        }
+
+        var ticketId = await matchmakingService.GetMatchmakingTicket(new()
+        {
+            Creator = blockchain.SignatureProvider.PubKey,
+            Duid = AgMatchmaking.MatchmakingServiceFactory.DUID,
+            QueueName = AgMatchmaking.MatchmakingServiceFactory.QUEUE
+        }, cts.Token);
+
         view.SetInfo($"Waiting for match with ticket ID {ticketId}...");
-        string matchId = null;
+        string sessionId = null;
         while (!cts.Token.IsCancellationRequested)
         {
-            var ticket = await matchmakingService.GetMatchmakingTicket(new()
+            var ticket = await matchmakingService.GetMatchmakingTicketStatus(new()
             {
-                Address = blockchain.SignatureProvider.PubKey,
                 TicketId = ticketId
             }, cts.Token);
 
-            if (ticket.MatchId != null)
+            if (ticket.SessionId != "")
             {
-                matchId = ticket.MatchId;
+                sessionId = ticket.SessionId;
                 break;
             }
 
@@ -87,23 +107,21 @@ public class MenuController
             await UniTask.Delay(1000);
         }
 
-        view.SetInfo($"Match found! Getting server details for match ID {matchId}...");
-        var match = await matchmakingService.GetMatch(new()
+        view.SetInfo($"Match found! Getting server details for match ID {sessionId}...");
+        var connectionDetails = await matchmakingService.GetConnectionDetails(new()
         {
-            Address = blockchain.SignatureProvider.PubKey,
-            MatchId = matchId
+            SessionId = sessionId
         }, cts.Token);
 
-        var node = new UriBuilder(match.ServerDetails);
+        var node = new UriBuilder(connectionDetails);
         // fix docker network mapping
         if (node.Host == "host.docker.internal")
         {
             node.Host = "localhost";
         }
 
-        var opponent = match.OpponentId;
         view.SetInfo($"Connecting to {node}...");
-        onStartGame?.Invoke(node.Uri, matchId);
+        onStartGame?.Invoke(node.Uri, sessionId);
     }
 
     private void OnCancel()

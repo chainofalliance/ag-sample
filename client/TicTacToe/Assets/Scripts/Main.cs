@@ -21,6 +21,7 @@ public class Main : MonoBehaviour
     private VisualElement game;
 
     private Blockchain blockchain;
+    private Blockchain agBlockchain;
     private ITaskRunner taskRunner;
     private MenuController menuController;
     private GameController gameController;
@@ -34,6 +35,7 @@ public class Main : MonoBehaviour
 
         taskRunner = new UniTaskRunner();
         blockchain = BlockchainFactory.Get();
+        agBlockchain = BlockchainFactory.GetAg();
 #if ENABLE_IL2CPP
         blockchain.AotTypeEnforce();
 #endif
@@ -41,7 +43,8 @@ public class Main : MonoBehaviour
         menuController = new MenuController(
             menuView,
             blockchain,
-            MatchmakingServiceFactory.Get(MOCK),
+            agBlockchain,
+            AgMatchmaking.MatchmakingServiceFactory.Get(agBlockchain),
             OnStartGame
         );
 
