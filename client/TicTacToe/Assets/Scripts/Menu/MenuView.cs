@@ -5,6 +5,7 @@ using UnityEngine.UIElements;
 public class MenuView
 {
     public event Action<string> OnLogin;
+    public event Action OnSync;
     public event Action OnPlay;
     public event Action OnCancel;
 
@@ -14,6 +15,7 @@ public class MenuView
     private readonly TextInputBaseField<string> privKeyInput;
     private readonly Button loginButton;
 
+    private readonly Button syncButton;
     private readonly Button playButton;
     private readonly Button cancelButton;
     private readonly Label infoLabel;
@@ -32,6 +34,12 @@ public class MenuView
         loginButton = root.Q<Button>("Login");
         loginButton.clicked += () => OnLogin?.Invoke(privKeyInput.value);
 
+        syncButton = root.Q<Button>("Sync");
+        syncButton.clicked += () =>
+        {
+            OnSync?.Invoke();
+        };
+        syncButton.SetEnabled(false);
         playButton = root.Q<Button>("Play");
         playButton.clicked += () =>
         {
@@ -86,5 +94,6 @@ public class MenuView
         privKeyInput.SetEnabled(false);
         loginButton.SetEnabled(false);
         playButton.SetEnabled(true);
+        syncButton.SetEnabled(true);
     }
 }

@@ -28,6 +28,7 @@ public class MenuController
         this.onStartGame = onStartGame;
 
         view.OnLogin += OnLogin;
+        view.OnSync += async () => await SyncPoints();
         view.OnPlay += OnPlay;
         view.OnCancel += OnCancel;
     }
