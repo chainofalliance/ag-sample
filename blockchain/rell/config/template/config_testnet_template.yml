@@ -1,0 +1,6 @@
+  testnet:
+    brid: x"${TESTNET_NODE_BRID}"
+    url: ${TESTNET_NODE_URL}
+    container: ${CONTAINER_ID_TESTNET}
+    chains:
+      AllianceGames: x"${BRID_TESTNET}"

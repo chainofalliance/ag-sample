@@ -6,12 +6,7 @@ export ENV=$3
 IFS=',' read -r -a TEST_MODULES <<< "$4"
 
 DEPLOYMENTS_KEY='deployments:'
-
-if [[ "$ENV" == "prod" ]]; then
-    export MAIN_MODULE="main"
-else
-    export MAIN_MODULE="main"
-fi
+export MAIN_MODULE="main"
 
 . ${CONFDIR}/${ENV}.env
 
@@ -31,7 +26,7 @@ for module in "${TEST_MODULES[@]}"; do
 done
 
 if [ ! -z ${CONTAINER_ID_TESTNET} ]; then
-    echo -e "\n$DEPLOYMENTS_KEY" >> ${ROOTDIR}/chromia.yml
+    echo $DEPLOYMENTS_KEY >> ${ROOTDIR}/chromia.yml
     envsubst < ${CONFDIR}/template/config_testnet_template.yml >> ${ROOTDIR}/chromia.yml
     if [ -z ${BRID_TESTNET} ]; then
         ex -snc '$-1,$d|x' ${ROOTDIR}/chromia.yml
