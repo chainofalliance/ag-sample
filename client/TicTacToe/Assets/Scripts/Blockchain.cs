@@ -31,7 +31,7 @@ public struct BlockchainConfig
     {
         return !devnet ? new() { ChainId = 1, NodeUrls = new[] { "http://localhost:7740/" } } : new()
         {
-            Brid = "2840DCF725182C0D7731FE41A110A2FEC3A7B5CF944DF02596D423091364F62C",
+            Brid = "9E32CFBBA7C62BAA311D110C3212749136EF4BFC0595078738FEE2BF357692BD",
             NodeUrls = new[]
             {
                 "https://node8.devnet1.chromia.dev:7740/",
