@@ -89,6 +89,16 @@ public class Main : MonoBehaviour
             await UniTask.Delay(millisecondsDelay, cancellationToken: cancellationToken);
         }
 
+        public async Task<T> Run<T>(Task<T> task, CancellationToken ct)
+        {
+            return await task.AsUniTask();
+        }
+
+        public TaskCompletionSource<T> TaskCompletionSource<T>()
+        {
+            return new TaskCompletionSource<T>();
+        }
+
         public async IAsyncEnumerable<T> Yield<T>(
             System.Threading.Channels.ChannelReader<T> reader,
             [EnumeratorCancellation] CancellationToken cancellationToken)

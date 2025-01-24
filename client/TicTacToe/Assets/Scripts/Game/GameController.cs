@@ -105,8 +105,6 @@ public class GameController
             );
             RegisterHandlers();
 
-            await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
-
             view.SetInfo("Sending request to get player data...");
             var response = await Request<Messages.PlayerDataResponse>(
                 new Messages.PlayerDataRequest(),
@@ -135,6 +133,10 @@ public class GameController
                 playerData.Find(p => p.Address == pubKey),
                 playerData.Find(p => p.Address != pubKey)
             );
+
+
+            await UniTask.Delay(3000);
+            await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
         }
         catch (OperationCanceledException) { }
     }
