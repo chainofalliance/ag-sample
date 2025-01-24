@@ -36,8 +36,6 @@ public class GameView
             };
         }
 
-        Debug.Log("cells"  + cells.Length);
-
         player1Label = root.Q<Label>("Player1");
         player2Label = root.Q<Label>("Player2");
         infoLabel = root.Q<Label>("InfoLabel");
@@ -98,9 +96,9 @@ public class GameView
         foreach (var symbolIdx in fields)
         {
             var symbol = (Messages.Field)symbolIdx;
-            if(symbol != Messages.Field.Empty)
+            if (symbol != Messages.Field.Empty)
             {
-                cells[idx].text =  symbol.ToString();
+                cells[idx].text = symbol.ToString();
                 cells[idx].SetEnabled(false);
             }
             idx++;
