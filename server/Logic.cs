@@ -48,13 +48,13 @@ internal class Logic
             config
         );
 
-        RegisterHandlers();
-
         if (server == null)
         {
             config.Logger.Error("Failed to create server");
             return;
         }
+
+        RegisterHandlers();
 
         try
         {
@@ -335,6 +335,11 @@ internal class Logic
                 p => new Messages.PlayerDataResponse.Player(p, points[p], GetField(p))
             ).ToArray()).Encode();
         });
+
+        server.OnClientConnect += address => Log.Information($"Player {address.Parse()} connected");
+        server.OnClientDisconnect += address => Log.Information($"Player {address.Parse()} disconnected");
+
+        server!.TriggerSavedEvents();
     }
 
     private async Task Stop(string? reward)
