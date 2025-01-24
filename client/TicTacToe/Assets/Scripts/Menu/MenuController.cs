@@ -48,7 +48,7 @@ public class MenuController
 
     private async void OnLogin(string privKey)
     {
-        view.SetInfo("Logging in...");
+        view.SetInfo($"Logging in {(view.ConnectToDevnet ? "Devnet" : "Local")}...");
         await blockchain.Login(BlockchainConfig.TTT(view.ConnectToDevnet), privKey);
         await agBlockchain.Login(BlockchainConfig.AG(view.ConnectToDevnet), privKey);
         view.SetInfo("Syncing points...");
@@ -62,7 +62,7 @@ public class MenuController
         cts = new CancellationTokenSource();
 
         var duid = AgMatchmaking.MatchmakingServiceFactory.DUID;
-        duid = duid != null? duid : await matchmakingService.GetUid(cts.Token);
+        duid = duid != null ? duid : await matchmakingService.GetUid(cts.Token);
 
         view.SetInfo("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()

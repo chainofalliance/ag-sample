@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Uss/LoginScreen.uss?fileID=7433441132597879392&amp;guid=d762022b9f6ba9848926b128eb480d10&amp;type=3#LoginScreen" />
+    <ui:VisualElement class="background" />
+    <ui:VisualElement class="center-container">
+        <ui:VisualElement class="login-container">
+            <ui:Label text="Tic Tac Toe" class="title" />
+            <ui:Label text="A sample project for Alliance Games" class="subtitle" />
+            <ui:Label name="Account" class="subtitle" style="white-space: normal;" />
+            <ui:TextField name="PrivKey" multiline="true" class="login-field" style="color: rgb(49, 49, 63);" />
+            <ui:Button name="Login" text="Login" class="login-button" />
+            <ui:VisualElement style="flex-direction: row; align-items: center;">
+                <ui:VisualElement class="checkbox-container" style="flex-grow: 1; margin-right: 20px;">
+                    <ui:Label text="Devnet" class="checkbox-label" />
+                    <ui:Toggle name="DevnetToggle" class="devnet-checkbox" />
+                </ui:VisualElement>
+                <ui:Button name="Sync" text="Sync" class="sync-button" style="margin-left: 24px;" />
+            </ui:VisualElement>
+            <ui:VisualElement class="button-container" style="flex-direction: row;">
+                <ui:Button name="Play" text="Play Match" class="play-button" />
+                <ui:Button name="Cancel" text="Cancel" class="cancel-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="InfoLabel" class="info-label" style="position: absolute; top: 816px; left: 1552px;" />
+    </ui:VisualElement>
+</ui:UXML>

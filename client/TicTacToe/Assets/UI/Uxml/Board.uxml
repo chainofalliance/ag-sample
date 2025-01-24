@@ -1,0 +1,33 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements">
+    <Style src="project://database/Assets/UI/Uss/Board.uss?fileID=7433441132597879392&amp;guid=ae4f658c0f5749a40ad3defca9e55357&amp;type=3#Board" />
+    <ui:VisualElement class="background" />
+    <ui:VisualElement class="main-container">
+        <ui:VisualElement class="left-panel">
+            <ui:Label name="Player1" class="player-label" />
+            <ui:Label class="vs-label" />
+            <ui:Label name="Player2" class="player-label player2-label" />
+            <ui:VisualElement class="spacer" />
+            <ui:Button name="BackButton" text="Back" class="back-button" />
+            <ui:Label name="InfoLabel" class="info-label" />
+        </ui:VisualElement>
+        <ui:VisualElement class="right-panel">
+            <ui:VisualElement class="grid">
+                <ui:VisualElement class="row">
+                    <ui:Button name="Cell0" class="cell" />
+                    <ui:Button name="Cell1" class="cell" />
+                    <ui:Button name="Cell2" class="cell" />
+                </ui:VisualElement>
+                <ui:VisualElement class="row">
+                    <ui:Button name="Cell3" class="cell" />
+                    <ui:Button name="Cell4" class="cell" />
+                    <ui:Button name="Cell5" class="cell" />
+                </ui:VisualElement>
+                <ui:VisualElement class="row">
+                    <ui:Button name="Cell6" class="cell" />
+                    <ui:Button name="Cell7" class="cell" />
+                    <ui:Button name="Cell8" class="cell" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
