@@ -8,8 +8,8 @@ rm -rf ${CLIENT_CONTAINER}/node_modules/ &> /dev/null
 
 cp $(pwd)/build/client_container/* ${BUILD_PATH}
 
-chmod -R 755 ${BUILD_PATH}/ChainOfAlliance/Build
+chmod -R 755 ${BUILD_PATH}/TicTacToe/Build
 
 docker rm -f ttt-webgl
 docker build -t ttt-webgl .
-docker run --name ttt-webgl -p 8081:80 -d coa-webgl
+docker run --name ttt-webgl -p 8081:80 -d ttt-webgl
