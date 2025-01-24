@@ -134,8 +134,6 @@ public class GameController
                 playerData.Find(p => p.Address != pubKey)
             );
 
-
-            await UniTask.Delay(3000);
             await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
         }
         catch (OperationCanceledException) { }
