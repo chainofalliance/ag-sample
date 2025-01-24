@@ -130,7 +130,7 @@ namespace AgMatchmaking
         {
             return await blockchain.Client.Query<string>(
                 "ag.IDappProvider.get_uid",
-                ("dsiplay_name", "TicTacToe")
+                ("display_name", "TicTacToe")
             );
         }
     }

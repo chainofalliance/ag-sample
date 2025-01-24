@@ -57,11 +57,12 @@ public class MenuController
 
     private async void OnPlay()
     {
-        var duid = AgMatchmaking.MatchmakingServiceFactory.DUID;
-        duid = duid != null? duid : await matchmakingService.GetUid(cts.Token);
 
         cts?.Dispose();
         cts = new CancellationTokenSource();
+
+        var duid = AgMatchmaking.MatchmakingServiceFactory.DUID;
+        duid = duid != null? duid : await matchmakingService.GetUid(cts.Token);
 
         view.SetInfo("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
