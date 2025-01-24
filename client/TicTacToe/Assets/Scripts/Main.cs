@@ -1,4 +1,5 @@
 using AllianceGamesSdk.Common;
+using AllianceGamesSdk.Common.Transport;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ public class Main : MonoBehaviour
     private Blockchain blockchain = new();
     private Blockchain agBlockchain = new();
     private ITaskRunner taskRunner;
+    private IHttpClient httpClient;
     private MenuController menuController;
     private GameController gameController;
 
@@ -33,6 +35,7 @@ public class Main : MonoBehaviour
         game = mainDocument.rootVisualElement.Q<VisualElement>("Game");
 
         taskRunner = new UniTaskRunner();
+        httpClient = new UnityHttpClient(blockchain);
 #if ENABLE_IL2CPP
         blockchain.AotTypeEnforce();
 #endif
@@ -50,6 +53,7 @@ public class Main : MonoBehaviour
             gameView,
             blockchain,
             taskRunner,
+            httpClient,
             OnEndGame
         );
 
@@ -84,6 +88,16 @@ public class Main : MonoBehaviour
             await UniTask.Delay(millisecondsDelay, cancellationToken: cancellationToken);
         }
 
+        public async Task<T> Run<T>(Task<T> task, CancellationToken ct)
+        {
+            return await task.AsUniTask();
+        }
+
+        public TaskCompletionSource<T> TaskCompletionSource<T>()
+        {
+            return new TaskCompletionSource<T>();
+        }
+
         public async IAsyncEnumerable<T> Yield<T>(
             System.Threading.Channels.ChannelReader<T> reader,
             [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -92,6 +106,21 @@ public class Main : MonoBehaviour
             {
                 yield return await reader.ReadAsync(cancellationToken).AsUniTask();
             }
+        }
+    }
+
+    class UnityHttpClient : IHttpClient
+    {
+        private readonly Blockchain blockchain;
+
+        public UnityHttpClient(Blockchain blockchain)
+        {
+            this.blockchain = blockchain;
+        }
+
+        public async Task<string> Get(Uri uri, CancellationToken ct)
+        {
+            return await blockchain.Transport.Get(uri, ct);
         }
     }
 }

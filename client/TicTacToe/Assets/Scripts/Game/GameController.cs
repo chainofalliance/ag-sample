@@ -1,5 +1,6 @@
 using AllianceGamesSdk.Client;
 using AllianceGamesSdk.Common;
+using AllianceGamesSdk.Common.Transport;
 using AllianceGamesSdk.Transport.WebSocket;
 using Cysharp.Threading.Tasks;
 using Serilog;
@@ -26,6 +27,7 @@ public class GameController
     private readonly GameView view;
     private readonly Blockchain blockchain;
     private readonly ITaskRunner taskRunner;
+    private readonly IHttpClient httpClient;
 
     private AllianceGamesClient agClient;
 
@@ -36,12 +38,14 @@ public class GameController
         GameView view,
         Blockchain blockchain,
         ITaskRunner taskRunner,
+        IHttpClient httpClient,
         Action OnEndGame
     )
     {
         this.view = view;
         this.blockchain = blockchain;
         this.taskRunner = taskRunner;
+        this.httpClient = httpClient;
 
         view.OnClickField += idx =>
         {
@@ -87,6 +91,7 @@ public class GameController
                 nodeUri,
                 blockchain.SignatureProvider,
                 taskRunner,
+                httpClient,
                 logger
             );
             agClient = await AllianceGamesClient.Create(
@@ -99,8 +104,6 @@ public class GameController
                 ct: cts.Token
             );
             RegisterHandlers();
-
-            await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
 
             view.SetInfo("Sending request to get player data...");
             var response = await Request<Messages.PlayerDataResponse>(
@@ -130,6 +133,8 @@ public class GameController
                 playerData.Find(p => p.Address == pubKey),
                 playerData.Find(p => p.Address != pubKey)
             );
+
+            await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
         }
         catch (OperationCanceledException) { }
     }

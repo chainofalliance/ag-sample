@@ -14,7 +14,8 @@ internal class Logic
     public CancellationToken CancellationToken => cts.Token;
     private readonly Blockchain blockchain = new();
     private readonly CancellationTokenSource cts = new();
-    private readonly TaskCompletionSource connectCs = new();
+    private readonly TaskCompletionSource initCs = new();
+    private readonly TaskCompletionSource readyCs = new();
     private readonly INodeConfig config;
     private List<Buffer> players => points.Keys.ToList();
     private readonly Dictionary<Buffer, int> points = new();
@@ -47,24 +48,27 @@ internal class Logic
             config
         );
 
-        RegisterHandlers();
-
         if (server == null)
         {
             config.Logger.Error("Failed to create server");
             return;
         }
 
+        RegisterHandlers();
+
         try
         {
             Log.Information($"Login to blockchain");
             await blockchain.Login(BlockchainConfig.TTT(config.SessionId != server.SessionId));
 
-            Log.Information($"Waiting for both players to connect");
-            await connectCs.Task;
+            Log.Information($"Initializing players");
+            await InitializePlayers();
 
             Log.Information($"Initializing board");
             InitializeBoard();
+
+            Log.Information($"Waiting for both players to ready up");
+            await readyCs.Task;
 
             // play game
             Messages.Field? winner = null;
@@ -124,6 +128,34 @@ internal class Logic
         {
             await Stop(null);
         }
+    }
+
+    private async Task InitializePlayers()
+    {
+        foreach (var client in server!.Clients)
+        {
+            int playerPoints = 0;
+            try
+            {
+                playerPoints = await blockchain.GetPoints(client.Parse());
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Failed to get points for player {client.Parse()}");
+            }
+
+            points.Add(client, playerPoints);
+        }
+
+        if (isAi)
+        {
+            var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
+            points.Add(aiAddress, aiPoints);
+            players.Add(aiAddress);
+            Log.Information($"Add AI player with {aiPoints} points");
+        }
+
+        initCs.SetResult();
     }
 
     private async Task GameOver(Messages.Field? winner)
@@ -252,39 +284,13 @@ internal class Logic
 
     private void RegisterHandlers()
     {
-        server!.RegisterMessageHandler((int)Messages.Header.Ready, async (address, _) =>
+        server!.RegisterMessageHandler((int)Messages.Header.Ready, (address, _) =>
         {
-            if (!server.Clients.Contains(address))
-            {
-                Log.Error($"Message.Ready:: Player {address.Parse()} is not in the game");
-                return;
-            }
-
-            int playerPoints = 0;
-            try
-            {
-                playerPoints = await blockchain.GetPoints(address.Parse());
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Failed to get points for player {address.Parse()}");
-            }
-
-            points.Add(address, playerPoints);
-
-            if (isAi)
-            {
-                var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
-                points.Add(aiAddress, aiPoints);
-                players.Add(aiAddress);
-                Log.Information($"Add AI player with {aiPoints} points");
-            }
-
             readyPlayers++;
             Log.Information($"Player {address.Parse()} is ready");
             if (readyPlayers == (isAi ? 1 : 2))
             {
-                connectCs.SetResult();
+                readyCs.SetResult();
             }
         });
 
@@ -317,7 +323,7 @@ internal class Logic
 
         server.RegisterRequestHandler((int)Messages.Header.PlayerDataRequest, async (address, data) =>
         {
-            await connectCs.Task;
+            await initCs.Task;
 
             if (!players.Contains(address))
             {
@@ -329,6 +335,11 @@ internal class Logic
                 p => new Messages.PlayerDataResponse.Player(p, points[p], GetField(p))
             ).ToArray()).Encode();
         });
+
+        server.OnClientConnect += address => Log.Information($"Player {address.Parse()} connected");
+        server.OnClientDisconnect += address => Log.Information($"Player {address.Parse()} disconnected");
+
+        server!.TriggerSavedEvents();
     }
 
     private async Task Stop(string? reward)

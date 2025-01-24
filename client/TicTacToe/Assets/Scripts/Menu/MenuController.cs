@@ -28,6 +28,7 @@ public class MenuController
         this.onStartGame = onStartGame;
 
         view.OnLogin += OnLogin;
+        view.OnSync += async () => await SyncPoints();
         view.OnPlay += OnPlay;
         view.OnCancel += OnCancel;
     }
@@ -56,21 +57,25 @@ public class MenuController
 
     private async void OnPlay()
     {
+
         cts?.Dispose();
         cts = new CancellationTokenSource();
+
+        var duid = AgMatchmaking.MatchmakingServiceFactory.DUID;
+        duid = duid != null? duid : await matchmakingService.GetUid(cts.Token);
 
         view.SetInfo("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {
             Creator = blockchain.SignatureProvider.PubKey,
-            Duid = AgMatchmaking.MatchmakingServiceFactory.DUID
+            Duid = duid
         }, cts.Token);
 
         view.SetInfo("Creating ticket...");
         var response = await matchmakingService.CreateMatchmakingTicket(new()
         {
             Creator = blockchain.SignatureProvider.PubKey,
-            Duid = AgMatchmaking.MatchmakingServiceFactory.DUID,
+            Duid = duid,
             QueueName = AgMatchmaking.MatchmakingServiceFactory.QUEUE
         }, cts.Token);
 
@@ -84,7 +89,7 @@ public class MenuController
         var ticketId = await matchmakingService.GetMatchmakingTicket(new()
         {
             Creator = blockchain.SignatureProvider.PubKey,
-            Duid = AgMatchmaking.MatchmakingServiceFactory.DUID,
+            Duid = duid,
             QueueName = AgMatchmaking.MatchmakingServiceFactory.QUEUE
         }, cts.Token);
 
