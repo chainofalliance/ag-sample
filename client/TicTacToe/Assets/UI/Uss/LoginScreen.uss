@@ -64,6 +64,18 @@
     transition: background-color 0.2s ease-in-out, width 0.1s ease-in-out, height 0.1s ease-in-out;
 }
 
+.sync-button {
+    width: 60%;
+    padding: 12px;
+    font-size: 18px;
+    background-color: rgb(255,255,51);
+    color: black;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, width 0.1s ease-in-out, height 0.1s ease-in-out;
+}
+
 .login-button:hover {
     background-color: rgb(105, 255, 148);
     width: 62%;

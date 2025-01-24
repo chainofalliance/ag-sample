@@ -21,7 +21,12 @@ public class MenuView
     private readonly Label infoLabel;
     private readonly Toggle devnetToggle;
 
-    public bool ConnectToDevnet => devnetToggle.value;
+    public bool ConnectToDevnet =>
+#if DEPLOYED
+        true;
+#else
+        devnetToggle.value;
+#endif
 
     public MenuView(
         VisualElement root
@@ -57,16 +62,21 @@ public class MenuView
 
         infoLabel = root.Q<Label>("InfoLabel");
         devnetToggle = root.Q<Toggle>("DevnetToggle");
+#if DEPLOYED
+        devnetToggle.style.display = DisplayStyle.None;
+#endif
 
         playButton.SetEnabled(false);
         cancelButton.SetEnabled(false);
 
+#if !DEPLOYED
 #if UNITY_EDITOR
         var privKey = "1111111111111111111111111111111111111111111111111111111111111111";
 #else
         var privKey = "2222222222222222222222222222222222222222222222222222222222222222";
 #endif
         privKeyInput.SetValueWithoutNotify(privKey);
+#endif
     }
 
     public void SetVisible(
