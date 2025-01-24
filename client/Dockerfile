@@ -1,9 +1,5 @@
 FROM unityci/editor:ubuntu-2022.3.18f1-webgl-3
 
-ARG DEPLOY_KEY
-RUN test -n "$DEPLOY_KEY" || (echo "DEPLOY_KEY not set" && false)
-ENV DEPLOY_KEY $DEPLOY_KEY
-
 RUN apt-get update && \
     apt-get install -y \
         jq \
@@ -24,12 +20,6 @@ RUN echo \
 RUN apt-get update && \
     apt-get install -y \
     docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-RUN mkdir -p ~/.ssh
-RUN ssh-keyscan github.com >> ~/.ssh/known_hosts
-RUN ssh-keyscan 13.48.149.47 >> ~/.ssh/known_hosts
-RUN echo "$DEPLOY_KEY" >> ~/.ssh/id_rsa
-RUN chmod 600 ~/.ssh/id_rsa
 
 ENV IS_CI=true
 
