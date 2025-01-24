@@ -11,7 +11,7 @@ namespace AgMatchmaking
 {
     public static class MatchmakingServiceFactory
     {
-        public static string DUID = "dapp-elastic-jepsen-8961";
+        public static string DUID = null;
         public static string QUEUE = "1Vs1";
 
         public static IMatchmakingService Get(Blockchain blockchain)
@@ -49,6 +49,10 @@ namespace AgMatchmaking
 
         UniTask<TransactionReceipt> CancelAllMatchmakingTicketsForPlayer(
             Models.CancelAllMatchmakingTicketRequests request,
+            CancellationToken ct
+        );
+
+        UniTask<string> GetUid(
             CancellationToken ct
         );
     }
@@ -120,6 +124,14 @@ namespace AgMatchmaking
         {
             return await blockchain.Client.SendUniqueTransaction(
                 new Operation("ag.IMatchmaking.cancel_all_tickets", request.ToGtv()), blockchain.SignatureProvider, ct).AsUniTask();
+        }
+
+        public async UniTask<string> GetUid(CancellationToken ct)
+        {
+            return await blockchain.Client.Query<string>(
+                "ag.IDappProvider.get_uid",
+                ("dsiplay_name", "TicTacToe")
+            );
         }
     }
 
