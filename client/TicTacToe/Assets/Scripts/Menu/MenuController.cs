@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
+using UnityEngine;
 
 public class MenuController
 {
@@ -31,6 +32,19 @@ public class MenuController
         view.OnSync += async () => await SyncPoints();
         view.OnPlay += OnPlay;
         view.OnCancel += OnCancel;
+
+        view.SetVersion(Application.version);
+
+#if !DEPLOYED
+#if UNITY_EDITOR
+        var privKey = "1111111111111111111111111111111111111111111111111111111111111111";
+#else
+        var privKey = "2222222222222222222222222222222222222222222222222222222222222222";
+#endif
+#else
+        var privKey = blockchain.GetLocalPrivKey();
+#endif
+        view.SetPrivKey(privKey);
     }
 
     public void SetVisible(
@@ -53,6 +67,8 @@ public class MenuController
         await agBlockchain.Login(BlockchainConfig.AG(view.ConnectToDevnet), privKey);
         view.SetInfo("Syncing points...");
         await SyncPoints();
+
+        blockchain.SaveLocalPrivKey(privKey);
     }
 
     private async void OnPlay()

@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
@@ -16,7 +17,27 @@ public static class EditorCommands
     [MenuItem("TTT/Build")]
     static void PerformEditorBuild()
     {
-        PerformBuildInternal("WebGL", "TicTacToe", Application.dataPath + "/../../Builds/WebGL/");
+        if (!int.TryParse(Application.version, out var version))
+        {
+            version = 1;
+        }
+
+        var buildPath = Application.dataPath + "/../../Builds/WebGL/";
+        PerformBuildInternal(
+            "WebGL",
+            "TicTacToe",
+            buildPath,
+            version.ToString()
+        );
+
+        UploadClient(buildPath, version.ToString());
+    }
+
+    [MenuItem("TTT/Upload")]
+    static void UploadBuild()
+    {
+        var buildPath = Application.dataPath + "/../../Builds/WebGL/";
+        UploadClient(buildPath, Application.version);
     }
 
     static void PerformCIBuild()
@@ -27,7 +48,8 @@ public static class EditorCommands
     static void PerformBuildInternal(
         string customBuildTarget = null,
         string customBuildName = null,
-        string customBuildPath = null
+        string customBuildPath = null,
+        string customVersionNumber = null
     )
     {
         var buildTarget = GetBuildTarget(customBuildTarget);
@@ -42,7 +64,11 @@ public static class EditorCommands
 
         EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WebGL, BuildTarget.WebGL);
 
-        if (TryGetEnv(VERSION_NUMBER_VAR, out var bundleVersionNumber))
+        if (!string.IsNullOrEmpty(customVersionNumber))
+        {
+            PlayerSettings.bundleVersion = customVersionNumber;
+        }
+        else if (TryGetEnv(VERSION_NUMBER_VAR, out var bundleVersionNumber))
         {
             Console.WriteLine($":: Setting bundleVersionNumber to '{bundleVersionNumber}' (Length: {bundleVersionNumber.Length})");
             PlayerSettings.bundleVersion = bundleVersionNumber;
@@ -191,12 +217,67 @@ public static class EditorCommands
         }
     }
 
-
     private static void SetScriptingSymbol(string symbol, bool on)
     {
         if (on && Regex.IsMatch(defines, $"{symbol}(;|$)"))
             return;
 
         defines = on ? defines + $";{symbol}" : Regex.Replace(defines, $"{symbol}(;|$)", "");
+    }
+
+    private static void UploadClient(string buildPath, string version)
+    {
+        // Create the process
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "C:/Program Files/Git/git-bash.exe", // Bash executable
+                Arguments = $"-c \"upload-remote.sh {buildPath} {version}\"",
+                WorkingDirectory = Application.dataPath + "/../../", // Set working directory
+                RedirectStandardOutput = true, // Redirect standard output
+                RedirectStandardError = true, // Redirect error output
+                UseShellExecute = false, // Required for redirection
+                CreateNoWindow = true // Hide the shell window
+            }
+        };
+
+        // Subscribe to output events
+        process.OutputDataReceived += (sender, args) =>
+        {
+            if (!string.IsNullOrEmpty(args.Data))
+            {
+                UnityEngine.Debug.Log(args.Data); // Print to Unity console
+            }
+        };
+
+        process.ErrorDataReceived += (sender, args) =>
+        {
+            if (!string.IsNullOrEmpty(args.Data))
+            {
+                UnityEngine.Debug.LogError(args.Data); // Print errors to Unity console
+            }
+        };
+
+        try
+        {
+            UnityEngine.Debug.Log("t1");
+            process.Start(); // Start the process
+            UnityEngine.Debug.Log("t2");
+            process.BeginOutputReadLine(); // Start reading output
+            UnityEngine.Debug.Log("t3");
+            process.BeginErrorReadLine(); // Start reading error output
+            UnityEngine.Debug.Log("t4");
+            process.WaitForExit(); // Wait for the process to exit
+            UnityEngine.Debug.Log(process.ExitCode.ToString());
+        }
+        catch (System.Exception ex)
+        {
+            UnityEngine.Debug.LogError($"Error running script: {ex.Message}");
+        }
+        finally
+        {
+            process.Dispose(); // Clean up resources
+        }
     }
 }

@@ -4,6 +4,7 @@ using Chromia.Transport;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json.Utilities;
 using System.Linq;
+using UnityEngine;
 using Buffer = Chromia.Buffer;
 
 public struct BlockchainConfig
@@ -68,6 +69,25 @@ public class Blockchain
 
         UnityEngine.Debug.Log("Creating SignatureProvider...");
         SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));
+    }
+
+    public string GetLocalPrivKey()
+    {
+        var key = "ttt_privkey";
+        var localPrivKey = PlayerPrefs.GetString(key, "");
+        if (string.IsNullOrEmpty(localPrivKey))
+        {
+            localPrivKey = KeyPair.GeneratePrivKey().Parse();
+            PlayerPrefs.SetString(key, localPrivKey);
+        }
+        return localPrivKey;
+    }
+
+    public string SaveLocalPrivKey(string privKey)
+    {
+        var key = "ttt_privkey";
+        PlayerPrefs.SetString(key, privKey);
+        return privKey;
     }
 
     public async UniTask<int> GetPoints(string pubKey = null)

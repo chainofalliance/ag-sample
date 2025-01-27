@@ -11,6 +11,8 @@ public class MenuView
 
     private readonly VisualElement root;
 
+    private readonly Label titleLabel;
+
     private readonly Label accountLabel;
     private readonly TextInputBaseField<string> privKeyInput;
     private readonly Button loginButton;
@@ -34,6 +36,7 @@ public class MenuView
     {
         this.root = root;
 
+        titleLabel = root.Q<Label>("Title");
         accountLabel = root.Q<Label>("Account");
         privKeyInput = root.Q<TextInputBaseField<string>>("PrivKey");
         loginButton = root.Q<Button>("Login");
@@ -68,15 +71,18 @@ public class MenuView
 
         playButton.SetEnabled(false);
         cancelButton.SetEnabled(false);
+    }
 
-#if !DEPLOYED
-#if UNITY_EDITOR
-        var privKey = "1111111111111111111111111111111111111111111111111111111111111111";
-#else
-        var privKey = "2222222222222222222222222222222222222222222222222222222222222222";
-#endif
+    public void SetVersion(string version)
+    {
+        titleLabel.text = $"TicTacToe v{version}";
+    }
+
+    public void SetPrivKey(
+        string privKey
+    )
+    {
         privKeyInput.SetValueWithoutNotify(privKey);
-#endif
     }
 
     public void SetVisible(
