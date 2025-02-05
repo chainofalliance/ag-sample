@@ -17,21 +17,6 @@
         <Reference Include="AllianceGamesSdk.Transport.WebSocket">
             <HintPath>AllianceGamesSdk.Transport.WebSocket.dll</HintPath>
         </Reference>
-      <Reference Include="Google.Protobuf">
-        <HintPath>dlls\Google.Protobuf.dll</HintPath>
-      </Reference>
-      <Reference Include="Grpc.AspNetCore.Server">
-        <HintPath>dlls\Grpc.AspNetCore.Server.dll</HintPath>
-      </Reference>
-      <Reference Include="Grpc.Core.Api">
-        <HintPath>dlls\Grpc.Core.Api.dll</HintPath>
-      </Reference>
-      <Reference Include="Grpc.Net.Client">
-        <HintPath>dlls\Grpc.Net.Client.dll</HintPath>
-      </Reference>
-      <Reference Include="Grpc.Net.Common">
-        <HintPath>dlls\Grpc.Net.Common.dll</HintPath>
-      </Reference>
       <Reference Include="Microsoft.Extensions.Logging.Abstractions">
         <HintPath>dlls\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
       </Reference>
