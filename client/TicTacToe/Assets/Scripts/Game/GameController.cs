@@ -1,7 +1,7 @@
 using AllianceGamesSdk.Client;
 using AllianceGamesSdk.Common;
 using AllianceGamesSdk.Common.Transport;
-using AllianceGamesSdk.Transport.WebSocket;
+using AllianceGamesSdk.Transport.Unity;
 using Cysharp.Threading.Tasks;
 using Serilog;
 using Serilog.Sinks.Unity3D;
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using Buffer = Chromia.Buffer;
 using IMessage = Messages.IMessage;
+using AllianceGamesSdk.Unity;
 
 public class GameController
 {
@@ -26,9 +27,6 @@ public class GameController
 
     private readonly GameView view;
     private readonly Blockchain blockchain;
-    private readonly ITaskRunner taskRunner;
-    private readonly IHttpClient httpClient;
-
     private AllianceGamesClient agClient;
 
     private CancellationTokenSource cts;
@@ -37,15 +35,11 @@ public class GameController
     public GameController(
         GameView view,
         Blockchain blockchain,
-        ITaskRunner taskRunner,
-        IHttpClient httpClient,
         Action OnEndGame
     )
     {
         this.view = view;
         this.blockchain = blockchain;
-        this.taskRunner = taskRunner;
-        this.httpClient = httpClient;
 
         view.OnClickField += idx =>
         {
@@ -90,16 +84,12 @@ public class GameController
                 matchId,
                 nodeUri,
                 blockchain.SignatureProvider,
-                taskRunner,
-                httpClient,
-                logger
+                new UniTaskRunner(),
+                new UnityHttpClient(),
+                logger: logger
             );
             agClient = await AllianceGamesClient.Create(
-#if UNITY_WEBGL && !UNITY_EDITOR
-                new UnityWebSocket(),
-#else
                 new WebSocketTransport(config.Logger),
-#endif
                 config,
                 ct: cts.Token
             );

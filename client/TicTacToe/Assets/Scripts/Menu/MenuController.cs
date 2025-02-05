@@ -1,3 +1,4 @@
+using AllianceGamesSdk.Matchmaking;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
@@ -5,10 +6,15 @@ using UnityEngine;
 
 public class MenuController
 {
+    private readonly string DUID;
+    private readonly string DISPLAY_NAME;
+    private readonly string QUEUE_NAME;
+
+
     private readonly MenuView view;
     private readonly Blockchain blockchain;
     private readonly Blockchain agBlockchain;
-    private readonly AgMatchmaking.IMatchmakingService matchmakingService;
+    private readonly IMatchmakingService matchmakingService;
     private readonly Action<Uri, string> onStartGame;
 
 
@@ -18,7 +24,7 @@ public class MenuController
         MenuView view,
         Blockchain blockchain,
         Blockchain agBlockchain,
-        AgMatchmaking.IMatchmakingService agMatchmakingService,
+        IMatchmakingService agMatchmakingService,
         Action<Uri, string> onStartGame
     )
     {
@@ -77,8 +83,8 @@ public class MenuController
         cts?.Dispose();
         cts = new CancellationTokenSource();
 
-        var duid = AgMatchmaking.MatchmakingServiceFactory.DUID;
-        duid = duid != null ? duid : await matchmakingService.GetUid(cts.Token);
+        var duid = DUID;
+        duid ??= await MatchmakingService.GetDuid(agBlockchain.Client, DISPLAY_NAME, cts.Token);
 
         view.SetInfo("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
@@ -92,7 +98,7 @@ public class MenuController
         {
             Creator = blockchain.SignatureProvider.PubKey,
             Duid = duid,
-            QueueName = AgMatchmaking.MatchmakingServiceFactory.QUEUE
+            QueueName = QUEUE_NAME
         }, cts.Token);
 
 
@@ -106,8 +112,9 @@ public class MenuController
         {
             Creator = blockchain.SignatureProvider.PubKey,
             Duid = duid,
-            QueueName = AgMatchmaking.MatchmakingServiceFactory.QUEUE
+            QueueName = QUEUE_NAME
         }, cts.Token);
+
 
         view.SetInfo($"Waiting for match with ticket ID {ticketId}...");
         string sessionId = null;

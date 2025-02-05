@@ -53,8 +53,8 @@ public class Blockchain
 
     public async UniTask Login(BlockchainConfig config, string privKey)
     {
-        Transport = new UnityTransport();
-        UnityEngine.Debug.Log("Creating Chromia Client...");
+        Transport = new AllianceGamesSdk.Unity.UnityTransport();
+        Debug.Log("Creating Chromia Client...");
         ChromiaClient.SetTransport(Transport);
 
         if (!string.IsNullOrEmpty(config.Brid))
@@ -67,7 +67,7 @@ public class Blockchain
         }
 
 
-        UnityEngine.Debug.Log("Creating SignatureProvider...");
+        Debug.Log("Creating SignatureProvider...");
         SignatureProvider = SignatureProvider.Create(Buffer.From(privKey));
     }
 

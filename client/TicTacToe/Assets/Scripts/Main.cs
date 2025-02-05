@@ -1,5 +1,6 @@
 using AllianceGamesSdk.Common;
 using AllianceGamesSdk.Common.Transport;
+using AllianceGamesSdk.Matchmaking;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
@@ -23,8 +24,6 @@ public class Main : MonoBehaviour
 
     private Blockchain blockchain = new();
     private Blockchain agBlockchain = new();
-    private ITaskRunner taskRunner;
-    private IHttpClient httpClient;
     private MenuController menuController;
     private GameController gameController;
 
@@ -34,8 +33,6 @@ public class Main : MonoBehaviour
         menu = mainDocument.rootVisualElement.Q<VisualElement>("LoginScreen");
         game = mainDocument.rootVisualElement.Q<VisualElement>("Game");
 
-        taskRunner = new UniTaskRunner();
-        httpClient = new UnityHttpClient(blockchain);
 #if ENABLE_IL2CPP
         blockchain.AotTypeEnforce();
 #endif
@@ -44,7 +41,7 @@ public class Main : MonoBehaviour
             menuView,
             blockchain,
             agBlockchain,
-            AgMatchmaking.MatchmakingServiceFactory.Get(agBlockchain),
+            MatchmakingServiceFactory.Get(agBlockchain.Client, agBlockchain.SignatureProvider),
             OnStartGame
         );
 
@@ -52,8 +49,6 @@ public class Main : MonoBehaviour
         gameController = new GameController(
             gameView,
             blockchain,
-            taskRunner,
-            httpClient,
             OnEndGame
         );
 
@@ -79,48 +74,5 @@ public class Main : MonoBehaviour
         menuController.SetVisible(true);
         gameController.SetVisible(false);
         await menuController.SyncPoints();
-    }
-
-    class UniTaskRunner : ITaskRunner
-    {
-        public async Task Delay(int millisecondsDelay, CancellationToken cancellationToken)
-        {
-            await UniTask.Delay(millisecondsDelay, cancellationToken: cancellationToken);
-        }
-
-        public async Task<T> Run<T>(Task<T> task, CancellationToken ct)
-        {
-            return await task.AsUniTask();
-        }
-
-        public TaskCompletionSource<T> TaskCompletionSource<T>()
-        {
-            return new TaskCompletionSource<T>();
-        }
-
-        public async IAsyncEnumerable<T> Yield<T>(
-            System.Threading.Channels.ChannelReader<T> reader,
-            [EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                yield return await reader.ReadAsync(cancellationToken).AsUniTask();
-            }
-        }
-    }
-
-    class UnityHttpClient : IHttpClient
-    {
-        private readonly Blockchain blockchain;
-
-        public UnityHttpClient(Blockchain blockchain)
-        {
-            this.blockchain = blockchain;
-        }
-
-        public async Task<string> Get(Uri uri, CancellationToken ct)
-        {
-            return await blockchain.Transport.Get(uri, ct);
-        }
     }
 }
