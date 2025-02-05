@@ -41,7 +41,6 @@ public class Main : MonoBehaviour
             menuView,
             blockchain,
             agBlockchain,
-            MatchmakingServiceFactory.Get(agBlockchain.Client, agBlockchain.SignatureProvider),
             OnStartGame
         );
 

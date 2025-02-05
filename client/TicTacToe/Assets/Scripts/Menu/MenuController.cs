@@ -7,14 +7,13 @@ using UnityEngine;
 public class MenuController
 {
     private readonly string DUID;
-    private readonly string DISPLAY_NAME;
-    private readonly string QUEUE_NAME;
+    private readonly string DISPLAY_NAME = "TicTacToe";
+    private readonly string QUEUE_NAME = "1Vs1";
 
 
     private readonly MenuView view;
     private readonly Blockchain blockchain;
     private readonly Blockchain agBlockchain;
-    private readonly IMatchmakingService matchmakingService;
     private readonly Action<Uri, string> onStartGame;
 
 
@@ -24,14 +23,12 @@ public class MenuController
         MenuView view,
         Blockchain blockchain,
         Blockchain agBlockchain,
-        IMatchmakingService agMatchmakingService,
         Action<Uri, string> onStartGame
     )
     {
         this.view = view;
         this.blockchain = blockchain;
         this.agBlockchain = agBlockchain;
-        this.matchmakingService = agMatchmakingService;
         this.onStartGame = onStartGame;
 
         view.OnLogin += OnLogin;
@@ -79,9 +76,10 @@ public class MenuController
 
     private async void OnPlay()
     {
-
         cts?.Dispose();
         cts = new CancellationTokenSource();
+
+        var matchmakingService = MatchmakingServiceFactory.Get(agBlockchain.Client, agBlockchain.SignatureProvider);
 
         var duid = DUID;
         duid ??= await MatchmakingService.GetDuid(agBlockchain.Client, DISPLAY_NAME, cts.Token);
