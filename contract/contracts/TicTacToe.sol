@@ -84,7 +84,7 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         require(keccak256(encodedData) == evt.rewardHash, "TicTacToe: invalid reward hash");
 
         (address pubkey, uint256 points) = abi.decode(encodedData, (address, uint256));
-        require(pubkey != msg.sender, "TicTacToe: pubkey is invalid");
+        require(pubkey == msg.sender, "TicTacToe: pubkey is invalid");
         _points[pubkey] += points;
     }
 
