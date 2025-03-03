@@ -26,12 +26,16 @@ public struct BlockchainConfig
 
 public class Blockchain
 {
-    public ITransport Transport { get; set; }
-
     private ChromiaClient client;
 
-    public async Task Login(BlockchainConfig config)
+    private Blockchain(ChromiaClient client)
     {
+        this.client = client;
+    }
+
+    public static async Task<Blockchain> Create(BlockchainConfig config)
+    {
+        ChromiaClient client;
         if (!string.IsNullOrEmpty(config.Brid))
         {
             client = await ChromiaClient.Create(config.NodeUrls.ToList(), Buffer.From(config.Brid));
@@ -40,6 +44,8 @@ public class Blockchain
         {
             client = await ChromiaClient.Create(config.NodeUrls.ToList(), config.ChainId);
         }
+
+        return new Blockchain(client);
     }
 
     public async Task<int> GetPoints(Buffer pubKey)
