@@ -1,0 +1,24 @@
+@import url("/Packages/com.reown.appkit.unity/UI Toolkit/AppKit Base Theme.tss");
+
+@import url("/Packages/com.reown.appkit.unity/UI Toolkit/AppKit Base Theme.tss");
+
+* {
+    --ro-color-accent-100: rgb(156, 81, 65);
+
+    --ro-accent-glass-090: rgba(156, 81, 65, 0.9);
+    --ro-accent-glass-080: rgba(156, 81, 65, 0.8);
+    --ro-accent-glass-020: rgba(156, 81, 65, 0.2);
+    --ro-accent-glass-015: rgba(156, 81, 65, 0.15);
+    --ro-accent-glass-010: rgba(156, 81, 65, 0.1);
+    --ro-accent-glass-005: rgba(156, 81, 65, 0.05);
+    --ro-accent-glass-002: rgba(156, 81, 65, 0.02);
+}
+
+Modal {
+    --ro-modal-border-color: #9a9085;
+    --ro-modal-border-width: 3px;
+}
+
+* {
+    -unity-font-definition: resource("Alata-Regular");
+}
