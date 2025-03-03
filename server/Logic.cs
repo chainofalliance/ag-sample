@@ -98,7 +98,7 @@ internal class Logic
                     {
                         move = RandomMove();
                         var cts = new TaskCompletionSource();
-                        server.SetTimeout(cts.SetResult, 1000, CancellationToken);
+                        server.SetTimeout(() => cts.TrySetResult(), 1000, CancellationToken);
                         await cts.Task;
                     }
                     else
@@ -141,7 +141,7 @@ internal class Logic
 
     private async Task InitializePlayers(Blockchain blockchain)
     {
-        foreach (var client in server!.Clients)
+        foreach (var client in server.Clients)
         {
             int playerPoints = 0;
             try
@@ -222,7 +222,7 @@ internal class Logic
                 }
             }
         }
-        return validMoves[server!.Random.Next(validMoves.Count)];
+        return validMoves[server.Random.Next(validMoves.Count)];
     }
 
     private Buffer NextPlayer(Buffer currentPlayer)
@@ -270,7 +270,7 @@ internal class Logic
 
     private void RegisterHandlers()
     {
-        server!.RegisterMessageHandler((int)Messages.Header.Ready, (address, _) =>
+        server.RegisterMessageHandler((uint)Messages.Header.Ready, (address, _) =>
         {
             readyPlayers++;
             Log.Information($"Player {address.Parse()} is ready");
@@ -280,7 +280,7 @@ internal class Logic
             }
         });
 
-        server.RegisterMessageHandler((int)Messages.Header.MoveResponse, (address, data) =>
+        server.RegisterMessageHandler((uint)Messages.Header.MoveResponse, (address, data) =>
         {
             if (address != currentPlayerId)
             {
@@ -296,7 +296,7 @@ internal class Logic
             moveTcs.SetResult(new Messages.MoveResponse(data));
         });
 
-        server.RegisterMessageHandler((int)Messages.Header.Forfeit, async (address, _) =>
+        server.RegisterMessageHandler((uint)Messages.Header.Forfeit, async (address, _) =>
         {
             if (!players.Contains(address))
             {
@@ -307,7 +307,7 @@ internal class Logic
             await Forfeit(address);
         });
 
-        server.RegisterRequestHandler((int)Messages.Header.PlayerDataRequest, async (address, data) =>
+        server.RegisterRequestHandler((uint)Messages.Header.PlayerDataRequest, async (address, data) =>
         {
             await initCs.Task;
 

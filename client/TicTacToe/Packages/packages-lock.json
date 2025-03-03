@@ -240,7 +240,7 @@
         "com.unity.netcode.gameobjects": "1.12.2",
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       },
-      "hash": "db580294f22aebb2b059a9d443ee1f402bea30e4"
+      "hash": "c78a5b8f0c0ad996c38a7176e1825ea87e949302"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

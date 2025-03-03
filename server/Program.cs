@@ -16,7 +16,7 @@ var config = new InjectedNodeConfig(
     "",
     new Node(signatureProvider.PubKey, $"http://localhost:{INodeConfig.DEFAULT_PORT}/"),
     [
-        Buffer.From("02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27"),
+        // Buffer.From("02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27"),
         Buffer.From("034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa"),
     ],
     [],
