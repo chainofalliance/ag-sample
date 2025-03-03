@@ -11,7 +11,7 @@ public class Messages
         O
     }
 
-    public enum Header
+    public enum Header : uint
     {
         Ready,
         Sync,

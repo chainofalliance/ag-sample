@@ -1,11 +1,10 @@
 {
     "files.exclude": {
-        "*.csproj": true,
         "**/*.meta": true,
         "Logs": true,
         "obj": true,
         "Temp": true,
-        "UserSettings": true,
+        "UserSettings": true
     },
     "dotnet.preferCSharpExtension": true,
     "dotnet.defaultSolution": "TicTacToe.sln"

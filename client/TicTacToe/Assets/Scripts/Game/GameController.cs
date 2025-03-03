@@ -170,7 +170,7 @@ public class GameController
         CancellationToken ct
     ) where T : class, IMessage, new()
     {
-        var response = await agClient.RequestUnverified((int)message.Header, message.Encode(), ct);
+        var response = await agClient.RequestUnverified((uint)message.Header, message.Encode(), ct);
         if (response == null)
             return null;
 
@@ -188,7 +188,7 @@ public class GameController
                 await Forfeit();
 
             view.SetInfo("Disposing client...");
-            await agClient.DisposeAsync();
+            await agClient.Stop(cts?.Token ?? CancellationToken.None);
             agClient = null;
             view.SetInfo("Client disposed...");
         }
