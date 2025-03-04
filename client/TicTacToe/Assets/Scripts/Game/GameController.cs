@@ -67,7 +67,8 @@ public class GameController
 
     public async UniTask StartGame(
         Uri nodeUri,
-        string matchId
+        string matchId,
+        bool local
     )
     {
         cts = new CancellationTokenSource();
@@ -80,19 +81,17 @@ public class GameController
                 .MinimumLevel.Debug()
                 .WriteTo.Unity3D()
                 .CreateLogger();
-            var config = new ClientConfig(
-                matchId,
-                nodeUri,
-                blockchain.SignatureProvider,
-                new UniTaskRunner(),
-                new UnityHttpClient(),
-                logger: logger
-            );
+            var config = GetClientConfig(nodeUri, matchId, local, logger);
             agClient = await AllianceGamesClient.Create(
                 new WebSocketTransport(config.Logger),
                 config,
                 ct: cts.Token
             );
+            if (agClient == null)
+            {
+                view.SetInfo("Could not create client");
+                return;
+            }
             RegisterHandlers();
 
             view.SetInfo("Sending request to get player data...");
@@ -170,7 +169,7 @@ public class GameController
         CancellationToken ct
     ) where T : class, IMessage, new()
     {
-        var response = await agClient.RequestUnverified((int)message.Header, message.Encode(), ct);
+        var response = await agClient.RequestUnverified((uint)message.Header, message.Encode(), ct);
         if (response == null)
             return null;
 
@@ -188,7 +187,7 @@ public class GameController
                 await Forfeit();
 
             view.SetInfo("Disposing client...");
-            await agClient.DisposeAsync();
+            await agClient.Stop(cts?.Token ?? CancellationToken.None);
             agClient = null;
             view.SetInfo("Client disposed...");
         }
@@ -201,5 +200,37 @@ public class GameController
             cts = null;
         }
         view.SetInfo("GameOver done...");
+    }
+
+    private IClientConfig GetClientConfig(
+        Uri nodeUri,
+        string matchId,
+        bool local,
+        ILogger logger
+    )
+    {
+        if (local)
+        {
+            return new ClientTestConfig(
+                matchId,
+                "",
+                nodeUri,
+                blockchain.SignatureProvider,
+                new UniTaskRunner(),
+                new UnityHttpClient(),
+                logger: logger
+            );
+        }
+        else
+        {
+            return new ClientConfig(
+                matchId,
+                nodeUri,
+                blockchain.SignatureProvider,
+                new UniTaskRunner(),
+                new UnityHttpClient(),
+                logger: logger
+            );
+        }
     }
 }

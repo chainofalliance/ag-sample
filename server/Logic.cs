@@ -12,7 +12,7 @@ internal class Logic
     private readonly Buffer aiAddress = Buffer.From(AI_ADDRESS);
 
     public CancellationToken CancellationToken => cts.Token;
-    private readonly Blockchain blockchain = new();
+    private readonly AllianceGamesServer server;
     private readonly CancellationTokenSource cts = new();
     private readonly TaskCompletionSource initCs = new();
     private readonly TaskCompletionSource readyCs = new();
@@ -20,7 +20,6 @@ internal class Logic
     private List<Buffer> players => points.Keys.ToList();
     private readonly Dictionary<Buffer, int> points = new();
     private readonly bool isAi;
-    private AllianceGamesServer? server = null;
     private int readyPlayers = 0;
     private Buffer currentPlayerId = Buffer.Empty();
     private TaskCompletionSource<Messages.MoveResponse>? moveTcs;
@@ -31,6 +30,18 @@ internal class Logic
     {
         this.config = config;
         this.isAi = isAi;
+
+        var server = AllianceGamesServer.Create(
+            new WebSocketTransport(config.Logger),
+            config
+        );
+        if (server == null)
+        {
+            throw new Exception("Failed to create server");
+        }
+        this.server = server;
+
+        RegisterHandlers();
     }
 
     public async Task Forfeit(Buffer address)
@@ -43,10 +54,7 @@ internal class Logic
 
     public async Task Run()
     {
-        server = await AllianceGamesServer.Create(
-            new WebSocketTransport(config.Logger),
-            config
-        );
+        var result = await server.Start(CancellationToken);
 
         if (server == null)
         {
@@ -54,15 +62,15 @@ internal class Logic
             return;
         }
 
-        RegisterHandlers();
 
         try
         {
             Log.Information($"Login to blockchain");
-            await blockchain.Login(BlockchainConfig.TTT(config.SessionId != server.SessionId));
+            // TODO: does not work anymore
+            var blockchain = await Blockchain.Create(BlockchainConfig.TTT(config.SessionId == server.SessionId));
 
             Log.Information($"Initializing players");
-            await InitializePlayers();
+            await InitializePlayers(blockchain);
 
             Log.Information($"Initializing board");
             InitializeBoard();
@@ -90,7 +98,9 @@ internal class Logic
                     if (isAi && currentPlayerId == aiAddress)
                     {
                         move = RandomMove();
-                        await server.Delay("ai-move", 1000, CancellationToken);
+                        var cts = new TaskCompletionSource();
+                        server.SetTimeout(() => cts.TrySetResult(), 1000, CancellationToken);
+                        await cts.Task;
                     }
                     else
                     {
@@ -130,10 +140,12 @@ internal class Logic
         }
     }
 
-    private async Task InitializePlayers()
+    private async Task InitializePlayers(Blockchain blockchain)
     {
-        foreach (var client in server!.Clients)
+        Log.Information($"Initialize players");
+        foreach (var client in server.Clients)
         {
+            Log.Information($"Initialize player {client.Parse()}");
             int playerPoints = 0;
             try
             {
@@ -144,17 +156,20 @@ internal class Logic
                 Log.Error(e, $"Failed to get points for player {client.Parse()}");
             }
 
+            Log.Information($"Add player {client.Parse()} with {playerPoints} points");
             points.Add(client, playerPoints);
         }
 
         if (isAi)
         {
+            Log.Information($"Initialize AI player");
             var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
             points.Add(aiAddress, aiPoints);
             players.Add(aiAddress);
             Log.Information($"Add AI player with {aiPoints} points");
         }
 
+        Log.Information($"Initialize players done");
         initCs.SetResult();
     }
 
@@ -213,7 +228,7 @@ internal class Logic
                 }
             }
         }
-        return validMoves[server!.Random.Next(validMoves.Count)];
+        return validMoves[server.Random.Next(validMoves.Count)];
     }
 
     private Buffer NextPlayer(Buffer currentPlayer)
@@ -223,31 +238,10 @@ internal class Logic
 
     private async Task<Messages.MoveResponse?> RequestMove(Buffer currentPlayerId, CancellationToken ct)
     {
-        var delayCts = new CancellationTokenSource();
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                ct.Register(() => delayCts.Cancel());
-                Log.Information($"Starting timeout");
-                await server!.Delay("move", 5000, delayCts.Token);
-                Log.Information($"Timeout invoked");
-                moveTcs?.TrySetCanceled();
-            }
-            catch (TaskCanceledException)
-            {
-                Log.Information($"TaskCanceledException Timeout");
-            }
-            catch (OperationCanceledException)
-            {
-                Log.Information($"OperationCanceledException Timeout");
-            }
-        });
-
         moveTcs = new TaskCompletionSource<Messages.MoveResponse>();
 
         Log.Information($"Send request start");
-        await server!.Send(
+        await server.Send(
             (int)Messages.Header.MoveRequest,
             currentPlayerId,
             Buffer.Empty(),
@@ -255,9 +249,11 @@ internal class Logic
         );
         Log.Information($"Send request done");
 
+        var timeout = server.SetTimeout(() => moveTcs?.TrySetCanceled(), 5000, ct);
         try
         {
             var res = await moveTcs.Task;
+            timeout.Cancel();
             moveTcs = null;
             return res;
         }
@@ -276,15 +272,11 @@ internal class Logic
             Log.Error(e, $"Error while waiting for response");
             return null;
         }
-        finally
-        {
-            delayCts.Cancel();
-        }
     }
 
     private void RegisterHandlers()
     {
-        server!.RegisterMessageHandler((int)Messages.Header.Ready, (address, _) =>
+        server.RegisterMessageHandler((uint)Messages.Header.Ready, (address, _) =>
         {
             readyPlayers++;
             Log.Information($"Player {address.Parse()} is ready");
@@ -294,7 +286,7 @@ internal class Logic
             }
         });
 
-        server.RegisterMessageHandler((int)Messages.Header.MoveResponse, (address, data) =>
+        server.RegisterMessageHandler((uint)Messages.Header.MoveResponse, (address, data) =>
         {
             if (address != currentPlayerId)
             {
@@ -310,7 +302,7 @@ internal class Logic
             moveTcs.SetResult(new Messages.MoveResponse(data));
         });
 
-        server.RegisterMessageHandler((int)Messages.Header.Forfeit, async (address, _) =>
+        server.RegisterMessageHandler((uint)Messages.Header.Forfeit, async (address, _) =>
         {
             if (!players.Contains(address))
             {
@@ -321,7 +313,7 @@ internal class Logic
             await Forfeit(address);
         });
 
-        server.RegisterRequestHandler((int)Messages.Header.PlayerDataRequest, async (address, data) =>
+        server.RegisterRequestHandler((uint)Messages.Header.PlayerDataRequest, async (address, data) =>
         {
             await initCs.Task;
 
@@ -338,16 +330,13 @@ internal class Logic
 
         server.OnClientConnect += address => Log.Information($"Player {address.Parse()} connected");
         server.OnClientDisconnect += address => Log.Information($"Player {address.Parse()} disconnected");
-
-        server!.TriggerSavedEvents();
     }
 
     private async Task Stop(string? reward)
     {
-        if (server != null)
+        if (server.IsRunning)
         {
             await server.Stop(reward);
-            server = null;
         }
 
         try

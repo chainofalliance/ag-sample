@@ -57,14 +57,16 @@ public class Main : MonoBehaviour
 
     private async void OnStartGame(
         Uri nodeUri,
-        string matchId
+        string matchId,
+        bool local
     )
     {
         menuController.SetVisible(false);
         gameController.SetVisible(true);
         await gameController.StartGame(
             nodeUri,
-            matchId
+            matchId,
+            local
         );
     }
 

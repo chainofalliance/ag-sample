@@ -30,6 +30,9 @@ public class MenuView
         devnetToggle.value;
 #endif
 
+    // TODO add UI for local connection
+    public bool ConnectToLocal => false;
+
     public MenuView(
         VisualElement root
     )

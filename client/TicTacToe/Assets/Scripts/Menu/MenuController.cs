@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class MenuController
 {
-    private readonly string DUID;
+    private readonly string DUID = "dapp-recursing-heisenberg-1026";
     private readonly string DISPLAY_NAME = "TicTacToe";
     private readonly string QUEUE_NAME = "1Vs1";
 
@@ -14,7 +14,7 @@ public class MenuController
     private readonly MenuView view;
     private readonly Blockchain blockchain;
     private readonly Blockchain agBlockchain;
-    private readonly Action<Uri, string> onStartGame;
+    private readonly Action<Uri, string, bool> onStartGame;
 
 
     private CancellationTokenSource cts;
@@ -23,7 +23,7 @@ public class MenuController
         MenuView view,
         Blockchain blockchain,
         Blockchain agBlockchain,
-        Action<Uri, string> onStartGame
+        Action<Uri, string, bool> onStartGame
     )
     {
         this.view = view;
@@ -79,6 +79,35 @@ public class MenuController
         cts?.Dispose();
         cts = new CancellationTokenSource();
 
+        (Uri node, string sessionId) result;
+        if (view.ConnectToLocal)
+        {
+            result = PlayLocal();
+        }
+        else
+        {
+            result = await PlayWithMatchmaking();
+        }
+
+        if (result.node == null || result.sessionId == null)
+        {
+            return;
+        }
+
+        view.SetInfo($"Connecting to {result.node} with session ID {result.sessionId}...");
+        onStartGame?.Invoke(result.node, result.sessionId, view.ConnectToLocal);
+    }
+
+    private (Uri, string) PlayLocal()
+    {
+        var node = new UriBuilder("http://localhost:40940");
+        var sessionId = "mock-match-id";
+
+        return (node.Uri, sessionId);
+    }
+
+    private async UniTask<(Uri, string)> PlayWithMatchmaking()
+    {
         var matchmakingService = MatchmakingServiceFactory.Get(agBlockchain.Client, agBlockchain.SignatureProvider);
 
         var duid = DUID;
@@ -103,7 +132,7 @@ public class MenuController
         if (response.Status == Chromia.TransactionReceipt.ResponseStatus.Rejected)
         {
             view.SetInfo("Creating ticket transaction got rejected " + response.RejectReason);
-            return;
+            return (null, null);
         }
 
         var ticketId = await matchmakingService.GetMatchmakingTicket(new()
@@ -146,8 +175,7 @@ public class MenuController
             node.Host = "localhost";
         }
 
-        view.SetInfo($"Connecting to {node}...");
-        onStartGame?.Invoke(node.Uri, sessionId);
+        return (node.Uri, sessionId);
     }
 
     private void OnCancel()

@@ -1,0 +1,366 @@
+2025-03-03 12:07:31.536 [INF] Initializing new Coordinator topology
+2025-03-03 12:07:31.570 [INF] Starting server
+2025-03-03 12:07:31.600 [INF] Start listening on localhost:40940
+2025-03-03 12:07:31.605 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:07:31.607 [INF] Initializing Topology
+2025-03-03 12:07:31.609 [INF] No witnesses to initialize
+2025-03-03 12:07:31.610 [INF] Setting random seed to 482522407
+2025-03-03 12:07:31.611 [INF] Setting network state to ready
+2025-03-03 12:07:31.613 [INF] Server started
+2025-03-03 12:07:31.614 [INF] Login to blockchain
+2025-03-03 12:07:31.678 [INF] Initializing players
+2025-03-03 12:07:31.794 [INF] Add AI player with 0 points
+2025-03-03 12:07:31.796 [INF] Initializing board
+2025-03-03 12:07:31.797 [INF] Waiting for both players to ready up
+2025-03-03 12:07:42.101 [WRN] Connection was not a WebSocketRequest
+2025-03-03 12:11:59.512 [INF] Initializing new Coordinator topology
+2025-03-03 12:11:59.539 [INF] Starting server
+2025-03-03 12:11:59.559 [INF] Start listening on localhost:40940
+2025-03-03 12:11:59.564 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:11:59.566 [INF] Initializing Topology
+2025-03-03 12:11:59.568 [INF] No witnesses to initialize
+2025-03-03 12:11:59.570 [INF] Setting random seed to 55403988
+2025-03-03 12:11:59.571 [INF] Setting network state to ready
+2025-03-03 12:11:59.573 [INF] Server started
+2025-03-03 12:11:59.574 [INF] Login to blockchain
+2025-03-03 12:11:59.633 [INF] Initializing players
+2025-03-03 12:11:59.721 [INF] Add AI player with 0 points
+2025-03-03 12:11:59.722 [INF] Initializing board
+2025-03-03 12:11:59.723 [INF] Waiting for both players to ready up
+2025-03-03 12:12:03.443 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:12:03.497 [WRN] NetworkStateRequest from non-client <Buffer 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa>
+2025-03-03 12:12:41.674 [INF] Initializing new Coordinator topology
+2025-03-03 12:12:41.702 [INF] Starting server
+2025-03-03 12:12:41.731 [INF] Start listening on localhost:40940
+2025-03-03 12:12:41.738 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:12:41.741 [INF] Initializing Topology
+2025-03-03 12:12:41.744 [INF] No witnesses to initialize
+2025-03-03 12:12:41.746 [INF] Setting random seed to 982270674
+2025-03-03 12:12:41.748 [INF] Setting network state to ready
+2025-03-03 12:12:41.751 [INF] Server started
+2025-03-03 12:12:41.752 [INF] Login to blockchain
+2025-03-03 12:12:41.809 [INF] Initializing players
+2025-03-03 12:12:41.903 [INF] Add AI player with 0 points
+2025-03-03 12:12:41.904 [INF] Initializing board
+2025-03-03 12:12:41.905 [INF] Waiting for both players to ready up
+2025-03-03 12:12:43.809 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:12:43.811 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa connected
+2025-03-03 12:12:43.904 [INF] Received witness list request
+2025-03-03 12:12:43.904 [INF] Witnesses initialized
+2025-03-03 12:12:43.984 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa is ready
+2025-03-03 12:12:43.985 [INF] Start with player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:12:43.990 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:12:43.991 [INF] Send request start
+2025-03-03 12:12:43.994 [INF] Send request done
+2025-03-03 12:12:46.636 [ERR] Timeout callback threw an exception
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at AllianceGamesSdk.Server.Network.Timeout.Run(CancellationToken ct) in C:\Users\Dennis\Documents\workspace\alliance-games\ag-unity-sdk\sdk\src\AllianceGamesSdk.Server\Network\DefaultTimeoutHandler.cs:line 64
+2025-03-03 12:12:46.637 [INF] Setting square [2, 0] to X
+2025-03-03 12:12:46.666 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:12:46.670 [INF] WebSocket listener stopped
+2025-03-03 12:12:46.671 [INF] Building proof for 3 messages
+2025-03-03 12:12:46.673 [INF] Removed 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa from connections
+2025-03-03 12:12:46.673 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa disconnected
+2025-03-03 12:12:46.689 [INF] Did not save proof outcome: {
+  "hash": "a97af24f5f527ebc412d4399c15a50dbd2cda92450e46e620c173f5ac06e1663",
+  "signature": "d944e07a0bb22dafdabd14e315f944abe3cdd4e12308a2b6d5c50556d0411b9f215c29ccaf170417eac7942d63cc4b04b6ba9e4ece98667a475cf816aa624d6b",
+  "result": null
+}
+2025-03-03 12:14:31.038 [INF] Initializing new Coordinator topology
+2025-03-03 12:14:31.072 [INF] Starting server
+2025-03-03 12:14:31.100 [INF] Start listening on localhost:40940
+2025-03-03 12:14:31.105 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:14:31.107 [INF] Initializing Topology
+2025-03-03 12:14:31.110 [INF] No witnesses to initialize
+2025-03-03 12:14:31.113 [INF] Setting random seed to 2084900704
+2025-03-03 12:14:31.114 [INF] Setting network state to ready
+2025-03-03 12:14:31.117 [INF] Server started
+2025-03-03 12:14:31.118 [INF] Login to blockchain
+2025-03-03 12:14:31.195 [INF] Initializing players
+2025-03-03 12:14:31.309 [INF] Add AI player with 0 points
+2025-03-03 12:14:31.310 [INF] Initializing board
+2025-03-03 12:14:31.311 [INF] Waiting for both players to ready up
+2025-03-03 12:14:39.331 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:14:39.333 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa connected
+2025-03-03 12:14:39.402 [INF] Received witness list request
+2025-03-03 12:14:39.403 [INF] Witnesses initialized
+2025-03-03 12:14:39.454 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa is ready
+2025-03-03 12:14:39.455 [INF] Start with player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:14:39.460 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:14:39.463 [INF] Send request start
+2025-03-03 12:14:39.466 [INF] Send request done
+2025-03-03 12:14:41.188 [ERR] Timeout callback threw an exception
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at AllianceGamesSdk.Server.Network.Timeout.Run(CancellationToken ct) in C:\Users\Dennis\Documents\workspace\alliance-games\ag-unity-sdk\sdk\src\AllianceGamesSdk.Server\Network\DefaultTimeoutHandler.cs:line 64
+2025-03-03 12:14:41.189 [INF] Setting square [2, 0] to X
+2025-03-03 12:14:41.204 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:14:41.208 [INF] WebSocket listener stopped
+2025-03-03 12:14:41.209 [INF] Building proof for 3 messages
+2025-03-03 12:14:41.211 [INF] Removed 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa from connections
+2025-03-03 12:14:41.212 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa disconnected
+2025-03-03 12:14:41.231 [INF] Did not save proof outcome: {
+  "hash": "a97af24f5f527ebc412d4399c15a50dbd2cda92450e46e620c173f5ac06e1663",
+  "signature": "d944e07a0bb22dafdabd14e315f944abe3cdd4e12308a2b6d5c50556d0411b9f215c29ccaf170417eac7942d63cc4b04b6ba9e4ece98667a475cf816aa624d6b",
+  "result": null
+}
+2025-03-03 12:16:43.535 [INF] Initializing new Coordinator topology
+2025-03-03 12:16:43.567 [INF] Starting server
+2025-03-03 12:16:43.591 [INF] Start listening on localhost:40940
+2025-03-03 12:16:43.596 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:16:43.599 [INF] Initializing Topology
+2025-03-03 12:16:43.602 [INF] No witnesses to initialize
+2025-03-03 12:16:43.604 [INF] Setting random seed to 253998372
+2025-03-03 12:16:43.605 [INF] Setting network state to ready
+2025-03-03 12:16:43.609 [INF] Server started
+2025-03-03 12:16:43.610 [INF] Login to blockchain
+2025-03-03 12:16:43.679 [INF] Initializing players
+2025-03-03 12:16:43.794 [INF] Add AI player with 0 points
+2025-03-03 12:16:43.795 [INF] Initializing board
+2025-03-03 12:16:43.796 [INF] Waiting for both players to ready up
+2025-03-03 12:16:49.412 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:16:49.414 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa connected
+2025-03-03 12:16:49.484 [INF] Received witness list request
+2025-03-03 12:16:49.485 [INF] Witnesses initialized
+2025-03-03 12:16:49.537 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa is ready
+2025-03-03 12:16:49.538 [INF] Start with player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:16:49.544 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:16:49.546 [INF] Send request start
+2025-03-03 12:16:49.549 [INF] Send request done
+2025-03-03 12:16:51.104 [ERR] Timeout callback threw an exception
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at AllianceGamesSdk.Server.Network.Timeout.Run(CancellationToken ct) in C:\Users\Dennis\Documents\workspace\alliance-games\ag-unity-sdk\sdk\src\AllianceGamesSdk.Server\Network\DefaultTimeoutHandler.cs:line 64
+2025-03-03 12:16:51.105 [INF] Setting square [2, 0] to X
+2025-03-03 12:16:51.132 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:16:52.140 [INF] Setting square [0, 0] to O
+2025-03-03 12:16:52.143 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:16:52.144 [INF] Send request start
+2025-03-03 12:16:52.146 [INF] Send request done
+2025-03-03 12:16:53.146 [ERR] Timeout callback threw an exception
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at AllianceGamesSdk.Server.Network.Timeout.Run(CancellationToken ct) in C:\Users\Dennis\Documents\workspace\alliance-games\ag-unity-sdk\sdk\src\AllianceGamesSdk.Server\Network\DefaultTimeoutHandler.cs:line 64
+2025-03-03 12:16:53.146 [INF] Setting square [2, 1] to X
+2025-03-03 12:16:53.150 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:16:54.152 [INF] Setting square [2, 2] to O
+2025-03-03 12:16:54.154 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:16:54.155 [INF] Send request start
+2025-03-03 12:16:54.157 [INF] Send request done
+2025-03-03 12:16:55.509 [INF] Setting square [1, 1] to X
+2025-03-03 12:16:55.509 [ERR] Timeout callback threw an exception
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at AllianceGamesSdk.Server.Network.Timeout.Run(CancellationToken ct) in C:\Users\Dennis\Documents\workspace\alliance-games\ag-unity-sdk\sdk\src\AllianceGamesSdk.Server\Network\DefaultTimeoutHandler.cs:line 64
+2025-03-03 12:16:55.511 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:16:56.517 [INF] Setting square [0, 2] to O
+2025-03-03 12:16:56.519 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:16:56.520 [INF] Send request start
+2025-03-03 12:16:56.521 [INF] Send request done
+2025-03-03 12:16:59.122 [INF] Setting square [0, 1] to X
+2025-03-03 12:16:59.122 [ERR] Timeout callback threw an exception
+System.Threading.Tasks.TaskCanceledException: A task was canceled.
+   at AllianceGamesSdk.Server.Network.Timeout.Run(CancellationToken ct) in C:\Users\Dennis\Documents\workspace\alliance-games\ag-unity-sdk\sdk\src\AllianceGamesSdk.Server\Network\DefaultTimeoutHandler.cs:line 64
+2025-03-03 12:16:59.125 [INF] Game is over, winner is 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:16:59.146 [INF] WebSocket listener stopped
+2025-03-03 12:16:59.146 [INF] Building proof for 6 messages
+2025-03-03 12:16:59.148 [INF] Removed 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa from connections
+2025-03-03 12:16:59.149 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa disconnected
+2025-03-03 12:16:59.158 [INF] Did not save proof outcome: {
+  "hash": "cf39ba415dda1d00fd33c0f6cd549d9eb53b827c72d106425ccd6e27dbb21c8a",
+  "signature": "a91fcf8495604ed7bccd83c3b97dc9ecee29e471ae9c86edf4219328923111626dbc4360d1fd9c896c13e6ab478870b053ff265f93e574c32322860da3a5407a",
+  "result": "[{\"pubkey\":\"034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa\",\"points\":100},{\"pubkey\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"points\":50}]"
+}
+2025-03-03 12:20:25.737 [INF] Initializing new Coordinator topology
+2025-03-03 12:20:25.764 [INF] Starting server
+2025-03-03 12:20:25.787 [INF] Start listening on localhost:40940
+2025-03-03 12:20:25.793 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:20:25.797 [INF] Initializing Topology
+2025-03-03 12:20:25.800 [INF] No witnesses to initialize
+2025-03-03 12:20:25.803 [INF] Setting random seed to 1520716047
+2025-03-03 12:20:25.805 [INF] Setting network state to ready
+2025-03-03 12:20:25.811 [INF] Server started
+2025-03-03 12:20:25.813 [INF] Login to blockchain
+2025-03-03 12:20:25.878 [INF] Initializing players
+2025-03-03 12:20:25.963 [INF] Add AI player with 0 points
+2025-03-03 12:20:25.964 [INF] Initializing board
+2025-03-03 12:20:25.965 [INF] Waiting for both players to ready up
+2025-03-03 12:20:27.163 [WRN] Received PubKeyRequest from unexpected connection with pubkey 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:20:27.185 [WRN] NetworkStateRequest from non-client <Buffer >
+2025-03-03 12:20:49.353 [INF] Initializing new Coordinator topology
+2025-03-03 12:20:49.397 [INF] Starting server
+2025-03-03 12:20:49.425 [INF] Start listening on localhost:40940
+2025-03-03 12:20:49.432 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:20:49.436 [INF] Initializing Topology
+2025-03-03 12:20:49.439 [INF] No witnesses to initialize
+2025-03-03 12:20:49.443 [INF] Setting random seed to 1426264419
+2025-03-03 12:20:49.444 [INF] Setting network state to ready
+2025-03-03 12:20:49.450 [INF] Server started
+2025-03-03 12:20:49.451 [INF] Login to blockchain
+2025-03-03 12:20:49.522 [INF] Initializing players
+2025-03-03 12:20:49.612 [INF] Add AI player with 0 points
+2025-03-03 12:20:49.613 [INF] Initializing board
+2025-03-03 12:20:49.613 [INF] Waiting for both players to ready up
+2025-03-03 12:20:55.346 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:20:55.350 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa connected
+2025-03-03 12:20:55.421 [INF] Received witness list request
+2025-03-03 12:20:55.422 [INF] Witnesses initialized
+2025-03-03 12:20:55.482 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa is ready
+2025-03-03 12:20:55.483 [INF] Start with player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:20:55.487 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:20:55.490 [INF] Send request start
+2025-03-03 12:20:55.493 [INF] Send request done
+2025-03-03 12:21:00.499 [INF] TaskCanceledException Response canceled
+2025-03-03 12:21:00.503 [INF] Setting square [2, 2] to X
+2025-03-03 12:21:00.506 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:21:00.527 [ERR] Its not players 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa turn
+2025-03-03 12:21:01.515 [INF] Setting square [2, 1] to O
+2025-03-03 12:21:01.517 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:21:01.517 [INF] Send request start
+2025-03-03 12:21:01.518 [INF] Send request done
+2025-03-03 12:21:03.170 [INF] Setting square [2, 0] to X
+2025-03-03 12:21:03.172 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:21:04.181 [INF] Setting square [1, 2] to O
+2025-03-03 12:21:04.183 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:21:04.184 [INF] Send request start
+2025-03-03 12:21:04.185 [INF] Send request done
+2025-03-03 12:21:06.087 [INF] Setting square [1, 1] to X
+2025-03-03 12:21:06.089 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:21:07.097 [INF] Setting square [1, 0] to O
+2025-03-03 12:21:07.099 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:21:07.099 [INF] Send request start
+2025-03-03 12:21:07.101 [INF] Send request done
+2025-03-03 12:21:08.449 [INF] Setting square [0, 2] to X
+2025-03-03 12:21:08.452 [INF] Game is over, winner is 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:21:08.474 [INF] WebSocket listener stopped
+2025-03-03 12:21:08.475 [INF] Building proof for 6 messages
+2025-03-03 12:21:08.476 [INF] Removed 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa from connections
+2025-03-03 12:21:08.478 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa disconnected
+2025-03-03 12:21:08.486 [INF] Did not save proof outcome: {
+  "hash": "cf39ba415dda1d00fd33c0f6cd549d9eb53b827c72d106425ccd6e27dbb21c8a",
+  "signature": "a91fcf8495604ed7bccd83c3b97dc9ecee29e471ae9c86edf4219328923111626dbc4360d1fd9c896c13e6ab478870b053ff265f93e574c32322860da3a5407a",
+  "result": "[{\"pubkey\":\"034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa\",\"points\":100},{\"pubkey\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"points\":50}]"
+}
+2025-03-03 12:23:09.611 [INF] Initializing new Coordinator topology
+2025-03-03 12:23:09.653 [INF] Starting server
+2025-03-03 12:23:09.693 [INF] Start listening on localhost:40940
+2025-03-03 12:23:09.700 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:23:09.703 [INF] Initializing Topology
+2025-03-03 12:23:09.705 [INF] No witnesses to initialize
+2025-03-03 12:23:09.707 [INF] Setting random seed to 1686712745
+2025-03-03 12:23:09.708 [INF] Setting network state to ready
+2025-03-03 12:23:09.712 [INF] Server started
+2025-03-03 12:23:09.713 [INF] Login to blockchain
+2025-03-03 12:23:09.770 [INF] Initializing players
+2025-03-03 12:23:09.864 [INF] Add AI player with 0 points
+2025-03-03 12:23:09.865 [INF] Initializing board
+2025-03-03 12:23:09.866 [INF] Waiting for both players to ready up
+2025-03-03 12:23:15.827 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:23:15.830 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa connected
+2025-03-03 12:23:15.895 [INF] Received witness list request
+2025-03-03 12:23:15.896 [INF] Witnesses initialized
+2025-03-03 12:23:15.945 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa is ready
+2025-03-03 12:23:15.946 [INF] Start with player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:23:15.950 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:23:15.952 [INF] Send request start
+2025-03-03 12:23:15.954 [INF] Send request done
+2025-03-03 12:23:18.111 [INF] Setting square [2, 0] to X
+2025-03-03 12:23:18.114 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:23:19.117 [INF] Setting square [1, 0] to O
+2025-03-03 12:23:19.118 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:23:19.119 [INF] Send request start
+2025-03-03 12:23:19.120 [INF] Send request done
+2025-03-03 12:23:20.206 [INF] Setting square [1, 1] to X
+2025-03-03 12:23:20.207 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:23:21.212 [INF] Setting square [2, 1] to O
+2025-03-03 12:23:21.214 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:23:21.214 [INF] Send request start
+2025-03-03 12:23:21.215 [INF] Send request done
+2025-03-03 12:23:22.285 [INF] Setting square [0, 2] to X
+2025-03-03 12:23:22.289 [INF] Game is over, winner is 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:23:22.308 [INF] WebSocket listener stopped
+2025-03-03 12:23:22.308 [INF] Building proof for 5 messages
+2025-03-03 12:23:22.310 [INF] Removed 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa from connections
+2025-03-03 12:23:22.311 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa disconnected
+2025-03-03 12:23:22.319 [INF] Did not save proof outcome: {
+  "hash": "5d27142fa17585b90fe400ec55425d821437de39696e3246bc223c0abe38b31a",
+  "signature": "2e275b56c7fe1c77bdabcf2c7d3313f78fd83ce1fde9a2c58f0d2c3790f009516e73299c5a27691df94b47aaf80053bc2fb9688d20050c4fa9249960152ecf5a",
+  "result": "[{\"pubkey\":\"034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa\",\"points\":100},{\"pubkey\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"points\":50}]"
+}
+2025-03-03 12:24:22.711 [INF] Initializing new Coordinator topology
+2025-03-03 12:24:22.740 [INF] Starting server
+2025-03-03 12:24:22.768 [INF] Start listening on localhost:40940
+2025-03-03 12:24:22.774 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:24:22.776 [INF] Initializing Topology
+2025-03-03 12:24:22.779 [INF] No witnesses to initialize
+2025-03-03 12:24:22.780 [INF] Setting random seed to 274397145
+2025-03-03 12:24:22.781 [INF] Setting network state to ready
+2025-03-03 12:24:22.784 [INF] Server started
+2025-03-03 12:24:22.785 [INF] Login to blockchain
+2025-03-03 12:24:22.845 [INF] Initializing players
+2025-03-03 12:24:22.930 [INF] Add AI player with 0 points
+2025-03-03 12:24:22.931 [INF] Initializing board
+2025-03-03 12:24:22.932 [INF] Waiting for both players to ready up
+2025-03-03 12:24:26.003 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:24:26.005 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa connected
+2025-03-03 12:24:26.077 [INF] Received witness list request
+2025-03-03 12:24:26.078 [INF] Witnesses initialized
+2025-03-03 12:24:26.127 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa is ready
+2025-03-03 12:24:26.128 [INF] Start with player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:24:26.132 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:24:26.134 [INF] Send request start
+2025-03-03 12:24:26.136 [INF] Send request done
+2025-03-03 12:24:27.840 [INF] Setting square [2, 0] to X
+2025-03-03 12:24:27.844 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:24:28.855 [INF] Setting square [1, 0] to O
+2025-03-03 12:24:28.857 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:24:28.857 [INF] Send request start
+2025-03-03 12:24:28.859 [INF] Send request done
+2025-03-03 12:24:29.689 [INF] Setting square [1, 1] to X
+2025-03-03 12:24:29.690 [INF] Send request to player 0000000000000000000000000000000000000000000000000000000000000000
+2025-03-03 12:24:30.695 [INF] Setting square [2, 1] to O
+2025-03-03 12:24:30.696 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:24:30.697 [INF] Send request start
+2025-03-03 12:24:30.698 [INF] Send request done
+2025-03-03 12:24:31.877 [INF] Setting square [0, 2] to X
+2025-03-03 12:24:31.880 [INF] Game is over, winner is 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:24:31.895 [INF] WebSocket listener stopped
+2025-03-03 12:24:31.896 [INF] Building proof for 5 messages
+2025-03-03 12:24:31.897 [INF] Removed 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa from connections
+2025-03-03 12:24:31.899 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa disconnected
+2025-03-03 12:24:31.904 [INF] Did not save proof outcome: {
+  "hash": "5d27142fa17585b90fe400ec55425d821437de39696e3246bc223c0abe38b31a",
+  "signature": "2e275b56c7fe1c77bdabcf2c7d3313f78fd83ce1fde9a2c58f0d2c3790f009516e73299c5a27691df94b47aaf80053bc2fb9688d20050c4fa9249960152ecf5a",
+  "result": "[{\"pubkey\":\"034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa\",\"points\":100},{\"pubkey\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"points\":50}]"
+}
+2025-03-03 12:25:13.090 [INF] Initializing new Coordinator topology
+2025-03-03 12:25:13.117 [INF] Starting server
+2025-03-03 12:25:13.139 [INF] Start listening on localhost:40940
+2025-03-03 12:25:13.143 [INF] Start listening on http://localhost:40940/ over WebSocket
+2025-03-03 12:25:13.145 [INF] Initializing Topology
+2025-03-03 12:25:13.147 [INF] No witnesses to initialize
+2025-03-03 12:25:13.149 [INF] Setting random seed to 1257586789
+2025-03-03 12:25:13.149 [INF] Setting network state to ready
+2025-03-03 12:25:13.152 [INF] Server started
+2025-03-03 12:25:13.153 [INF] Login to blockchain
+2025-03-03 12:25:13.212 [INF] Initializing players
+2025-03-03 12:25:13.304 [INF] Add AI player with 0 points
+2025-03-03 12:25:13.305 [INF] Initializing board
+2025-03-03 12:25:13.306 [INF] Waiting for both players to ready up
+2025-03-03 12:25:18.941 [INF] Adding 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa to connections
+2025-03-03 12:25:18.943 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa connected
+2025-03-03 12:25:19.009 [INF] Received witness list request
+2025-03-03 12:25:19.010 [INF] Witnesses initialized
+2025-03-03 12:25:19.067 [INF] Player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa is ready
+2025-03-03 12:25:19.068 [INF] Start with player 02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27
+2025-03-03 12:25:19.071 [INF] Send request to player 02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27
+2025-03-03 12:25:19.073 [INF] Send request start
+2025-03-03 12:25:19.074 [ERR] Failed to send message with header 5 to target 02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27: Target not connected
+2025-03-03 12:25:19.076 [INF] Send request done
+2025-03-03 12:25:24.087 [INF] TaskCanceledException Response canceled
+2025-03-03 12:25:24.092 [INF] Setting square [0, 0] to X
+2025-03-03 12:25:24.096 [INF] Send request to player 034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa
+2025-03-03 12:25:24.097 [INF] Send request start
+2025-03-03 12:25:24.100 [INF] Send request done
+2025-03-03 12:25:29.105 [INF] TaskCanceledException Response canceled
+2025-03-03 12:25:29.106 [INF] Setting square [2, 2] to O
+2025-03-03 12:25:29.109 [INF] Send request to player 02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27
+2025-03-03 12:25:29.109 [INF] Send request start
+2025-03-03 12:25:29.110 [ERR] Failed to send message with header 5 to target 02466d7fcae563e5cb09a0d1870bb580344804617879a14949cf22285f1bae3f27: Target not connected
+2025-03-03 12:25:29.112 [INF] Send request done
