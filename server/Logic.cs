@@ -66,7 +66,8 @@ internal class Logic
         try
         {
             Log.Information($"Login to blockchain");
-            var blockchain = await Blockchain.Create(BlockchainConfig.TTT(config.SessionId != server.SessionId));
+            // TODO: does not work anymore
+            var blockchain = await Blockchain.Create(BlockchainConfig.TTT(config.SessionId == server.SessionId));
 
             Log.Information($"Initializing players");
             await InitializePlayers(blockchain);
@@ -141,8 +142,10 @@ internal class Logic
 
     private async Task InitializePlayers(Blockchain blockchain)
     {
+        Log.Information($"Initialize players");
         foreach (var client in server.Clients)
         {
+            Log.Information($"Initialize player {client.Parse()}");
             int playerPoints = 0;
             try
             {
@@ -153,17 +156,20 @@ internal class Logic
                 Log.Error(e, $"Failed to get points for player {client.Parse()}");
             }
 
+            Log.Information($"Add player {client.Parse()} with {playerPoints} points");
             points.Add(client, playerPoints);
         }
 
         if (isAi)
         {
+            Log.Information($"Initialize AI player");
             var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
             points.Add(aiAddress, aiPoints);
             players.Add(aiAddress);
             Log.Information($"Add AI player with {aiPoints} points");
         }
 
+        Log.Information($"Initialize players done");
         initCs.SetResult();
     }
 
@@ -235,7 +241,7 @@ internal class Logic
         moveTcs = new TaskCompletionSource<Messages.MoveResponse>();
 
         Log.Information($"Send request start");
-        await server!.Send(
+        await server.Send(
             (int)Messages.Header.MoveRequest,
             currentPlayerId,
             Buffer.Empty(),

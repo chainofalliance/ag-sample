@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class MenuController
 {
-    private readonly string DUID = "dapp-bold-goldberg-1781";
+    private readonly string DUID = "dapp-recursing-heisenberg-1026";
     private readonly string DISPLAY_NAME = "TicTacToe";
     private readonly string QUEUE_NAME = "1Vs1";
 

@@ -31,7 +31,7 @@ public class MenuView
 #endif
 
     // TODO add UI for local connection
-    public bool ConnectToLocal => true;
+    public bool ConnectToLocal => false;
 
     public MenuView(
         VisualElement root
