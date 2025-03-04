@@ -4,21 +4,26 @@ using UnityEngine.UIElements;
 using Reown.AppKit.Unity;
 using Reown.Sign.Unity;
 using UnityEngine;
+using System;
 
 public class Bootstrap : MonoBehaviour
 {
+    public event Action<Uri, string> OnStartGame;
+
     [SerializeField]
     private UIDocument mainDocument;
 
     private VisualElement root;
     private LoginController loginController;
     private MenuController menuController;
+    private GameController gameController;
 
     private async void Start()
     {
         root = mainDocument.rootVisualElement;
         var loginElement = mainDocument.rootVisualElement.Q<VisualElement>("LoginScreen");
         var menuElement = mainDocument.rootVisualElement.Q<VisualElement>("MenuScreen");
+        var gameElement = mainDocument.rootVisualElement.Q<VisualElement>("GameScreen");
 
         await AppKitInit();
 
@@ -30,15 +35,18 @@ public class Bootstrap : MonoBehaviour
             OnChangeScreen(Screen.MENU);
         };
 
-        var blockchainConnectionManager = new BlockchainConnectionManager();
-        //await blockchainConnectionManager.Connect();
+        var connectionManager = new BlockchainConnectionManager();
+        // await blockchainConnectionManager.Connect();
         var accountManager = new AccountManager();
 
         var loginView = new LoginView(loginElement);
         loginController = new LoginController(loginView);
 
         var menuView = new MenuView(menuElement);
-        menuController = new MenuController(menuView);
+        menuController = new MenuController(menuView, connectionManager, accountManager, OnStartGame);
+
+        var gameView = new GameView(gameElement);
+        gameController = new GameController(gameView, OnStartGame);
 
         OnChangeScreen(Screen.LOGIN);
     }
@@ -74,6 +82,7 @@ public class Bootstrap : MonoBehaviour
     {
         loginController.SetVisible(false);
         menuController.SetVisible(false);
+        gameController.SetVisible(false);
 
         switch (screen)
         {
@@ -84,6 +93,7 @@ public class Bootstrap : MonoBehaviour
                 menuController.SetVisible(true);
                 break;
             case Screen.GAME:
+                gameController.SetVisible(true);
                 break;
         }
     }
