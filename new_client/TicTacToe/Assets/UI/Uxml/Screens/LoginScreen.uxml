@@ -1,0 +1,9 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:VisualElement name="Container" style="background-color: rgb(255, 255, 255); width: 100%; height: 100%; flex-direction: row;">
+        <engine:VisualElement name="ContentLeft" style="flex-grow: 1; width: 50%; align-items: center;">
+            <engine:Button text="Login with Wallet" name="ButtonLoginWallet" style="min-width: 150px;" />
+            <engine:Button text="Login as Guest" name="ButtonLoginGuest" style="margin-top: 16px; min-width: 150px;" />
+        </engine:VisualElement>
+        <engine:VisualElement name="ContentRight" style="flex-grow: 1; width: 50%;" />
+    </engine:VisualElement>
+</engine:UXML>

@@ -1,0 +1,6 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:Template name="LoginScreen" src="project://database/Assets/UI/Uxml/Screens/LoginScreen.uxml?fileID=9197481963319205126&amp;guid=efadf5fb26348af43ade18227d05e048&amp;type=3#LoginScreen" />
+    <engine:Template name="MenuScreen" src="project://database/Assets/UI/Uxml/Screens/MenuScreen.uxml?fileID=9197481963319205126&amp;guid=bdc33c27ad6e86b4f89bb161984088fb&amp;type=3#MenuScreen" />
+    <engine:Instance template="LoginScreen" name="LoginScreen" style="width: 100%; height: 100%;" />
+    <engine:Instance template="MenuScreen" name="MenuScreen" style="flex-grow: 1;" />
+</engine:UXML>

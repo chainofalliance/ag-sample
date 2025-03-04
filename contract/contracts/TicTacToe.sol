@@ -28,6 +28,7 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
 
     event Initialize(IValidator indexed _validator);
     event SetBlockchainRid(bytes32 rid);
+    event RewardClaimed(bytes32 indexed hash, bytes32 eventHash);
 
     function initialize(IValidator _validator, bytes32 rid, address _defaultAdmin) public initializer {
         require(address(_validator) != address(0), "TicTacToe: validator address is invalid");
@@ -86,6 +87,8 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         (address pubkey, uint256 points) = abi.decode(encodedData, (address, uint256));
         require(pubkey == msg.sender, "TicTacToe: pubkey is invalid");
         _points[pubkey] += points;
+
+        emit RewardClaimed(evt.rewardHash, eventProof.leaf);
     }
 
     function getPoints(address pubkey) external view returns (uint256) {
