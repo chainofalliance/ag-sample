@@ -4,5 +4,5 @@
     <engine:Template name="GameScreen" src="project://database/Assets/UI/Uxml/Screens/GameScreen.uxml?fileID=9197481963319205126&amp;guid=5f290a060655c45478f85c42dda574b4&amp;type=3#GameScreen" />
     <engine:Instance template="LoginScreen" name="LoginScreen" style="width: 100%; height: 100%; display: none;" />
     <engine:Instance template="MenuScreen" name="MenuScreen" style="flex-grow: 1; display: none;" />
-    <engine:Instance template="GameScreen" name="GameScreen" style="display: none;" />
+    <engine:Instance template="GameScreen" name="GameScreen" style="display: none; flex-grow: 1;" />
 </engine:UXML>

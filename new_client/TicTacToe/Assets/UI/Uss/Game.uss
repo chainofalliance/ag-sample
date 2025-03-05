@@ -1,0 +1,143 @@
+﻿/* 🎨 Hintergrund */
+.background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #1e1e2e;
+}
+
+/* 🎮 Hauptcontainer */
+.main-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+/* 🔄 Abstandshalter */
+.spacer {
+    height: 30px; /* Erhöht den Abstand zwischen Player2 und BackButton */
+}
+
+/* 🏆 Linke Seite: Spieler-Info */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 30%;
+    gap: 15px;
+}
+
+/* Player Labels */
+.player-label {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    padding: 12px 25px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    text-align: center;
+    min-width: 150px;
+}
+
+/* 🆚 VS Label */
+.vs-label {
+    font-size: 20px;
+    color: #aaaaaa;
+}
+
+/* 🔙 Back-Button */
+.back-button {
+    padding: 14px 24px;
+    font-size: 20px;
+    background-color: #282a36;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.back-button:hover {
+    background-color: #44475a;
+}
+
+/* 🎮 Rechte Seite: Tic-Tac-Toe Feld */
+.right-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70%;
+}
+
+/* 🟦 Tic-Tac-Toe Grid */
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Mehr Abstand zwischen den Reihen */
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 📏 Jede Zeile */
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 15px; /* Mehr Abstand zwischen den Zellen */
+}
+
+/* 🎮 Tic-Tac-Toe Felder */
+.cell {
+    width: 200px; /* Größere Felder */
+    height: 200px;
+    font-size: 42px; /* Größere Schrift */
+    font-weight: bold;
+    text-align: center;
+    background-color: #282a36;
+    color: white;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* 🎮 Hover-Effekt für Tic-Tac-Toe-Felder */
+.cell:hover {
+    background-color: #44475a; /* Dunklere Farbe für den Hover-Effekt */
+    border: 2px solid #ffffff; /* Weißer Rand für mehr Sichtbarkeit */
+    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2); /* Leichter Hover-Glow */
+}
+
+
+/* 🔒 Deaktiviertes Feld */
+.cell:disabled {
+    background-color: #333333;
+    color: #888888;
+}
+
+.info-label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1e1e2e; /* Dunkle Schrift für Kontrast */
+    background-color: rgba(255, 255, 255, 0.9); /* Fast weiß mit leichter Transparenz */
+    padding: 15px 30px; /* Mehr Platz für Text */
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 20px;
+    border: 2px solid #ffffff; /* Weißer Rand für Sichtbarkeit */
+    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.3); /* Leichter Glow-Effekt */
+    
+    width: 80%; /* Breiter, damit längere Texte reinpassen */
+    max-width: 300px; /* Maximale Breite für bessere Darstellung */
+    
+    white-space: normal; /* Zeilenumbruch für lange Texte */
+    word-wrap: break-word; /* Falls nötig, trennen */
+    overflow: hidden; /* Kein Überlaufen des Textes */
+    flex-shrink: 0; /* Verhindert, dass es zu klein wird */
+}

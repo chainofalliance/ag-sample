@@ -6,7 +6,7 @@ using System;
 
 public class MenuController
 {
-    private readonly string DUID;
+    private readonly string DUID = null;
     private readonly string DISPLAY_NAME = "TicTacToe";
     private readonly string QUEUE_NAME = "1Vs1";
 
@@ -26,6 +26,7 @@ public class MenuController
         this.view = view;
         this.connectionManager = connectionManager;
         this.accountManager = accountManager;
+        this.OnStartGame = OnStartGame;
 
         view.OnPlayPve += OnPlay;
     }
@@ -42,10 +43,8 @@ public class MenuController
 
         var matchmakingService = MatchmakingServiceFactory.Get(
             connectionManager.AlliancesGamesClient, accountManager.SignatureProvider);
-
         var duid = DUID;
         duid ??= await MatchmakingService.GetDuid(connectionManager.AlliancesGamesClient, DISPLAY_NAME, cts.Token);
-
         Debug.Log("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {

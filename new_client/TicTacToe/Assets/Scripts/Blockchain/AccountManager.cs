@@ -10,6 +10,8 @@ public class AccountManager
     public AccountManager()
     {
         AppKit.AccountConnected += OnAccountConnected;
+        // For faster testing 
+        SignatureProvider = SignatureProvider.Create();
     }
 
     private async void OnAccountConnected(object sender, Connector.AccountConnectedEventArgs eventArgs)

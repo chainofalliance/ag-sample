@@ -8,11 +8,27 @@ operation __icmf_message(sender: byte_array, topic: text, body: gtv) {
         return;
     }
 
-    val rewards = list<Leaderboard.s_reward>.from_gtv_pretty(body);
+    val game_result = list<Leaderboard.s_game_result>.from_gtv_pretty(body);
 
-    for(i in rewards) {
+    for(i in game_result) {
         log("incrementing points for ", i.pubkey, " by ", i.points);
         val entry = Leaderboard.ensure(i.pubkey);
         entry.points += i.points;
+
+        if(i.outcome == Leaderboard.e_outcome.Win) {
+            entry.win_count++;
+        } else if(i.outcome == Leaderboard.e_outcome.Loose) {
+            entry.loose_count++;
+        } else {
+            entry.draw_count++;
+        }
+
+        create History.__def(
+            player = i.pubkey,
+            session_id = i.session_id,
+            opponent = i.opponent,
+            outcome = i.outcome,
+            points = i.points
+        );
     }
 }

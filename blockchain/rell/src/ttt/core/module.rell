@@ -3,23 +3,46 @@ module;
 import ^.*;
 
 namespace Leaderboard {
-    struct s_reward {
-        pubkey: pubkey;
+    enum e_outcome {
+        Win,
+        Loose,
+        Draw
+    }
+
+    struct s_game_result {
+        pubkey: byte_array;
+        session_id: text;
+        opponent: byte_array;
         points: integer;
+        outcome: e_outcome;
     }
 
     entity __def {
-        player: pubkey;
-        mutable points: integer;
+        key player: pubkey;
+
+        mutable points: integer = 0;
+        mutable win_count: integer = 0;
+        mutable loose_count: integer = 0;
+        mutable draw_count: integer = 0;
     }
 
     function ensure(player: pubkey) {
         val res = __def @? {player};
 
         if(res == null) {
-            return create __def(player, 0);
+            return create __def(player);
         }
 
         return res;
+    }
+}
+
+namespace History {
+    entity __def {
+        player: pubkey;
+        session_id: text;
+        opponent: byte_array;
+        outcome: Leaderboard.e_outcome;
+        points: integer;
     }
 }

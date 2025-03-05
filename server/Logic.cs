@@ -183,18 +183,22 @@ internal class Logic
             default
         );
 
-        Reward[] blockchainReward;
+        List<Reward> blockchainReward = new();
         if (winnerPlayer == null)
         {
-            blockchainReward = players
-                .Select(p => new Reward(p, 50))
-                .ToArray();
+            for (int i = 0; i < players.Count; i++)
+            {
+                blockchainReward.Add(
+                    new Reward(players[i], server.SessionId, players[i + 1 % 2], 50, Outcome.Draw)
+                );
+            }
         }
         else
         {
+            var looser = players.First(p => p != winnerPlayer.Value);
             blockchainReward = [
-                new Reward(winnerPlayer.Value, 100),
-                new Reward(players.First(p => p != winnerPlayer.Value), 50)
+                new Reward(winnerPlayer.Value, server.SessionId, looser, 100, Outcome.Win),
+                new Reward(looser, server.SessionId, winnerPlayer.Value, 25, Outcome.Loose)
             ];
         }
 
@@ -385,11 +389,28 @@ internal class Logic
         return null;
     }
 
-    private class Reward(Buffer pubKey, int points)
+    enum Outcome
+    {
+        Win,
+        Loose,
+        Draw
+    }
+
+    private class Reward(Buffer pubKey, string SessionId, Buffer opponent, int points, Outcome outcome)
     {
         [JsonProperty("pubkey")]
         public string PubKey { get; } = pubKey.Parse();
+
+        [JsonProperty("session_id")]
+        public string SessionId { get; } = SessionId;
+
+        [JsonProperty("opponent")]
+        public string Opponent { get; } = opponent.Parse();
+
         [JsonProperty("points")]
         public int Points { get; } = points;
+
+        [JsonProperty("outcome")]
+        public Outcome Outcome { get; } = outcome;
     }
 }

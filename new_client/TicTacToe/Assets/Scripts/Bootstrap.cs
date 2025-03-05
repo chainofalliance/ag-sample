@@ -8,8 +8,6 @@ using System;
 
 public class Bootstrap : MonoBehaviour
 {
-    public event Action<Uri, string> OnStartGame;
-
     [SerializeField]
     private UIDocument mainDocument;
 
@@ -27,16 +25,8 @@ public class Bootstrap : MonoBehaviour
 
         await AppKitInit();
 
-        AppKit.AccountDisconnected += (sender, eventArgs) => {
-            OnChangeScreen(Screen.LOGIN);
-        };
-
-        AppKit.AccountConnected += (sender, eventArgs) => {
-            OnChangeScreen(Screen.MENU);
-        };
-
         var connectionManager = new BlockchainConnectionManager();
-        // await blockchainConnectionManager.Connect();
+        await connectionManager.Connect();
         var accountManager = new AccountManager();
 
         var loginView = new LoginView(loginElement);
@@ -46,9 +36,17 @@ public class Bootstrap : MonoBehaviour
         menuController = new MenuController(menuView, connectionManager, accountManager, OnStartGame);
 
         var gameView = new GameView(gameElement);
-        gameController = new GameController(gameView, OnStartGame);
+        gameController = new GameController(gameView, accountManager, OnEndGame);
 
-        OnChangeScreen(Screen.LOGIN);
+        AppKit.AccountDisconnected += (sender, eventArgs) => {
+            OnChangeScreen(Screen.LOGIN);
+        };
+
+        AppKit.AccountConnected += (sender, eventArgs) => {
+            OnChangeScreen(Screen.MENU);
+        };
+
+        OnChangeScreen(Screen.MENU);
     }
 
     private async Task AppKitInit()
@@ -70,6 +68,17 @@ public class Bootstrap : MonoBehaviour
         await AppKit.InitializeAsync(
             appKitConfig
         );
+    }
+
+    private async void OnStartGame(Uri nodeUri, string matchId)
+    {
+        await gameController.StartGame(nodeUri, matchId);
+        OnChangeScreen(Screen.GAME);
+    }
+
+    private void OnEndGame()
+    {
+        OnChangeScreen(Screen.MENU);
     }
 
     public enum Screen

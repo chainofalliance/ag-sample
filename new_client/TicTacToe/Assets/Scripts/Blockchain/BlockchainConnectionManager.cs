@@ -11,7 +11,7 @@ public struct BlockchainConfig
 
     public static BlockchainConfig TicTacToe()
     {
-#if DEVNET
+#if AG_DEVNET
     return new()
     {
         ChainId = 2,
@@ -37,7 +37,7 @@ public struct BlockchainConfig
 
     public static BlockchainConfig AllianceGames()
     {
-#if DEVNET
+#if AG_DEVNET
     return new()
     {
         ChainId = 1,
@@ -70,6 +70,7 @@ public class BlockchainConnectionManager
 
     public async Task Connect()
     {
+        Transport = new AllianceGamesSdk.Unity.UnityTransport();
         ChromiaClient.SetTransport(Transport);
         AlliancesGamesClient = await InternalConnect(BlockchainConfig.AllianceGames());
         TicTacToeClient = await InternalConnect(BlockchainConfig.TicTacToe());
