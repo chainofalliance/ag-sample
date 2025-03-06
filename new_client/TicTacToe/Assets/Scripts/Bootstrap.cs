@@ -16,6 +16,9 @@ public class Bootstrap : MonoBehaviour
     private MenuController menuController;
     private GameController gameController;
 
+    private BlockchainConnectionManager connectionManager;
+    private AccountManager accountManager;
+
     private async void Start()
     {
         root = mainDocument.rootVisualElement;
@@ -25,9 +28,9 @@ public class Bootstrap : MonoBehaviour
 
         await AppKitInit();
 
-        var connectionManager = new BlockchainConnectionManager();
+        connectionManager = new BlockchainConnectionManager();
         await connectionManager.Connect();
-        var accountManager = new AccountManager();
+        accountManager = new AccountManager();
 
         var loginView = new LoginView(loginElement);
         loginController = new LoginController(loginView);
@@ -47,6 +50,10 @@ public class Bootstrap : MonoBehaviour
         };
 
         OnChangeScreen(Screen.MENU);
+
+        // TODO
+        var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, accountManager.SignatureProvider.PubKey);
+        Debug.Log(res.ToString());
     }
 
     private async Task AppKitInit()
