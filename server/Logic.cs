@@ -202,6 +202,8 @@ internal class Logic
             ];
         }
 
+        blockchainReward.RemoveAll(r => r.PubKey == AI_ADDRESS);
+
         await Stop(JsonConvert.SerializeObject(blockchainReward));
     }
 
