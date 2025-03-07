@@ -175,7 +175,7 @@ internal class Logic
 
     private async Task GameOver(Messages.Field? winner)
     {
-        Buffer? winnerPlayer = winner == null ? null : players[(int)winner - 1];
+        Buffer? winnerPlayer = winner == null || winner == Messages.Field.Empty ? null : players[(int)winner - 1];
         Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}");
         await server!.Send(
             (int)Messages.Header.GameOver,
