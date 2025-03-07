@@ -45,15 +45,19 @@ public class Bootstrap : MonoBehaviour
             OnChangeScreen(Screen.LOGIN);
         };
 
-        AppKit.AccountConnected += (sender, eventArgs) => {
+        AppKit.AccountConnected += async (sender, eventArgs) => {
             OnChangeScreen(Screen.MENU);
+
+            var account = await eventArgs.GetAccount();
+            var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Chromia.Buffer.From(account.Address));
+            Debug.Log(res.ToString());
         };
 
-        OnChangeScreen(Screen.MENU);
+        OnChangeScreen(Screen.LOGIN);
 
-        // TODO
-        var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, accountManager.SignatureProvider.PubKey);
-        Debug.Log(res.ToString());
+        //// TODO
+        //var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, accountManager.SignatureProvider.PubKey);
+        //Debug.Log(res.ToString());
     }
 
     private async Task AppKitInit()

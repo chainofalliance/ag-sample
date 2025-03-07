@@ -4,6 +4,8 @@ using System.Threading;
 using UnityEngine;
 using System;
 
+using Buffer = Chromia.Buffer;
+
 public class MenuController
 {
     private readonly string DUID = null;
@@ -48,14 +50,15 @@ public class MenuController
         Debug.Log("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {
-            Creator = accountManager.SignatureProvider.PubKey,
+            Identifier = Buffer.From(accountManager.Account?.Address),
             Duid = duid
         }, cts.Token);
 
         Debug.Log("Creating ticket...");
         var response = await matchmakingService.CreateMatchmakingTicket(new()
         {
-            Creator = accountManager.SignatureProvider.PubKey,
+            Identifier = Buffer.From(accountManager.Account?.Address),
+            NetworkSigner = accountManager.SignatureProvider.PubKey,
             Duid = duid,
             QueueName = QUEUE_NAME
         }, cts.Token);
@@ -68,7 +71,7 @@ public class MenuController
 
         var ticketId = await matchmakingService.GetMatchmakingTicket(new()
         {
-            Creator = accountManager.SignatureProvider.PubKey,
+            Identifier = Buffer.From(accountManager.Account?.Address),
             Duid = duid,
             QueueName = QUEUE_NAME
         }, cts.Token);
