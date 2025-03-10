@@ -1,6 +1,7 @@
 using Chromia;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using static EIFMerkleProofRaw;
 using Buffer = Chromia.Buffer;
 
 public class Queries
@@ -61,9 +62,15 @@ public class Queries
     {
         return await client.Query<EifEventData[]>(
             "ag.ISession.get_unclaimed_eif_events",
-            ("pubkey", Buffer.From(pubKey))
+            ("address", Buffer.From(pubKey))
         );
     }
 
-    
+    public static async Task<MerkleProof> GetEventMerkleProof(ChromiaClient client, Buffer eventHash)
+    {
+        return await client.Query<MerkleProof>(
+            "get_event_merkle_proof",
+            ("eventHash", eventHash.Parse())
+        );
+    }
 }

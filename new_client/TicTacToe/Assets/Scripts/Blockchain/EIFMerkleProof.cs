@@ -1,9 +1,11 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Collections.Generic;
 using Chromia;
 
 using Buffer = Chromia.Buffer;
+using UnityEngine;
 
 public static class EIFMerkleProofRaw
 {
@@ -63,14 +65,6 @@ public static class EIFMerkleProofRaw
         [JsonProperty("position")]
         public int Position;
     }
-
-    public static async Task<MerkleProof> GetEventMerkleProof(ChromiaClient client, Buffer eventHash)
-    {
-        return await client.Query<MerkleProof>(
-            "get_event_merkle_proof",
-            ("eventHash", eventHash.Parse())
-        );
-    }
 }
 
 public static class EIFMerkleProof
@@ -106,6 +100,16 @@ public static class EIFMerkleProof
             Signers = signers;
             ExtraProof = extraProof;
         }
+
+        public override string ToString()
+        {
+            return $"_event: {_Event}\n" +
+                $"eventProof: {EventProof.ToString()}\n" +
+                $"blockHeader: {BlockHeader}\n" +
+                $"sigs: {Sigs.ToList().Select(e => e)}\n" +
+                $"signers: {Signers.ToList().Select(e => e)}\n" +
+                $"extraProof: {ExtraProof.ToString()}";
+        }
     }
 
     public struct EventProof
@@ -119,6 +123,13 @@ public static class EIFMerkleProof
             Leaf = leaf;
             Position = position;
             MerkleProofs = merkleproofs;
+        }
+
+        public override string ToString()
+        {
+            return $"leaf: {Leaf}\n" +
+                $"position: {Position}\n" +
+                $"merkleProofs: {MerkleProofs.ToList().Select(e => e)}";
         }
     }
 
@@ -137,6 +148,14 @@ public static class EIFMerkleProof
             Position = position;
             ExtraRoot = extraRoot;
             MerkleProofs = merkleProofs;
+        }
+        public override string ToString()
+        {
+            return $"leaf: {Leaf}\n" +
+                $"hashedLead: {HashedLead}\n" +
+                $"position: {Position}\n" +
+                $"extraRoot: {ExtraRoot}\n" +
+                $"merkleProofs: {MerkleProofs.ToList().Select(e => e)}";
         }
     }
 }

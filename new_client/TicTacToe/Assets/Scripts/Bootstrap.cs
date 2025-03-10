@@ -51,13 +51,21 @@ public class Bootstrap : MonoBehaviour
             var account = await eventArgs.GetAccount();
             var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Chromia.Buffer.From(account.Address));
             Debug.Log(res.ToString());
+
+            var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
+            Debug.Log("Amount events found: " + events.Length);
+
+            foreach (var e in events)
+            {
+                Debug.Log(e.ToString());
+                var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
+                var merkleProof = EIFMerkleProof.Construct(rawMerkleProof);
+                Debug.Log(merkleProof.ToString());
+
+            }
         };
 
         OnChangeScreen(Screen.LOGIN);
-
-        //// TODO
-        //var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, accountManager.SignatureProvider.PubKey);
-        //Debug.Log(res.ToString());
     }
 
     private async Task AppKitInit()
