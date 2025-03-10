@@ -26,6 +26,29 @@ public class Queries
         }
     }
 
+    public struct EifEventData
+    {
+        [JsonProperty("session_id")]
+        public string SessionId;
+
+        [JsonProperty("event_hash")]
+        public Buffer EventHash;
+
+        [JsonProperty("serial")]
+        public int Serial;
+
+        [JsonProperty("encoded_data")]
+        public string EncodedData;
+
+        [JsonProperty("hash")]
+        public Buffer Hash;
+
+        public override string ToString()
+        {
+            return $"Session ID: {SessionId}\nEvent Hash: {EventHash}\nSerial: {Serial}\nEncoded Data: {EncodedData}";
+        }
+    }
+
     public static async Task<PlayerInfoResponse> GetPlayerInfo(ChromiaClient client, Buffer pubKey)
     {
         return await client.Query<PlayerInfoResponse>(
@@ -33,4 +56,14 @@ public class Queries
             ("pubkey", Buffer.From(pubKey))
         );
     }
+
+    public static async Task<EifEventData[]> GetUnclaimedEifEvents(ChromiaClient client, Buffer pubKey)
+    {
+        return await client.Query<EifEventData[]>(
+            "ag.ISession.get_unclaimed_eif_events",
+            ("pubkey", Buffer.From(pubKey))
+        );
+    }
+
+    
 }
