@@ -4,6 +4,8 @@ using System.Linq;
 using Chromia;
 
 using Buffer = Chromia.Buffer;
+using System.Collections.Generic;
+using System;
 
 public static class EIFMerkleProofRaw
 {
@@ -86,6 +88,8 @@ public static class EIFMerkleProof
         return new EventWithProof(eventData, proof, blockHeader, sigs, signers, extraProof);
     }
 
+
+
     public struct EventWithProof
     {
         public string _Event;
@@ -145,8 +149,7 @@ public static class CryptoUtils
 {
     public static (string[] sigs, string[] signers) GetWeb3BlockWitness(EIFMerkleProofRaw.BlockWitness[] blockWitness)
     {
-        var witness = blockWitness.ToArray();
-
+        var witness = blockWitness.Sort();
 
         var sigs = witness.Select(w => ToBytesLike(w.Sig)).ToArray();
         var signers = witness.Select(w => ToBytesLike(w.Pubkey)).ToArray();
@@ -174,9 +177,23 @@ public static class CryptoUtils
         );
     }
 
-
     public static string ToBytesLike(Buffer data)
     {
         return $"0x{data.Parse()}";
+    }
+
+    public static IEnumerable<EIFMerkleProofRaw.BlockWitness> Sort(this IEnumerable<EIFMerkleProofRaw.BlockWitness> witnesses)
+    {
+        var list = witnesses.ToList();
+        list.Sort((a, b) => Compare(a.Pubkey, b.Pubkey));
+        return list;
+    }
+
+    public static int Compare(this Buffer a, Buffer b)
+    {
+        var bytesA = new ReadOnlySpan<byte>(a.Bytes);
+        var bytesB = new ReadOnlySpan<byte>(b.Bytes);
+
+        return bytesA.SequenceCompareTo(bytesB);
     }
 }
