@@ -1,12 +1,9 @@
-using Chromia;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
-
-using static EIFMerkleProofRaw;
-using Buffer = Chromia.Buffer;
+using Newtonsoft.Json;
 using System.Linq;
+using Chromia;
+
+using Buffer = Chromia.Buffer;
 
 public static class EIFMerkleProofRaw
 {
@@ -78,17 +75,16 @@ public static class EIFMerkleProofRaw
 
 public static class EIFMerkleProof
 {
-    public static EventWithProof Construct(MerkleProof merkleProof)
+    public static EventWithProof Construct(EIFMerkleProofRaw.MerkleProof merkleProof)
     {
         var blockHeader = CryptoUtils.ToBytesLike(merkleProof.BlockHeader);
         var (sigs, signers) = CryptoUtils.GetWeb3BlockWitness(merkleProof.BlockWitness);
         var eventData = CryptoUtils.ToBytesLike(merkleProof.EventData);
+        var proof = CryptoUtils.GetWeb3Proof(merkleProof.EventProof);
+        var extraProof = CryptoUtils.GetWeb3ExtraProof(merkleProof.ExtraMerkleProof);
 
-
-        return default;
+        return new EventWithProof(eventData, proof, blockHeader, sigs, signers, extraProof);
     }
-
-    
 
     public struct EventWithProof
     {
@@ -97,7 +93,19 @@ public static class EIFMerkleProof
         public string BlockHeader;
         public string[] Sigs;
         public string[] Signers;
-        public ExtraProof ExtraProof;
+        public ExtraMerkleProof ExtraProof;
+
+        public EventWithProof(
+            string _event, EventProof eventProof, string blockHeader,
+            string[] sigs, string[] signers, ExtraMerkleProof extraProof)
+        {
+            _Event = _event;
+            EventProof = eventProof;
+            BlockHeader = blockHeader;
+            Sigs = sigs;
+            Signers = signers;
+            ExtraProof = extraProof;
+        }
     }
 
     public struct EventProof
@@ -105,21 +113,37 @@ public static class EIFMerkleProof
         public string Leaf;
         public int Position;
         public string[] MerkleProofs;
+
+        public EventProof(string leaf, int position, string[] merkleproofs)
+        {
+            Leaf = leaf;
+            Position = position;
+            MerkleProofs = merkleproofs;
+        }
     }
 
-    public struct ExtraProof
+    public struct ExtraMerkleProof
     {
         public string Leaf;
         public string HashedLead;
         public int Position;
         public string ExtraRoot;
         public string[] MerkleProofs;
+
+        public ExtraMerkleProof(string leaf, string hashedLead, int position, string extraRoot, string[] merkleProofs)
+        {
+            Leaf = leaf;
+            HashedLead = hashedLead;
+            Position = position;
+            ExtraRoot = extraRoot;
+            MerkleProofs = merkleProofs;
+        }
     }
 }
 
 public static class CryptoUtils
 {
-    public static (string[] sigs, string[] signers) GetWeb3BlockWitness(BlockWitness[] blockWitness)
+    public static (string[] sigs, string[] signers) GetWeb3BlockWitness(EIFMerkleProofRaw.BlockWitness[] blockWitness)
     {
         var witness = blockWitness.ToArray();
 
@@ -130,10 +154,24 @@ public static class CryptoUtils
         return (sigs, signers);
     }
 
-    public static EventProof GetWeb3Proof(EventProof proof)
+    public static EIFMerkleProof.EventProof GetWeb3Proof(EIFMerkleProofRaw.EventProof proof)
     {
-        var merkleProofs = proof.MerkleProofs.Select(w => ToBytesLike(w)).ToArray();
-        return default;
+        return new EIFMerkleProof.EventProof(
+            ToBytesLike(proof.Leaf),
+            proof.Position,
+            proof.MerkleProofs.Select(w => ToBytesLike(w)).ToArray()
+        );
+    }
+
+    public static EIFMerkleProof.ExtraMerkleProof GetWeb3ExtraProof(EIFMerkleProofRaw.ExtraMerkleProof extraProof)
+    {
+        return new EIFMerkleProof.ExtraMerkleProof(
+            ToBytesLike(extraProof.Leaf),
+            ToBytesLike(extraProof.HashedLeaf),
+            extraProof.Position,
+            ToBytesLike(extraProof.ExtraRoot),
+            extraProof.ExtraMerkleProofs.Select(w => ToBytesLike(w)).ToArray()
+        );
     }
 
 
