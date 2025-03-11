@@ -23,7 +23,7 @@ public struct BlockchainConfig
 #else
         return new()
         {
-            Brid = "1DE8D3B60899F944CE845239242F01F874ABD384272A9A2439CBFF5AE648C64F",
+            Brid = "020922A1C2E0D30E5463ED93BCA46217CD8E777DFE49E65DBDBA26905EAAE5FE",
             NodeUrls = new[]
             {
                 "https://node1.testnet.chromia.com:7740/",
@@ -48,7 +48,7 @@ public struct BlockchainConfig
 #else
         return new()
         {
-            Brid = "58537AE680F4BB0CD7D49A399A655D9823223B3B8DAE27155F8C922A86D28E46",
+            Brid = "63F766110ED31818038A323D849ECBA64E85ABA5104E6D7F24014CEF2F0756A5",
             NodeUrls = new[]
             {
                 "https://node1.testnet.chromia.com:7740/",

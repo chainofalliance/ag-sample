@@ -5,7 +5,6 @@ using Reown.AppKit.Unity;
 using Reown.Sign.Unity;
 using UnityEngine;
 using System;
-using Reown.Core.Crypto;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -16,6 +15,7 @@ public class Bootstrap : MonoBehaviour
     private LoginController loginController;
     private MenuController menuController;
     private GameController gameController;
+    private NavbarController navbarController;
 
     private BlockchainConnectionManager connectionManager;
     private AccountManager accountManager;
@@ -38,12 +38,16 @@ public class Bootstrap : MonoBehaviour
         var loginElement = mainDocument.rootVisualElement.Q<VisualElement>("LoginScreen");
         var menuElement = mainDocument.rootVisualElement.Q<VisualElement>("MenuScreen");
         var gameElement = mainDocument.rootVisualElement.Q<VisualElement>("GameScreen");
+        var sideNavbarElement = mainDocument.rootVisualElement.Q<VisualElement>("ContainerWithSideBar");
 
         await AppKitInit();
 
         connectionManager = new BlockchainConnectionManager();
         await connectionManager.Connect();
         accountManager = new AccountManager();
+
+        var navbarView = new NavbarView(sideNavbarElement);
+        navbarController = new NavbarController(navbarView);
 
         var loginView = new LoginView(loginElement);
         loginController = new LoginController(loginView);
@@ -138,12 +142,15 @@ public class Bootstrap : MonoBehaviour
         switch (screen)
         {
             case Screen.LOGIN:
+                navbarController.SetVisible(false);
                 loginController.SetVisible(true);
                 break;
             case Screen.MENU:
+                navbarController.SetVisible(true);
                 menuController.SetVisible(true);
                 break;
             case Screen.GAME:
+                navbarController.SetVisible(true);
                 gameController.SetVisible(true);
                 break;
         }

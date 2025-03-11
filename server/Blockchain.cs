@@ -12,7 +12,7 @@ public struct BlockchainConfig
     {
         return !devnet ? new() { ChainId = 2, NodeUrls = new[] { "http://host.docker.internal:7740/" } } : new()
         {
-            Brid = "58537AE680F4BB0CD7D49A399A655D9823223B3B8DAE27155F8C922A86D28E46",
+            Brid = "020922A1C2E0D30E5463ED93BCA46217CD8E777DFE49E65DBDBA26905EAAE5FE",
             NodeUrls = new[]
             {
                 "https://node1.testnet.chromia.com:7740/",
