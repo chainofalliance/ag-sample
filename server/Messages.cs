@@ -79,13 +79,11 @@ public class Messages
         {
             public Header Header => Header.PlayerDataResponse;
             public Buffer PubKey { get; private set; }
-            public int Points { get; private set; }
             public Field Symbol { get; private set; }
 
-            public Player(Buffer pubKey, int points, Field symbol)
+            public Player(Buffer pubKey, Field symbol)
             {
                 PubKey = pubKey;
-                Points = points;
                 Symbol = symbol;
             }
 
@@ -96,7 +94,7 @@ public class Messages
 
             public Buffer Encode()
             {
-                var obj = new object[] { PubKey, Points, Symbol };
+                var obj = new object[] { PubKey, Symbol };
                 return ChromiaClient.EncodeToGtv(obj);
             }
 
@@ -104,8 +102,7 @@ public class Messages
             {
                 var obj = ChromiaClient.DecodeFromGtv(data) as object[];
                 PubKey = (Buffer)obj[0];
-                Points = (int)(long)obj[1];
-                Symbol = (Field)(long)obj[2];
+                Symbol = (Field)(long)obj[1];
             }
         }
 

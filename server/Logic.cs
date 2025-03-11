@@ -17,8 +17,7 @@ internal class Logic
     private readonly TaskCompletionSource initCs = new();
     private readonly TaskCompletionSource readyCs = new();
     private readonly INodeConfig config;
-    private List<Buffer> players => points.Keys.ToList();
-    private readonly Dictionary<Buffer, int> points = new();
+    private List<Buffer> players = new();
     private readonly bool isAi;
     private int readyPlayers = 0;
     private Buffer currentPlayerId = Buffer.Empty();
@@ -62,15 +61,10 @@ internal class Logic
             return;
         }
 
-
         try
         {
-            Log.Information($"Login to blockchain");
-            // TODO: does not work anymore
-            var blockchain = await Blockchain.Create(BlockchainConfig.TTT(config.SessionId == server.SessionId));
-
             Log.Information($"Initializing players");
-            await InitializePlayers(blockchain);
+            InitializePlayers();
 
             Log.Information($"Initializing board");
             InitializeBoard();
@@ -140,33 +134,20 @@ internal class Logic
         }
     }
 
-    private async Task InitializePlayers(Blockchain blockchain)
+    private void InitializePlayers()
     {
         Log.Information($"Initialize players");
         foreach (var client in server.Clients)
         {
-            Log.Information($"Initialize player {client.Parse()}");
-            int playerPoints = 0;
-            try
-            {
-                playerPoints = await blockchain.GetPoints(client.Parse());
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Failed to get points for player {client.Parse()}");
-            }
-
-            Log.Information($"Add player {client.Parse()} with {playerPoints} points");
-            points.Add(client, playerPoints);
+            Log.Information($"Add player {client.Parse()}");
+            players.Add(client);
         }
 
         if (isAi)
         {
             Log.Information($"Initialize AI player");
-            var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
-            points.Add(aiAddress, aiPoints);
             players.Add(aiAddress);
-            Log.Information($"Add AI player with {aiPoints} points");
+            Log.Information($"Add AI player");
         }
 
         Log.Information($"Initialize players done");
@@ -330,7 +311,7 @@ internal class Logic
             }
 
             return new Messages.PlayerDataResponse(players.Select(
-                p => new Messages.PlayerDataResponse.Player(p, points[p], GetField(p))
+                p => new Messages.PlayerDataResponse.Player(p, GetField(p))
             ).ToArray()).Encode();
         });
 

@@ -19,7 +19,6 @@ public class GameController
     public struct PlayerData
     {
         public string Address;
-        public int Points;
         public Messages.Field Symbol;
     }
 
@@ -112,7 +111,6 @@ public class GameController
                 playerData.Add(new PlayerData()
                 {
                     Address = player.PubKey.Parse(),
-                    Points = player.Points,
                     Symbol = player.Symbol
                 });
             }
