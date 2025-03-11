@@ -23,13 +23,12 @@ public struct BlockchainConfig
 #else
         return new()
         {
-            Brid = "8F9530C6A159EE2108953462AE74A5F8D6C26EBC84F07DF763E4315D973D5205",
+            Brid = "1DE8D3B60899F944CE845239242F01F874ABD384272A9A2439CBFF5AE648C64F",
             NodeUrls = new[]
             {
-                "https://node8.devnet1.chromia.dev:7740/",
-                "https://node9.devnet1.chromia.dev:7740/",
-                "https://node10.devnet1.chromia.dev:7740/",
-                "https://node11.devnet1.chromia.dev:7740/"
+                "https://node1.testnet.chromia.com:7740/",
+                "https://node2.testnet.chromia.com:7740/",
+                "https://node3.testnet.chromia.com:7740/"
             }
         };
 #endif
@@ -49,13 +48,12 @@ public struct BlockchainConfig
 #else
         return new()
         {
-            Brid = "8F9530C6A159EE2108953462AE74A5F8D6C26EBC84F07DF763E4315D973D5205",
+            Brid = "58537AE680F4BB0CD7D49A399A655D9823223B3B8DAE27155F8C922A86D28E46",
             NodeUrls = new[]
             {
-                "https://node8.devnet1.chromia.dev:7740/",
-                "https://node9.devnet1.chromia.dev:7740/",
-                "https://node10.devnet1.chromia.dev:7740/",
-                "https://node11.devnet1.chromia.dev:7740/"
+                "https://node1.testnet.chromia.com:7740/",
+                "https://node2.testnet.chromia.com:7740/",
+                "https://node3.testnet.chromia.com:7740/"
             }
         };
 #endif
