@@ -21,6 +21,14 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         bytes32 rewardHash;
     }
 
+    struct GameResult {
+        address pubkey;
+        string session_id;
+        string opponent;
+        uint256 points;
+        uint8 outcome;
+    }
+
     IValidator public validator;
     bytes32 internal blockchainRid;
     mapping(bytes32 => bool) internal _events;
@@ -84,10 +92,13 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
 
         require(keccak256(encodedData) == evt.rewardHash, "TicTacToe: invalid reward hash");
 
-        (address pubkey, uint256 points) = abi.decode(encodedData, (address, uint256));
-        require(pubkey == msg.sender, "TicTacToe: pubkey is invalid");
-        _points[pubkey] += points;
-
+        GameResult[] memory grs = abi.decode(encodedData, (GameResult[]));
+        for (uint i = 0; i < grs.length; i++) {
+            if(grs[i].pubkey == msg.sender) {
+                _points[grs[i].pubkey] += grs[i].points;
+            }
+        }
+        
         emit RewardClaimed(evt.rewardHash, eventProof.leaf);
     }
 

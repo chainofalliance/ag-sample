@@ -1,0 +1,3 @@
+.label-semi-bold {
+    unity-font: url("open-sans.semibold.ttf");
+}

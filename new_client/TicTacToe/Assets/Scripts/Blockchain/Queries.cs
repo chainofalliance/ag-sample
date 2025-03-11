@@ -1,7 +1,7 @@
 using Chromia;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
-using static EIFMerkleProofRaw;
+
 using Buffer = Chromia.Buffer;
 
 public class Queries
@@ -66,9 +66,9 @@ public class Queries
         );
     }
 
-    public static async Task<MerkleProof> GetEventMerkleProof(ChromiaClient client, Buffer eventHash)
+    public static async Task<ChromiaTypes.MerkleProof> GetEventMerkleProof(ChromiaClient client, Buffer eventHash)
     {
-        return await client.Query<MerkleProof>(
+        return await client.Query<ChromiaTypes.MerkleProof>(
             "get_event_merkle_proof",
             ("eventHash", eventHash.Parse())
         );

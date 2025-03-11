@@ -5,6 +5,7 @@ using Reown.AppKit.Unity;
 using Reown.Sign.Unity;
 using UnityEngine;
 using System;
+using Reown.Core.Crypto;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -18,6 +19,18 @@ public class Bootstrap : MonoBehaviour
 
     private BlockchainConnectionManager connectionManager;
     private AccountManager accountManager;
+
+    private Chain bnbTestnet = new Chain(
+        ChainConstants.Namespaces.Evm,
+        chainReference: "97",
+        name: "BNB Smart Chain Testnet",
+        nativeCurrency: new Currency("Testnet Binance Coin", "tBNB", 18),
+        rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+        blockExplorer: new BlockExplorer("BnbTestnet", "https://testnet.bscscan.com"),
+        isTestnet: true,
+        imageUrl: $"https://api.web3modal.com/public/getAssetImage/692ed6ba-e569-459a-556a-776476829e00",
+        viemName: null
+    );
 
     private async void Start()
     {
@@ -48,21 +61,26 @@ public class Bootstrap : MonoBehaviour
         AppKit.AccountConnected += async (sender, eventArgs) => {
             OnChangeScreen(Screen.MENU);
 
-            var account = await eventArgs.GetAccount();
-            var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Chromia.Buffer.From(account.Address));
-            Debug.Log(res.ToString());
+            await AppKit.NetworkController.ChangeActiveChainAsync(ChainConstants.Chains.Ethereum);
 
-            var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
-            Debug.Log("Amount events found: " + events.Length);
+            //var account = await eventArgs.GetAccount();
+            //var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Chromia.Buffer.From(account.Address));
+            //Debug.Log(res.ToString());
 
-            foreach (var e in events)
-            {
-                Debug.Log(e.ToString());
-                var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
-                var merkleProof = EIFMerkleProof.Construct(rawMerkleProof);
-                Debug.Log(merkleProof.ToString());
+            //var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
+            //Debug.Log("Amount events found: " + events.Length);
 
-            }
+            //foreach (var e in events)
+            //{
+            //    Debug.Log(e.ToString());
+            //    var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
+            //    var merkleProof = EIFUtils.Construct(rawMerkleProof);
+
+            //    await TicTacToeContract.Claim(merkleProof, e.EncodedData);
+            //}
+
+            //var myPoints = await TicTacToeContract.GetPoints(account.Address);
+            //Debug.Log("MyPoints: " + myPoints);
         };
 
         OnChangeScreen(Screen.LOGIN);
@@ -80,6 +98,11 @@ public class Bootstrap : MonoBehaviour
                 "https://alliancegames.xyz/",
                 "https://raw.githubusercontent.com/reown-com/reown-dotnet/main/media/appkit-icon.png"
             )
+            //,
+            //supportedChains = new[]
+            //{
+            //    bnbTestnet
+            //}
         };
 
         Debug.Log("[AppKit Init] Initializing AppKit...");

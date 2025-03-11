@@ -20,3 +20,12 @@ npx hardhat vars set BNB_PRIVATE_KEY
 npx hardhat vars set BSCSCAN_API_KEY
 npx hardhat run --network testnet ./scripts/increase.ts
 ```
+
+```shell
+#Local deployment
+npx hardhat node
+npx hardhat clean
+npx hardhat compile
+npx hardhat ignition deploy ./ignition/modules/Validator.ts --network localhost
+npx hardhat ignition deploy ./ignition/modules/TicTacToe.ts --network localhost
+```

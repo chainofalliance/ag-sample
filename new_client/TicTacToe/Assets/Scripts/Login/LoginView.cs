@@ -15,7 +15,7 @@ public class LoginView
     {
         this.root = root;
 
-        walletLoginButton = root.Q<Button>("ButtonLoginWallet");
+        walletLoginButton = root.Q<Button>("ButtonConnectWallet");
         guestLoginButton = root.Q<Button>("ButtonLoginGuest");
 
         walletLoginButton.clicked += () => OnWalletLogin?.Invoke();
