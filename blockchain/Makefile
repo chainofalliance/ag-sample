@@ -4,7 +4,7 @@ PROJECT=ttt_chromia
 TEST_PROJECT=${PROJECT}_test
 DEVNET_PROJECT=${PROJECT}_devnet
 ENV?=local
-export CHR_CLI_VERSION := 0.21.0
+export CHR_CLI_VERSION := 0.23.0
 export PMC_VERSION := 3.30.0
 VERSION_BUMP?=
 
