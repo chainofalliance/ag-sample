@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/Uss/Game.uss?fileID=7433441132597879392&amp;guid=3052f7b3b65c7ca47a959c18d1c5c049&amp;type=3#Game" />
-    <ui:VisualElement class="background" />
-    <ui:VisualElement class="main-container">
+    <ui:VisualElement class="background" style="display: none;" />
+    <ui:VisualElement class="main-container" style="display: none;">
         <ui:VisualElement class="left-panel">
             <ui:Label name="Player1" class="player-label" />
             <ui:Label class="vs-label" />
@@ -29,5 +29,39 @@
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="GameContainer" style="flex-grow: 1; background-color: rgb(26, 26, 26); align-items: center; padding-left: 44px; padding-right: 0; padding-top: 0; flex-direction: row;">
+        <ui:Button name="ButtonExit" style="margin-top: 24px; margin-right: 32px; margin-bottom: 0; margin-left: 0; padding-top: 16px; padding-right: 16px; padding-bottom: 16px; padding-left: 16px; width: 48px; height: 48px; background-color: rgba(188, 188, 188, 0); border-left-color: rgba(255, 255, 255, 0.19); border-right-color: rgba(255, 255, 255, 0.19); border-top-color: rgba(255, 255, 255, 0.19); border-bottom-color: rgba(255, 255, 255, 0.19); align-self: flex-start; background-image: url(&quot;project://database/Assets/UI/Textures/icon_exit.png?fileID=2800000&amp;guid=a890fcfecf91d4044b954576f0243929&amp;type=3#icon_exit&quot;); background-size: 16px 16px;" />
+        <ui:VisualElement name="SectionGame" style="flex-grow: 1; align-self: flex-start; margin-right: 100px; margin-top: 24px;">
+            <ui:VisualElement name="ContainerPlayerInfo" class="container-player-info symbol-x" style="margin-bottom: 20px; width: 100%;">
+                <ui:VisualElement name="Left" style="flex-grow: 1; flex-direction: row;">
+                    <ui:Label text="You:" name="LabelPlayerYou" style="margin-top: 0; margin-right: 8px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(255, 255, 255); font-size: 16px; align-self: center;" />
+                    <ui:Label text="2er44t...4t8i" name="LabelPlayerYouValue" style="margin-top: 0; margin-right: 12px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255); font-size: 18px;" />
+                    <ui:VisualElement name="IconSymbol" class="symbol_container" style="margin-right: 182px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Right" style="flex-grow: 0; height: 38px; align-self: center; flex-direction: row;">
+                    <ui:Label text="Your Turn" name="LabelYourTurn" style="margin-top: 0; margin-right: 24px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(215, 19, 210); align-self: center; display: none;" />
+                    <ui:VisualElement name="ContainerTimer" style="flex-grow: 0; padding-top: 8px; padding-right: 16px; padding-left: 16px; padding-bottom: 8px; background-color: rgb(21, 21, 21); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgba(255, 255, 255, 0.08); border-right-color: rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.08); border-bottom-color: rgba(255, 255, 255, 0.08); flex-direction: row; align-content: center;">
+                        <ui:VisualElement name="IconClock" style="flex-grow: 1; width: 20px; height: 20px; background-image: url(&quot;project://database/Assets/UI/Textures/icon_clock.png?fileID=2800000&amp;guid=178dbf45a974ec04880deddb2d5884e0&amp;type=3#icon_clock&quot;); background-size: 20px 20px; margin-right: 8px;" />
+                        <ui:Label text="00:21" name="LabelTurnTimer" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); font-size: 18px; color: rgb(255, 255, 255); height: 100%; bottom: 2px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="ContainerOpponentInfo" class="container-player-info symbol-o" style="margin-bottom: 0; width: 100%; margin-top: 20px;">
+                <ui:VisualElement name="Left" style="flex-grow: 1; flex-direction: row;">
+                    <ui:Label text="You:" name="LabelPlayerYou" style="margin-top: 0; margin-right: 8px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(255, 255, 255); font-size: 16px; align-self: center;" />
+                    <ui:Label text="2er44t...4t8i" name="LabelPlayerYouValue" style="margin-top: 0; margin-right: 12px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255); font-size: 18px;" />
+                    <ui:VisualElement name="IconSymbol" class="symbol_container" style="margin-right: 182px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Right" style="flex-grow: 0; height: 38px; align-self: center; flex-direction: row;">
+                    <ui:Label text="Your Turn" name="LabelYourTurn" style="margin-top: 0; margin-right: 24px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(215, 19, 210); align-self: center; display: none;" />
+                    <ui:VisualElement name="ContainerTimer" style="flex-grow: 0; padding-top: 8px; padding-right: 16px; padding-left: 16px; padding-bottom: 8px; background-color: rgb(21, 21, 21); border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgba(255, 255, 255, 0.08); border-right-color: rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.08); border-bottom-color: rgba(255, 255, 255, 0.08); flex-direction: row; align-content: center;">
+                        <ui:VisualElement name="IconClock" style="flex-grow: 1; width: 20px; height: 20px; background-image: url(&quot;project://database/Assets/UI/Textures/icon_clock.png?fileID=2800000&amp;guid=178dbf45a974ec04880deddb2d5884e0&amp;type=3#icon_clock&quot;); background-size: 20px 20px; margin-right: 8px;" />
+                        <ui:Label text="00:21" name="LabelTurnTimer" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); font-size: 18px; color: rgb(255, 255, 255); height: 100%; bottom: 2px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="SectionSessonInfo" style="flex-grow: 0; width: 300px; height: 100%; background-color: rgb(0, 0, 0); padding-top: 37px; padding-bottom: 37px; padding-right: 32px; padding-left: 32px; border-left-color: rgba(255, 255, 255, 0.08); border-right-color: rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.08); border-bottom-color: rgba(255, 255, 255, 0.08); border-left-width: 1px;" />
     </ui:VisualElement>
 </ui:UXML>

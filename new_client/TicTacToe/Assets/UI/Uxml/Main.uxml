@@ -2,8 +2,8 @@
     <engine:Template name="LoginScreen" src="project://database/Assets/UI/Uxml/Screens/LoginScreen.uxml?fileID=9197481963319205126&amp;guid=efadf5fb26348af43ade18227d05e048&amp;type=3#LoginScreen" />
     <engine:Template name="MenuScreen" src="project://database/Assets/UI/Uxml/Screens/MenuScreen.uxml?fileID=9197481963319205126&amp;guid=bdc33c27ad6e86b4f89bb161984088fb&amp;type=3#MenuScreen" />
     <engine:Template name="GameScreen" src="project://database/Assets/UI/Uxml/Screens/GameScreen.uxml?fileID=9197481963319205126&amp;guid=5f290a060655c45478f85c42dda574b4&amp;type=3#GameScreen" />
-    <engine:Instance template="LoginScreen" name="LoginScreen" style="width: 100%; height: 100%; display: flex;" />
-    <engine:VisualElement name="ContainerWithSideBar" style="flex-grow: 1; flex-direction: row; display: none;">
+    <engine:Instance template="LoginScreen" name="LoginScreen" style="width: 100%; height: 100%; display: none;" />
+    <engine:VisualElement name="ContainerWithSideBar" style="flex-grow: 1; flex-direction: row; display: flex;">
         <engine:VisualElement name="SideBar" style="flex-grow: 0; background-color: rgb(0, 0, 0);">
             <engine:VisualElement name="ContainerLogoName" style="margin-top: 0; flex-direction: row; align-items: center; width: 260px; padding-left: 40px; padding-right: 7px; padding-top: 25px; padding-bottom: 25px; margin-right: 0; margin-bottom: 0; margin-left: 0;">
                 <engine:VisualElement name="ImgLogo" style="width: 54px; height: 26px; background-image: url(&quot;project://database/Assets/UI/Textures/img_logo.png?fileID=2800000&amp;guid=48cff5a1d4a77f44ba354e3422e35ef3&amp;type=3#img_logo&quot;); margin-right: 16px;" />
@@ -32,8 +32,8 @@
             </engine:VisualElement>
         </engine:VisualElement>
         <engine:VisualElement name="Content" style="flex-grow: 1;">
-            <engine:Instance template="MenuScreen" name="MenuScreen" style="flex-grow: 1; display: flex;" />
-            <engine:Instance template="GameScreen" name="GameScreen" style="display: none; flex-grow: 1;" />
+            <engine:Instance template="MenuScreen" name="MenuScreen" style="flex-grow: 1; display: none;" />
+            <engine:Instance template="GameScreen" name="GameScreen" style="display: flex; flex-grow: 1;" />
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

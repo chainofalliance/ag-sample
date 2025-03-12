@@ -1,19 +1,18 @@
 using Reown.AppKit.Unity;
-using Reown.Sign.Models;
 
 public class NavbarController
 {
     private readonly NavbarView view;
 
-    public NavbarController(NavbarView view)
+    public NavbarController(NavbarView view, AccountManager accountManager)
     {
         this.view = view;
 
         view.OnWalletDisconnect += OnWalletDisconnect;
 
-        AppKit.AccountConnected += async (sender, eventArgs) => {
-            Account account = await eventArgs.GetAccount();
-            view.SetAddress(account.Address);
+        accountManager.OnAddressConnected += (address) =>
+        {
+            view.SetAddress(address);
         };
     }
 

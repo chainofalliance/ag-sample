@@ -1,12 +1,47 @@
-﻿/* 🎨 Hintergrund */
+.symbol_container {
+    flex-grow: 0;
+    width: 24px;
+    height: 24px;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    background-size: 16px 16px;
+}
+
+.symbol-x #IconSymbol {
+    background-image: url("project://database/Assets/UI/Textures/icon_cross.png?fileID=5584510165694236758&guid=189b8f1f109ce504f9fc69b5c8e9fcd0&type=3#icon_cross_0");
+}
+
+.symbol-o #IconSymbol {
+    background-image: url("project://database/Assets/UI/Textures/icon_zero.png?fileID=4687052839725273141&guid=8a8b02d5dd50ec64c9d0adef99b74715&type=3#icon_zero_0");
+}
+
+.container-player-info {
+    flex-grow: 0;
+    height: 72px;
+    padding-top: 24px;
+    padding-right: 24px;
+    padding-bottom: 24px;
+    padding-left: 24px;
+    flex-direction: row;
+}
+
+.symbol-x {
+    background-image: url("project://database/Assets/UI/Textures/img_gradient_red.png?fileID=-9148036745247305275&guid=e25090653fabeec499b29a297a413b8c&type=3#img_gradient_red_0");
+}
+
+.symbol-o {
+    background-image: url("project://database/Assets/UI/Textures/img_gradient_blue.png");
+}
+
 .background {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: #1e1e2e;
+    background-color: rgb(30, 30, 46);
 }
 
-/* 🎮 Hauptcontainer */
 .main-container {
     display: flex;
     flex-direction: row;
@@ -16,12 +51,10 @@
     position: absolute;
 }
 
-/* 🔄 Abstandshalter */
 .spacer {
-    height: 30px; /* Erhöht den Abstand zwischen Player2 und BackButton */
+    height: 30px;
 }
 
-/* 🏆 Linke Seite: Spieler-Info */
 .left-panel {
     display: flex;
     flex-direction: column;
@@ -31,7 +64,6 @@
     gap: 15px;
 }
 
-/* Player Labels */
 .player-label {
     font-size: 28px;
     font-weight: bold;
@@ -43,17 +75,15 @@
     min-width: 150px;
 }
 
-/* 🆚 VS Label */
 .vs-label {
     font-size: 20px;
-    color: #aaaaaa;
+    color: rgb(170, 170, 170);
 }
 
-/* 🔙 Back-Button */
 .back-button {
     padding: 14px 24px;
     font-size: 20px;
-    background-color: #282a36;
+    background-color: rgb(40, 42, 54);
     border-radius: 10px;
     border: none;
     color: white;
@@ -62,10 +92,9 @@
 }
 
 .back-button:hover {
-    background-color: #44475a;
+    background-color: rgb(68, 71, 90);
 }
 
-/* 🎮 Rechte Seite: Tic-Tac-Toe Feld */
 .right-panel {
     display: flex;
     align-items: center;
@@ -73,32 +102,29 @@
     width: 70%;
 }
 
-/* 🟦 Tic-Tac-Toe Grid */
 .grid {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Mehr Abstand zwischen den Reihen */
+    gap: 15px;
     padding: 30px;
     background-color: rgba(255, 255, 255, 0.08);
     border-radius: 20px;
     box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* 📏 Jede Zeile */
 .row {
     display: flex;
     flex-direction: row;
-    gap: 15px; /* Mehr Abstand zwischen den Zellen */
+    gap: 15px;
 }
 
-/* 🎮 Tic-Tac-Toe Felder */
 .cell {
-    width: 200px; /* Größere Felder */
+    width: 200px;
     height: 200px;
-    font-size: 42px; /* Größere Schrift */
+    font-size: 42px;
     font-weight: bold;
     text-align: center;
-    background-color: #282a36;
+    background-color: rgb(40, 42, 54);
     color: white;
     border-radius: 12px;
     border: none;
@@ -107,37 +133,34 @@
     box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* 🎮 Hover-Effekt für Tic-Tac-Toe-Felder */
 .cell:hover {
-    background-color: #44475a; /* Dunklere Farbe für den Hover-Effekt */
-    border: 2px solid #ffffff; /* Weißer Rand für mehr Sichtbarkeit */
-    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.2); /* Leichter Hover-Glow */
+    background-color: rgb(68, 71, 90);
+    border: 2px solid rgb(255, 255, 255);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
 }
 
-
-/* 🔒 Deaktiviertes Feld */
 .cell:disabled {
-    background-color: #333333;
-    color: #888888;
+    background-color: rgb(51, 51, 51);
+    color: rgb(136, 136, 136);
 }
 
 .info-label {
     font-size: 20px;
     font-weight: bold;
-    color: #1e1e2e; /* Dunkle Schrift für Kontrast */
-    background-color: rgba(255, 255, 255, 0.9); /* Fast weiß mit leichter Transparenz */
-    padding: 15px 30px; /* Mehr Platz für Text */
+    color: rgb(30, 30, 46);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 15px 30px;
     border-radius: 10px;
     text-align: center;
     margin-top: 20px;
-    border: 2px solid #ffffff; /* Weißer Rand für Sichtbarkeit */
-    box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.3); /* Leichter Glow-Effekt */
-    
-    width: 80%; /* Breiter, damit längere Texte reinpassen */
-    max-width: 300px; /* Maximale Breite für bessere Darstellung */
-    
-    white-space: normal; /* Zeilenumbruch für lange Texte */
-    word-wrap: break-word; /* Falls nötig, trennen */
-    overflow: hidden; /* Kein Überlaufen des Textes */
-    flex-shrink: 0; /* Verhindert, dass es zu klein wird */
+    border: 2px solid rgb(255, 255, 255);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
+    width: 80%;
+    max-width: 300px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: hidden;
+    flex-shrink: 0;
 }
+
+

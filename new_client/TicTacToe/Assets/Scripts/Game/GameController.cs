@@ -40,7 +40,6 @@ public class GameController
     {
         this.view = view;
         this.accountManager = accountManager;
-        
 
         view.OnClickField += idx =>
         {

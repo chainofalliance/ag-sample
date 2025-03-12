@@ -31,11 +31,20 @@ public class MenuController
         this.OnStartGame = OnStartGame;
 
         view.OnPlayPve += OnPlay;
+        accountManager.OnAddressConnected += OnAddressConnected;
     }
 
     public void SetVisible(bool visible)
     {
         view.SetVisible(visible);
+    }
+
+    private async void OnAddressConnected(string address)
+    {
+        var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Buffer.From(address));
+        Debug.Log(res.ToString());
+        view.SetPlayerInfo(res);
+        view.SetAddress(address);
     }
 
     private async void OnPlay()

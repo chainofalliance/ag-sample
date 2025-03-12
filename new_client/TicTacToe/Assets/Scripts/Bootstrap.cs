@@ -47,7 +47,7 @@ public class Bootstrap : MonoBehaviour
         accountManager = new AccountManager();
 
         var navbarView = new NavbarView(sideNavbarElement);
-        navbarController = new NavbarController(navbarView);
+        navbarController = new NavbarController(navbarView, accountManager);
 
         var loginView = new LoginView(loginElement);
         loginController = new LoginController(loginView);
@@ -65,10 +65,8 @@ public class Bootstrap : MonoBehaviour
         AppKit.AccountConnected += async (sender, eventArgs) => {
             OnChangeScreen(Screen.MENU);
 
-            await AppKit.NetworkController.ChangeActiveChainAsync(ChainConstants.Chains.Ethereum);
-
             //var account = await eventArgs.GetAccount();
-            //var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Chromia.Buffer.From(account.Address));
+            
             //Debug.Log(res.ToString());
 
             //var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));

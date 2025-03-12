@@ -1,5 +1,6 @@
 using UnityEngine.UIElements;
 using System;
+using static Queries;
 
 public class MenuView
 {
@@ -25,6 +26,10 @@ public class MenuView
         labelDrawMatches = root.Q<Label>("LabelDrawMatchesValue");
         labelLostMatches = root.Q<Label>("LabelLoseMatchesValue");
 
+        //ContainerUnclaimedPoints
+        //LabelUnclaimedPointsValue
+        //ButtonClaim
+
         playPveButton = root.Q<Button>("ButtonPlayPve");
         playPveButton.clicked += () => OnPlayPve?.Invoke();
     }
@@ -36,19 +41,15 @@ public class MenuView
 
     public void SetAddress(string address)
     {
-        labelAddress.text = address;
+        labelAddress.text = $"{address.Substring(0, 6)}...{address.Substring(address.Length - 4)}";
     }
 
-    public void SetPoints(string points)
+    public void SetPlayerInfo(PlayerInfoResponse info)
     {
-        labelPoints.text = points;
-    }
-
-    public void SetStats(int total, int won, int draw, int lost)
-    {
-        labelTotalMatches.text = total.ToString();
-        labelWonMatches.text = won.ToString();
-        labelDrawMatches.text = draw.ToString();
-        labelLostMatches.text = lost.ToString();
+        labelPoints.text = info.Points.ToString();
+        labelTotalMatches.text = (info.WinCount + info.LooseCount + info.DrawCount).ToString();
+        labelWonMatches.text = info.WinCount.ToString();
+        labelDrawMatches.text = info.DrawCount.ToString();
+        labelLostMatches.text = info.LooseCount.ToString();
     }
 }
