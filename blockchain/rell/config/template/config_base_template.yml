@@ -23,7 +23,7 @@ blockchains:
         receiver:
           local:
             - bc-rid: x"${AG_BRID}"
-              topic: "L_ttt_result"
+              topic: "L_ttt_game_result"
 
 compile:
   source: src

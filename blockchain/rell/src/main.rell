@@ -3,7 +3,7 @@ module;
 import ttt.*;
 
 operation __icmf_message(sender: byte_array, topic: text, body: gtv) {
-    if(topic != "L_ttt_result") {
+    if(topic != "L_ttt_game_result") {
         log("received message on unknown topic: ", topic);
         return;
     }
