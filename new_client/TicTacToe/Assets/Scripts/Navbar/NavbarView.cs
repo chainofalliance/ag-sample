@@ -26,6 +26,6 @@ public class NavbarView
 
     public void SetAddress(string address)
     {
-        addressLabel.text = $"{address.Substring(0, 6)}...{address.Substring(address.Length - 4)}";
+        addressLabel.text = Util.FormatAddress(address);
     }
 }

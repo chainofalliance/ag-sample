@@ -14,7 +14,7 @@
     "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.10",
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.5",
-    "xyz.alliancegames.unity-sdk": "git@github.com:chainofalliance/ag-unity-sdk.git?path=/unity/AllianceGamesSdk/Assets/AllianceGamesSdk#feat/ag-262",
+    "xyz.alliancegames.unity-sdk": "git@github.com:chainofalliance/ag-unity-sdk.git?path=/unity/AllianceGamesSdk/Assets/AllianceGamesSdk#dev",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",

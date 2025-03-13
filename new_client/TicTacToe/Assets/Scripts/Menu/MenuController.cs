@@ -59,14 +59,14 @@ public class MenuController
         Debug.Log("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {
-            Identifier = Buffer.From(accountManager.Account?.Address),
+            Identifier = Buffer.From(accountManager.Address),
             Duid = duid
         }, cts.Token);
 
         Debug.Log("Creating ticket...");
         var response = await matchmakingService.CreateMatchmakingTicket(new()
         {
-            Identifier = Buffer.From(accountManager.Account?.Address),
+            Identifier = Buffer.From(accountManager.Address),
             NetworkSigner = accountManager.SignatureProvider.PubKey,
             Duid = duid,
             QueueName = QUEUE_NAME
@@ -80,7 +80,7 @@ public class MenuController
 
         var ticketId = await matchmakingService.GetMatchmakingTicket(new()
         {
-            Identifier = Buffer.From(accountManager.Account?.Address),
+            Identifier = Buffer.From(accountManager.Address),
             Duid = duid,
             QueueName = QUEUE_NAME
         }, cts.Token);

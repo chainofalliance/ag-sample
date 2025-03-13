@@ -41,7 +41,7 @@ public class MenuView
 
     public void SetAddress(string address)
     {
-        labelAddress.text = $"{address.Substring(0, 6)}...{address.Substring(address.Length - 4)}";
+        labelAddress.text = Util.FormatAddress(address);
     }
 
     public void SetPlayerInfo(PlayerInfoResponse info)

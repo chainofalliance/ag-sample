@@ -1,13 +1,14 @@
 using Reown.AppKit.Unity;
-using UnityEngine;
 
 public class LoginController
 {
     private readonly LoginView view;
+    private readonly AccountManager accountManager;
 
-    public LoginController(LoginView view)
+    public LoginController(LoginView view, AccountManager accountManager)
     {
         this.view = view;
+        this.accountManager = accountManager;
 
         view.OnWalletLogin += OnWalletLogin;
         view.OnGuestLogin += OnGuestLogin;
@@ -25,6 +26,6 @@ public class LoginController
 
     private void OnGuestLogin()
     {
-        Debug.Log("OnGuestLogin");
+        accountManager.LocalLoginIn();
     }
 }

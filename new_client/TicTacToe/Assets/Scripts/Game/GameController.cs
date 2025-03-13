@@ -109,10 +109,16 @@ public class GameController
                 Debug.Log($"Adding player {player.PubKey.Parse()}...");
                 playerData.Add(new PlayerData()
                 {
-                    Address = player.PubKey.Parse(),
+                    Address = $"0x{player.PubKey.Parse()}",
                     Symbol = player.Symbol
                 });
             }
+
+            var pubKey = accountManager.Address;
+            view.SetPlayers(
+                playerData.Find(p => p.Address == pubKey),
+                playerData.Find(p => p.Address != pubKey)
+            );
 
             Debug.Log($"Send ready");
             await allianceGamesClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
@@ -126,10 +132,12 @@ public class GameController
         {
             var sync = new Messages.Sync(data);
             view.SetBoard(sync.Fields.ToList());
+            
+
             if (sync.Turn == Messages.Field.X)
-                Debug.Log("Your turn.");
+                view.StartTurn(Field.X);
             else
-                Debug.Log("Opponents turn.");
+                view.EndTurn(Field.O);
         });
 
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.GameOver, async winner =>
@@ -167,6 +175,8 @@ public class GameController
 
     private async UniTask GameOver(bool forfeit)
     {
+        view.Reset();
+
         if (allianceGamesClient != null)
         {
             if (forfeit)

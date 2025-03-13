@@ -40,50 +40,58 @@ public class Bootstrap : MonoBehaviour
         var gameElement = mainDocument.rootVisualElement.Q<VisualElement>("GameScreen");
         var sideNavbarElement = mainDocument.rootVisualElement.Q<VisualElement>("ContainerWithSideBar");
 
+        Debug.Log("1");
         await AppKitInit();
-
+        Debug.Log("2");
         connectionManager = new BlockchainConnectionManager();
         await connectionManager.Connect();
         accountManager = new AccountManager();
-
+        Debug.Log("3");
         var navbarView = new NavbarView(sideNavbarElement);
         navbarController = new NavbarController(navbarView, accountManager);
-
+        Debug.Log("4");
         var loginView = new LoginView(loginElement);
-        loginController = new LoginController(loginView);
-
+        loginController = new LoginController(loginView, accountManager);
+        Debug.Log("5");
         var menuView = new MenuView(menuElement);
         menuController = new MenuController(menuView, connectionManager, accountManager, OnStartGame);
-
+        Debug.Log("6");
         var gameView = new GameView(gameElement);
         gameController = new GameController(gameView, accountManager, OnEndGame);
+        Debug.Log("7");
 
-        AppKit.AccountDisconnected += (sender, eventArgs) => {
-            OnChangeScreen(Screen.LOGIN);
-        };
-
-        AppKit.AccountConnected += async (sender, eventArgs) => {
+        accountManager.OnAddressConnected += (_) =>
+        {
             OnChangeScreen(Screen.MENU);
-
-            //var account = await eventArgs.GetAccount();
-            
-            //Debug.Log(res.ToString());
-
-            //var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
-            //Debug.Log("Amount events found: " + events.Length);
-
-            //foreach (var e in events)
-            //{
-            //    Debug.Log(e.ToString());
-            //    var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
-            //    var merkleProof = EIFUtils.Construct(rawMerkleProof);
-
-            //    await TicTacToeContract.Claim(merkleProof, e.EncodedData);
-            //}
-
-            //var myPoints = await TicTacToeContract.GetPoints(account.Address);
-            //Debug.Log("MyPoints: " + myPoints);
         };
+
+        //Debug.Log("3");
+        //AppKit.AccountDisconnected += (sender, eventArgs) => {
+        //    OnChangeScreen(Screen.LOGIN);
+        //};
+
+        //AppKit.AccountConnected += async (sender, eventArgs) => {
+        //    OnChangeScreen(Screen.MENU);
+
+        //    //var account = await eventArgs.GetAccount();
+
+        //    //Debug.Log(res.ToString());
+
+        //    //var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
+        //    //Debug.Log("Amount events found: " + events.Length);
+
+        //    //foreach (var e in events)
+        //    //{
+        //    //    Debug.Log(e.ToString());
+        //    //    var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
+        //    //    var merkleProof = EIFUtils.Construct(rawMerkleProof);
+
+        //    //    await TicTacToeContract.Claim(merkleProof, e.EncodedData);
+        //    //}
+
+        //    //var myPoints = await TicTacToeContract.GetPoints(account.Address);
+        //    //Debug.Log("MyPoints: " + myPoints);
+        //};
 
         OnChangeScreen(Screen.LOGIN);
     }

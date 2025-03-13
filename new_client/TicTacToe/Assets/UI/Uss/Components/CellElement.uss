@@ -1,0 +1,23 @@
+.container-cell {
+    flex-grow: 0;
+    padding-top: 46px;
+    padding-right: 46px;
+    padding-bottom: 46px;
+    padding-left: 46px;
+}
+
+.symbol-x #ImageContainer {
+    background-image: url("project://database/Assets/UI/Textures/img_cross.png");
+}
+
+.symbol-o #ImageContainer {
+    background-image: url("project://database/Assets/UI/Textures/img_circle.png");
+}
+
+.hover-o #ImageContainer {
+    background-image: url("project://database/Assets/UI/Textures/img_circle_hover.png");
+}
+
+.hover-x #ImageContainer {
+    background-image: url("project://database/Assets/UI/Textures/img_cross_hover.png");
+}

@@ -1,0 +1,8 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Uss/Components/CellElement.uss?fileID=7433441132597879392&amp;guid=a4a077c8bf9741c449541b148cf8b73f&amp;type=3#CellElement" />
+    <TTT.Components.CellElement>
+        <engine:VisualElement name="ContainerCell" class="container-cell" style="width: 212px; height: 212px; display: flex; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(184, 179, 179); border-right-color: rgb(184, 179, 179); border-top-color: rgb(184, 179, 179); border-bottom-color: rgb(184, 179, 179); flex-grow: 1;">
+            <engine:VisualElement name="ImageContainer" style="flex-grow: 1;" />
+        </engine:VisualElement>
+    </TTT.Components.CellElement>
+</engine:UXML>
