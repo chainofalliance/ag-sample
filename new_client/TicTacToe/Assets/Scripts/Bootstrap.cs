@@ -40,35 +40,33 @@ public class Bootstrap : MonoBehaviour
         var gameElement = mainDocument.rootVisualElement.Q<VisualElement>("GameScreen");
         var sideNavbarElement = mainDocument.rootVisualElement.Q<VisualElement>("ContainerWithSideBar");
 
-        Debug.Log("1");
         await AppKitInit();
-        Debug.Log("2");
         connectionManager = new BlockchainConnectionManager();
         await connectionManager.Connect();
+
         accountManager = new AccountManager();
-        Debug.Log("3");
+
         var navbarView = new NavbarView(sideNavbarElement);
         navbarController = new NavbarController(navbarView, accountManager);
-        Debug.Log("4");
+
         var loginView = new LoginView(loginElement);
         loginController = new LoginController(loginView, accountManager);
-        Debug.Log("5");
+
         var menuView = new MenuView(menuElement);
         menuController = new MenuController(menuView, connectionManager, accountManager, OnStartGame);
-        Debug.Log("6");
+
         var gameView = new GameView(gameElement);
-        gameController = new GameController(gameView, accountManager, OnEndGame);
-        Debug.Log("7");
+        gameController = new GameController(gameView, accountManager, connectionManager, OnEndGame);
 
         accountManager.OnAddressConnected += (_) =>
         {
             OnChangeScreen(Screen.MENU);
         };
 
-        //Debug.Log("3");
-        //AppKit.AccountDisconnected += (sender, eventArgs) => {
-        //    OnChangeScreen(Screen.LOGIN);
-        //};
+        AppKit.AccountDisconnected += (sender, eventArgs) =>
+        {
+            OnChangeScreen(Screen.LOGIN);
+        };
 
         //AppKit.AccountConnected += async (sender, eventArgs) => {
         //    OnChangeScreen(Screen.MENU);
@@ -88,9 +86,6 @@ public class Bootstrap : MonoBehaviour
 
         //    //    await TicTacToeContract.Claim(merkleProof, e.EncodedData);
         //    //}
-
-        //    //var myPoints = await TicTacToeContract.GetPoints(account.Address);
-        //    //Debug.Log("MyPoints: " + myPoints);
         //};
 
         OnChangeScreen(Screen.LOGIN);

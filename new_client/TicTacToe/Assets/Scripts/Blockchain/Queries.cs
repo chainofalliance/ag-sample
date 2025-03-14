@@ -27,7 +27,7 @@ public class Queries
         }
     }
 
-    public struct EifEventData
+    public class EifEventData
     {
         [JsonProperty("session_id")]
         public string SessionId;
@@ -63,6 +63,14 @@ public class Queries
         return await client.Query<EifEventData[]>(
             "ag.ISession.get_unclaimed_eif_events",
             ("address", Buffer.From(pubKey))
+        );
+    }
+
+    public static async Task<EifEventData?> getEifEventBySession(ChromiaClient client, string sessionId)
+    {
+        return await client.Query<EifEventData?>(
+            "ag.ISession.get_eif_event_by_session_id",
+            ("session_id", sessionId)
         );
     }
 

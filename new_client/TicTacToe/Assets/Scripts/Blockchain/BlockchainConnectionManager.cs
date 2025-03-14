@@ -68,15 +68,10 @@ public class BlockchainConnectionManager
 
     public async Task Connect()
     {
-        UnityEngine.Debug.Log("2.1");
         Transport = new AllianceGamesSdk.Unity.UnityTransport();
-        UnityEngine.Debug.Log("2.2");
         ChromiaClient.SetTransport(Transport);
-        UnityEngine.Debug.Log("2.3");
         AlliancesGamesClient = await InternalConnect(BlockchainConfig.AllianceGames());
-        UnityEngine.Debug.Log("2.4");
         TicTacToeClient = await InternalConnect(BlockchainConfig.TicTacToe());
-        UnityEngine.Debug.Log("2.5");
     }
 
     private async Task<ChromiaClient> InternalConnect(BlockchainConfig config)

@@ -20,6 +20,7 @@ public class GameController
     {
         public string Address;
         public Messages.Field Symbol;
+        public bool IsMe;
     }
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
@@ -27,19 +28,27 @@ public class GameController
 
     private readonly GameView view;
     private readonly AccountManager accountManager;
+    private readonly BlockchainConnectionManager connectionManager;
+    private readonly Action OnEndGame;
 
+    private string sessionId;
     private AllianceGamesClient allianceGamesClient;
     private CancellationTokenSource cts;
     private UniTaskCompletionSource<int> turn = null;
 
+    private CancellationTokenSource openGameResultCts = null;
+
     public GameController(
         GameView view,
         AccountManager accountManager,
+        BlockchainConnectionManager connectionManager,
         Action OnEndGame
     )
     {
         this.view = view;
         this.accountManager = accountManager;
+        this.connectionManager = connectionManager;
+        this.OnEndGame = OnEndGame;
 
         view.OnClickField += idx =>
         {
@@ -56,6 +65,8 @@ public class GameController
             await GameOver(true);
             OnEndGame?.Invoke();
         };
+
+        view.OnClickViewInExplorer += () => OpenLinkToExplorer(sessionId);
     }
 
     public void SetVisible(bool visible)
@@ -76,7 +87,7 @@ public class GameController
                 .MinimumLevel.Debug()
                 .WriteTo.Unity3D()
             .CreateLogger();
-
+                
             var config = GetClientConfig(nodeUri, matchId, logger);
 
             allianceGamesClient = await AllianceGamesClient.Create(
@@ -90,6 +101,8 @@ public class GameController
                 Debug.Log("Could not create client");
                 return;
             }
+
+            sessionId = matchId;
 
             RegisterHandlers();
 
@@ -107,15 +120,18 @@ public class GameController
             foreach (var player in response.Players)
             {
                 Debug.Log($"Adding player {player.PubKey.Parse()}...");
+                var address = $"0x{player.PubKey.Parse()}";
                 playerData.Add(new PlayerData()
                 {
-                    Address = $"0x{player.PubKey.Parse()}",
-                    Symbol = player.Symbol
+                    Address = address,
+                    Symbol = player.Symbol,
+                    IsMe = accountManager.Address == address,
                 });
             }
 
             var pubKey = accountManager.Address;
-            view.SetPlayers(
+            view.Populate(
+                matchId,
                 playerData.Find(p => p.Address == pubKey),
                 playerData.Find(p => p.Address != pubKey)
             );
@@ -135,15 +151,23 @@ public class GameController
             
 
             if (sync.Turn == Messages.Field.X)
+            {
                 view.StartTurn(Field.X);
-            else
                 view.EndTurn(Field.O);
+
+            }
+            else
+            {
+                view.StartTurn(Field.O);
+                view.EndTurn(Field.X);
+            }
         });
 
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.GameOver, async winner =>
         {
             Debug.Log($"{winner} has won!");
             await GameOver(false);
+            OpenGameResult(winner.Parse());
         });
 
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
@@ -223,5 +247,24 @@ public class GameController
         logger: logger
     );
 #endif
+    }
+
+    public static void OpenLinkToExplorer(string sessionId)
+    {
+        Application.OpenURL($"https://alliance-games-explorer.vercel.app/sessions/{sessionId}");
+    }
+
+    private async void OpenGameResult(string winner)
+    {
+        openGameResultCts?.CancelAndDispose();
+        openGameResultCts = new CancellationTokenSource();
+
+        var res = await view.OpenGameResult(sessionId, winner, playerData, connectionManager, openGameResultCts.Token);
+
+        if(res == TTT.Components.ModalAction.CLOSE || res == TTT.Components.ModalAction.NEXT_ROUND)
+        {
+            view.CloseGameResult();
+            OnEndGame?.Invoke();
+        }
     }
 }

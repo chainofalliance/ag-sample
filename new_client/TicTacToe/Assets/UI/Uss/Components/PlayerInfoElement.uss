@@ -46,6 +46,10 @@
     display: flex;
 }
 
+.your-turn #LabelYourTurn {
+    display: flex;
+}
+
 .label-your-turn {
     margin-top: 0;
     margin-right: 24px;

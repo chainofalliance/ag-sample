@@ -4,9 +4,11 @@ using UnityEngine.UIElements;
 using System.Threading;
 using TTT.Components;
 using System;
+using static GameController;
 
 public class GameView
 {
+    public event Action OnClickViewInExplorer;
     public event Action<int> OnClickField;
     public event Action OnClickBack;
 
@@ -14,9 +16,12 @@ public class GameView
     private readonly PlayerInfoElement playerInfoSelf;
     private readonly PlayerInfoElement playerInfoOpponent;
     private readonly CellElement[] cells;
+    private readonly VisualElement modalContainer;
+    private readonly ModalResult modalResult;
+    private readonly Label labelSessionId;
+    private readonly Button buttonViewInExplorer;
 
     private Dictionary<Messages.Field, PlayerInfoElement> players;
-
     private CancellationTokenSource turnTimerCts;
 
     public GameView(VisualElement root)
@@ -38,6 +43,14 @@ public class GameView
             cells[i].RegisterCallback<ClickEvent>((_) => OnClickField?.Invoke(index));
         }
 
+        modalContainer = root.Q("ResultModalContainer");
+        modalResult = modalContainer.Q<ModalResult>();
+
+        labelSessionId = root.Q<Label>("LabelSessionIdValue");
+        buttonViewInExplorer = root.Q<Button>("ButtonViewInExplorer");
+
+        buttonViewInExplorer.clicked += () => OnClickViewInExplorer?.Invoke();
+
         //var backButton = root.Q<Button>("BackButton");
         //backButton.clicked += () => OnClickBack?.Invoke();
     }
@@ -47,11 +60,14 @@ public class GameView
         root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
-    public void SetPlayers(
-        GameController.PlayerData player1,
-        GameController.PlayerData player2
+    public void Populate(
+        string sessionId,
+        PlayerData player1,
+        PlayerData player2
     )
     {
+        labelSessionId.text = Util.FormatAddress(sessionId);
+
         players.Add(player1.Symbol, playerInfoSelf);
         playerInfoSelf.Populate(player1.Symbol, player1.Address);
 
@@ -99,11 +115,31 @@ public class GameView
         players[turn].EndTurn();
     }
 
+    public async UniTask<ModalAction> OpenGameResult(
+        string sessionId, string winner, List<PlayerData> player,
+        BlockchainConnectionManager connectionManager, CancellationToken ct)
+    {
+        modalContainer.style.display = DisplayStyle.Flex;
+        modalResult.Resolve(sessionId, winner, player, connectionManager);
+
+        try
+        {
+            var response = await modalResult.OnDialogAction.Task(ct);
+            return response;
+        }
+        catch (OperationCanceledException) { }
+        return default;
+    }
+
+    public void CloseGameResult()
+    {
+        modalContainer.style.display = DisplayStyle.None;
+    }
+
     private void StartTurnTimer(PlayerInfoElement elem)
     {
         var turnDuration = 30;
         var endTime = DateTime.UtcNow.AddSeconds(turnDuration);
-
 
         turnTimerCts?.CancelAndDispose();
         turnTimerCts = new();

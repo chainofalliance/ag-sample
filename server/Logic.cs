@@ -93,7 +93,7 @@ internal class Logic
                     {
                         move = RandomMove();
                         var cts = new TaskCompletionSource();
-                        server.SetTimeout(() => cts.TrySetResult(), 1000, CancellationToken);
+                        server.SetTimeout(() => cts.TrySetResult(), 2500, CancellationToken);
                         await cts.Task;
                     }
                     else
@@ -236,7 +236,7 @@ internal class Logic
         );
         Log.Information($"Send request done");
 
-        var timeout = server.SetTimeout(() => moveTcs?.TrySetCanceled(), 5000, ct);
+        var timeout = server.SetTimeout(() => moveTcs?.TrySetCanceled(), 30000, ct);
         try
         {
             var res = await moveTcs.Task;

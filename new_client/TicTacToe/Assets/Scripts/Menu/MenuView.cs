@@ -39,6 +39,11 @@ public class MenuView
         root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
+    public bool IsVisible()
+    {
+        return root.style.display == DisplayStyle.Flex;
+    }
+
     public void SetAddress(string address)
     {
         labelAddress.text = Util.FormatAddress(address);

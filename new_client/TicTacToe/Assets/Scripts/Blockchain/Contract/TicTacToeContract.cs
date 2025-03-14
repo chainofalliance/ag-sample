@@ -27,7 +27,7 @@ public class TicTacToeContract
         });
     }
 
-    public static async Task Claim(EvmTypes.EventWithProof eventWithProof, string encodedData)
+    public static async Task<string> Claim(EvmTypes.EventWithProof eventWithProof, string encodedData)
     {
         LoadAbi();
 
@@ -45,6 +45,6 @@ public class TicTacToeContract
         var gasAmount = await AppKit.Evm.EstimateGasAsync(contractAddress, abi, "Claim", arguments: arguments);
         Debug.Log("Gas Amount: " +  gasAmount);
 
-        var result = await AppKit.Evm.WriteContractAsync(contractAddress, abi, "Claim", gasAmount, arguments);
+        return await AppKit.Evm.WriteContractAsync(contractAddress, abi, "Claim", gasAmount, arguments);
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 using System;
 
 using Buffer = Chromia.Buffer;
+using TTT.Components;
 
 public class MenuController
 {
@@ -17,6 +18,7 @@ public class MenuController
     private readonly AccountManager accountManager;
     private readonly Action<Uri, string> OnStartGame;
     private CancellationTokenSource cts;
+    private CancellationTokenSource updateCts;
 
     public MenuController(
         MenuView view,
@@ -31,7 +33,9 @@ public class MenuController
         this.OnStartGame = OnStartGame;
 
         view.OnPlayPve += OnPlay;
-        accountManager.OnAddressConnected += OnAddressConnected;
+        accountManager.OnAddressConnected += OnUpdatePlayerInfo;
+
+        AutoPlayerInfoUpdate();
     }
 
     public void SetVisible(bool visible)
@@ -39,7 +43,7 @@ public class MenuController
         view.SetVisible(visible);
     }
 
-    private async void OnAddressConnected(string address)
+    private async void OnUpdatePlayerInfo(string address)
     {
         var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Buffer.From(address));
         Debug.Log(res.ToString());
@@ -118,5 +122,25 @@ public class MenuController
 
         Debug.Log($"Connecting to {node}...");
         OnStartGame?.Invoke(node.Uri, sessionId);
+    }
+
+    private void AutoPlayerInfoUpdate()
+    {
+        updateCts?.CancelAndDispose();
+        updateCts = new();
+
+        UpdateInfo(updateCts.Token).Forget();
+
+        async UniTaskVoid UpdateInfo(CancellationToken ct)
+        {
+            while (true)
+            {
+                if(view.IsVisible())
+                {
+                    await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
+                    OnUpdatePlayerInfo(accountManager.Address);
+                }
+            }
+        }
     }
 }

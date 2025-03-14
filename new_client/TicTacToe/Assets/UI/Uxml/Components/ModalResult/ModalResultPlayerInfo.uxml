@@ -1,0 +1,10 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Uss/Components/ModalResult.uss?fileID=7433441132597879392&amp;guid=49c7cf30ff50b474d8d8f40e2a91e0a3&amp;type=3#ModalResult" />
+    <TTT.Components.ModalResultPlayerInfo name="ModalResultPlayerInfo">
+        <engine:VisualElement name="Info" style="flex-grow: 0; align-items: center; margin-right: 0; margin-top: 0; margin-bottom: 0; margin-left: 0; flex-direction: column; align-content: flex-end; display: flex;">
+            <engine:VisualElement name="Winner" style="flex-grow: 1; width: 46px; height: 35px; display: flex; position: absolute;" />
+            <engine:VisualElement name="ImageContainer" style="flex-grow: 1; width: 60px; height: 60px; background-size: 60px 60px; padding-top: 0; margin-top: 31px;" />
+            <engine:Label text="2er44t...4t8i" name="LabelAddress" style="-unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 12px; padding-right: 12px; padding-bottom: 12px; padding-left: 12px;" />
+        </engine:VisualElement>
+    </TTT.Components.ModalResultPlayerInfo>
+</engine:UXML>
