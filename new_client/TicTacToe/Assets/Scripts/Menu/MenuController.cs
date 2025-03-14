@@ -137,9 +137,10 @@ public class MenuController
             {
                 if(view.IsVisible())
                 {
-                    await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
                     OnUpdatePlayerInfo(accountManager.Address);
                 }
+                   
+                await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
             }
         }
     }
