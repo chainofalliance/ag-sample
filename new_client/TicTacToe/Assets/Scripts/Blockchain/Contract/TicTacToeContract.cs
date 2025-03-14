@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TicTacToeContract
 {
-    public static string contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+    public static string contractAddress = "0x0A881312dBb60C0111c090d3eE64567CcDecACeD";
     public static string abi = null;
 
     public static void LoadAbi()
