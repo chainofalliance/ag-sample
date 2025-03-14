@@ -7,7 +7,10 @@ using Buffer = Chromia.Buffer;
 const string DEFAULT_ADMIN_PRIVKEY = "854D8402085EC5F737B1BE63FFD980981EED2A0DA5FAC6B4468CB1F176BA0321";
 var privKey = Buffer.From(DEFAULT_ADMIN_PRIVKEY);
 
-var logger = Logger.Create("Server");
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.File($".\\log.txt", shared: true, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 Log.Logger = logger;
 
 var signatureProvider = SignatureProvider.Create(privKey);
