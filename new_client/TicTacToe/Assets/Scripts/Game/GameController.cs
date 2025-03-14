@@ -166,8 +166,8 @@ public class GameController
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.GameOver, async winner =>
         {
             Debug.Log($"{winner} has won!");
-            await GameOver(false);
             OpenGameResult(winner.Parse());
+            await GameOver(false);
         });
 
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
