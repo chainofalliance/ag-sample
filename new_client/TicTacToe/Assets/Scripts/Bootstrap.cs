@@ -20,7 +20,7 @@ public class Bootstrap : MonoBehaviour
     private BlockchainConnectionManager connectionManager;
     private AccountManager accountManager;
 
-    private Chain bnbTestnet = new Chain(
+    public static Chain ChainBNBTestnet = new Chain(
         ChainConstants.Namespaces.Evm,
         chainReference: "97",
         name: "BNB Smart Chain Testnet",
@@ -102,12 +102,11 @@ public class Bootstrap : MonoBehaviour
                 "TicTacToe Powered By Alliance Games",
                 "https://alliancegames.xyz/",
                 "https://raw.githubusercontent.com/reown-com/reown-dotnet/main/media/appkit-icon.png"
-            )
-            //,
-            //supportedChains = new[]
-            //{
-            //    bnbTestnet
-            //}
+            ),
+            supportedChains = new[]
+            {
+                ChainBNBTestnet
+            }
         };
 
         Debug.Log("[AppKit Init] Initializing AppKit...");

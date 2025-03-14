@@ -6,8 +6,9 @@ using static GameController;
 using Buffer = Chromia.Buffer;
 using Cysharp.Threading.Tasks;
 using System.Threading;
-using UnityEngine.Rendering.Universal;
+using Reown.AppKit.Unity;
 using static Queries;
+using Reown.Core.Crypto;
 
 namespace TTT.Components
 {
@@ -134,6 +135,14 @@ namespace TTT.Components
 
                 claimAction = async () =>
                 {
+                    if(AppKit.NetworkController.ActiveChain.ChainId != Bootstrap.ChainBNBTestnet.ChainId)
+                    {
+                        await AppKit.NetworkController.ChangeActiveChainAsync(Bootstrap.ChainBNBTestnet);
+
+                        UnityEngine.Debug.LogError("Error: Not the correct chain active!");
+                        return;
+                    }
+
                     if (eventData == null)
                     {
                         UnityEngine.Debug.LogError("Error: eventData is null, claim cannot proceed!");

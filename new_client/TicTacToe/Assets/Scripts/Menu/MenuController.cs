@@ -46,7 +46,6 @@ public class MenuController
     private async void OnUpdatePlayerInfo(string address)
     {
         var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Buffer.From(address));
-        Debug.Log(res.ToString());
         view.SetPlayerInfo(res);
         view.SetAddress(address);
     }
@@ -140,7 +139,7 @@ public class MenuController
                     OnUpdatePlayerInfo(accountManager.Address);
                 }
                    
-                await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromMilliseconds(5000), cancellationToken: ct);
             }
         }
     }
