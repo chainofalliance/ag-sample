@@ -5,7 +5,6 @@ using Reown.AppKit.Unity;
 using Reown.Sign.Unity;
 using UnityEngine;
 using System;
-using Reown.Sign.Models.Engine.Events;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -63,14 +62,14 @@ public class Bootstrap : MonoBehaviour
         {
             OnChangeScreen(Screen.MENU);
 
-            var eventData = await Queries.getEifEventBySession(connectionManager.AlliancesGamesClient, "0321d8c1fd9b366c7bf1cdfdf2c0a2c15e124b02847d45a1c0e0f673eec66377");
-            var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventData.EventHash);
-            var merkleProof = EIFUtils.Construct(rawMerkleProof);
+            //var eventData = await Queries.getEifEventBySession(connectionManager.AlliancesGamesClient, "0321d8c1fd9b366c7bf1cdfdf2c0a2c15e124b02847d45a1c0e0f673eec66377");
+            //var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventData.EventHash);
+            //var merkleProof = EIFUtils.Construct(rawMerkleProof);
 
-            foreach (var signer in merkleProof.Signers)
-            {
-                Debug.Log(signer);
-            }
+            //foreach (var signer in merkleProof.Signers)
+            //{
+            //    Debug.Log(signer);
+            //}
             //await TicTacToeContract.Claim(merkleProof, eventData.EncodedData);
         };
 

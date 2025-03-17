@@ -251,7 +251,7 @@ public class GameController
 
     public static void OpenLinkToExplorer(string sessionId)
     {
-        Application.OpenURL($"https://alliance-games-explorer.vercel.app/sessions/{sessionId}");
+        Application.OpenURL($"{Config.EXPLORER_URL}sessions/{sessionId}");
     }
 
     private async void OpenGameResult(string winner)

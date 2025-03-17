@@ -1,7 +1,6 @@
 <ui:UXML xmlns:ttt="TTT.Components" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Template name="PlayerInfoElement" src="project://database/Assets/UI/Uxml/Components/PlayerInfoElement.uxml?fileID=9197481963319205126&amp;guid=ba43c0a26e8bf2149bf9c997e4abde41&amp;type=3#PlayerInfoElement" />
     <ui:Template name="CellElement" src="project://database/Assets/UI/Uxml/Components/CellElement.uxml?fileID=9197481963319205126&amp;guid=5d05db0cecff9d44dbabe6b8d6c19c43&amp;type=3#CellElement" />
-    <ui:Template name="ModalResult" src="project://database/Assets/UI/Uxml/Components/ModalResult/ModalResult.uxml?fileID=9197481963319205126&amp;guid=97e99f2b8fa8e2c4eb779816cb36ebf5&amp;type=3#ModalResult" />
     <Style src="project://database/Assets/UI/Uss/Components/ModalResult.uss?fileID=7433441132597879392&amp;guid=49c7cf30ff50b474d8d8f40e2a91e0a3&amp;type=3#ModalResult" />
     <Style src="project://database/Assets/UI/Uss/Components/CellElement.uss?fileID=7433441132597879392&amp;guid=a4a077c8bf9741c449541b148cf8b73f&amp;type=3#CellElement" />
     <Style src="project://database/Assets/UI/Uss/Game.uss?fileID=7433441132597879392&amp;guid=3052f7b3b65c7ca47a959c18d1c5c049&amp;type=3#Game" />
@@ -40,8 +39,5 @@
                 <ui:Button name="ButtonViewInExplorer" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; background-image: url(&quot;project://database/Assets/UI/Textures/icon_link2.png?fileID=2800000&amp;guid=71e478bddbfdaab4b96c08bcc224940e&amp;type=3#icon_link2&quot;); background-size: 18px 18px; width: 18px; height: 18px;" />
             </ui:VisualElement>
         </ui:VisualElement>
-    </ui:VisualElement>
-    <ui:VisualElement name="ResultModalContainer" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; background-color: rgba(30, 30, 30, 0.79); display: none; top: auto; left: auto; right: auto;">
-        <ui:Instance template="ModalResult" name="Content" class="container-modal" style="min-width: 500px; max-width: 700px; min-height: 500px; max-height: 700px; width: 500px; height: 500px; right: 0; left: 20%; top: 202px; bottom: 0;" />
     </ui:VisualElement>
 </ui:UXML>

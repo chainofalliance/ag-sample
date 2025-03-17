@@ -7,6 +7,8 @@ public class AccountManager
 {
     public event Action<string> OnAddressConnected;
 
+    public string AddressWithoutPrefix => Address.StartsWith("0x") ? Address.Substring(2) : Address;
+
     public string Address;
     public Account? Account { get; set; } = null;
     public SignatureProvider SignatureProvider { get; set; }

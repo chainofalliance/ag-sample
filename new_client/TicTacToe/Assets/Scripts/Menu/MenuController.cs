@@ -5,7 +5,6 @@ using UnityEngine;
 using System;
 
 using Buffer = Chromia.Buffer;
-using TTT.Components;
 
 public class MenuController
 {
@@ -33,6 +32,12 @@ public class MenuController
         this.OnStartGame = OnStartGame;
 
         view.OnPlayPve += OnPlay;
+
+        view.OnClickViewAllSessions += () =>
+        {
+            Application.OpenURL($"https://alliance-games-explorer.vercel.app/address/{accountManager.AddressWithoutPrefix}/sessions");
+        };
+
         accountManager.OnAddressConnected += OnUpdatePlayerInfo;
 
         AutoPlayerInfoUpdate();
@@ -45,8 +50,8 @@ public class MenuController
 
     private async void OnUpdatePlayerInfo(string address)
     {
-        var res = await Queries.GetPlayerInfo(connectionManager.TicTacToeClient, Buffer.From(address));
-        view.SetPlayerInfo(res);
+        var res = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
+        view.SetPlayerUpdate(res);
         view.SetAddress(address);
     }
 
@@ -59,6 +64,25 @@ public class MenuController
             connectionManager.AlliancesGamesClient, accountManager.SignatureProvider);
         var duid = DUID;
         duid ??= await MatchmakingService.GetDuid(connectionManager.AlliancesGamesClient, DISPLAY_NAME, cts.Token);
+
+        OpenWaitForMatch(cts.Token).Forget();
+        async UniTaskVoid OpenWaitForMatch(CancellationToken ct)
+        {
+            var res = await view.OpenWaitingForMatch(ct);
+            if (res == false)
+            {
+                await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
+                {
+                    Identifier = Buffer.From(accountManager.Address),
+                    Duid = duid
+                }, cts.Token);
+
+                cts?.Cancel();
+
+                return;
+            }
+        }
+
         Debug.Log("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {
@@ -120,6 +144,7 @@ public class MenuController
         }
 
         Debug.Log($"Connecting to {node}...");
+        view.CloseWaitingForMatch();
         OnStartGame?.Invoke(node.Uri, sessionId);
     }
 
@@ -139,7 +164,7 @@ public class MenuController
                     OnUpdatePlayerInfo(accountManager.Address);
                 }
                    
-                await UniTask.Delay(TimeSpan.FromMilliseconds(5000), cancellationToken: ct);
+                await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
             }
         }
     }

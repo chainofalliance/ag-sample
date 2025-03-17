@@ -2,6 +2,8 @@
     <engine:Template name="LoginScreen" src="project://database/Assets/UI/Uxml/Screens/LoginScreen.uxml?fileID=9197481963319205126&amp;guid=efadf5fb26348af43ade18227d05e048&amp;type=3#LoginScreen" />
     <engine:Template name="MenuScreen" src="project://database/Assets/UI/Uxml/Screens/MenuScreen.uxml?fileID=9197481963319205126&amp;guid=bdc33c27ad6e86b4f89bb161984088fb&amp;type=3#MenuScreen" />
     <engine:Template name="GameScreen" src="project://database/Assets/UI/Uxml/Screens/GameScreen.uxml?fileID=9197481963319205126&amp;guid=5f290a060655c45478f85c42dda574b4&amp;type=3#GameScreen" />
+    <engine:Template name="ModalMatchmaking" src="project://database/Assets/UI/Uxml/Components/Modal/ModalMatchmaking.uxml?fileID=9197481963319205126&amp;guid=2c175e848c9a77945a88eb51cb63c0cf&amp;type=3#ModalMatchmaking" />
+    <engine:Template name="ModalResult" src="project://database/Assets/UI/Uxml/Components/ModalResult/ModalResult.uxml?fileID=9197481963319205126&amp;guid=97e99f2b8fa8e2c4eb779816cb36ebf5&amp;type=3#ModalResult" />
     <engine:Instance template="LoginScreen" name="LoginScreen" style="width: 100%; height: 100%; display: flex;" />
     <engine:VisualElement name="ContainerWithSideBar" style="flex-grow: 1; flex-direction: row; display: none;">
         <engine:VisualElement name="SideBar" style="flex-grow: 0; background-color: rgb(0, 0, 0);">
@@ -36,4 +38,6 @@
             <engine:Instance template="GameScreen" name="GameScreen" style="display: none; flex-grow: 1;" />
         </engine:VisualElement>
     </engine:VisualElement>
+    <engine:Instance template="ModalMatchmaking" name="ModalMatchmaking" style="position: absolute; width: 100%; height: 100%; display: none;" />
+    <engine:Instance template="ModalResult" name="ModalGameResult" style="position: absolute; width: 100%; height: 100%; display: none;" />
 </engine:UXML>

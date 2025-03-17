@@ -16,7 +16,6 @@ public class GameView
     private readonly PlayerInfoElement playerInfoSelf;
     private readonly PlayerInfoElement playerInfoOpponent;
     private readonly CellElement[] cells;
-    private readonly VisualElement modalContainer;
     private readonly ModalResult modalResult;
     private readonly Label labelSessionId;
     private readonly Button buttonViewInExplorer;
@@ -43,8 +42,7 @@ public class GameView
             cells[i].RegisterCallback<ClickEvent>((_) => OnClickField?.Invoke(index));
         }
 
-        modalContainer = root.Q("ResultModalContainer");
-        modalResult = modalContainer.Q<ModalResult>();
+        modalResult = root.panel.visualTree.Q("ModalGameResult").Q<ModalResult>();
 
         labelSessionId = root.Q<Label>("LabelSessionIdValue");
         buttonViewInExplorer = root.Q<Button>("ButtonViewInExplorer");
@@ -87,6 +85,7 @@ public class GameView
 
         players.Clear();
         turnTimerCts?.CancelAndDispose();
+        turnTimerCts = null;
     }
 
     public void SetBoard(List<int> fields)
@@ -119,7 +118,7 @@ public class GameView
         string sessionId, string winner, List<PlayerData> player,
         BlockchainConnectionManager connectionManager, CancellationToken ct)
     {
-        modalContainer.style.display = DisplayStyle.Flex;
+        modalResult.SetVisible(true);
         modalResult.Resolve(sessionId, winner, player, connectionManager);
 
         try
@@ -133,7 +132,7 @@ public class GameView
 
     public void CloseGameResult()
     {
-        modalContainer.style.display = DisplayStyle.None;
+        modalResult.SetVisible(false);
     }
 
     private void StartTurnTimer(PlayerInfoElement elem)

@@ -1,8 +1,9 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <engine:Template name="ModalResultPlayerInfo" src="project://database/Assets/UI/Uxml/Components/ModalResult/ModalResultPlayerInfo.uxml?fileID=9197481963319205126&amp;guid=21687bfbfac33a44cbbcb35c89480f00&amp;type=3#ModalResultPlayerInfo" />
     <Style src="project://database/Assets/UI/Uss/Components/ModalResult.uss?fileID=7433441132597879392&amp;guid=49c7cf30ff50b474d8d8f40e2a91e0a3&amp;type=3#ModalResult" />
-    <TTT.Components.ModalResult>
-        <engine:VisualElement name="Content">
+    <TTT.Components.ModalResult style="width: 100%; height: 100%; justify-content: center;">
+        <engine:VisualElement name="Blurr" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; background-color: rgba(30, 30, 30, 0.8);" />
+        <engine:VisualElement name="Content" style="width: 500px; height: 496px; align-self: center; background-image: url(&quot;project://database/Assets/UI/Textures/bg_modal.png?fileID=2800000&amp;guid=88dccef9845d6cc4ca14ef4e4d5bdedc&amp;type=3#bg_modal&quot;);">
             <engine:Label text="You Lose" name="LableTitle" style="height: 61px; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); font-size: 24px; color: rgb(255, 255, 255); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-text-align: middle-center;" />
             <engine:VisualElement name="ContainerPlayerInfo" style="flex-grow: 0; flex-direction: row; justify-content: space-around;">
                 <engine:Instance template="ModalResultPlayerInfo" name="HomeInfo" />

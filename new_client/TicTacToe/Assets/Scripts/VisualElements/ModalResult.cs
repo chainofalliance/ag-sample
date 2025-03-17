@@ -8,7 +8,6 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using Reown.AppKit.Unity;
 using static Queries;
-using Reown.Core.Crypto;
 
 namespace TTT.Components
 {
@@ -79,7 +78,7 @@ namespace TTT.Components
 
         public void SetVisible(bool visible)
         {
-            style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            parent.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         public void Resolve(

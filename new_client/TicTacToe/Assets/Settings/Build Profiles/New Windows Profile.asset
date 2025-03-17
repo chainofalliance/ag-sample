@@ -598,7 +598,7 @@ MonoBehaviour:
     - line: '|   webGLCloseOnQuit: 0'
     - line: '|   webWasm2023: 0'
     - line: '|   scriptingDefineSymbols:'
-    - line: '|     Standalone: '
+    - line: '|     Standalone: AG_DEVNET'
     - line: '|   additionalCompilerArguments:'
     - line: '|     Standalone: []'
     - line: '|   platformArchitecture: {}'

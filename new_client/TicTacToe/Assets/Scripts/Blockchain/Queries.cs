@@ -1,12 +1,29 @@
 using Chromia;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Buffer = Chromia.Buffer;
 
+public enum Outcome
+{
+    WIN,
+    LOOSE,
+    DRAW
+}
+
 public class Queries
 {
-    public struct PlayerInfoResponse
+    public class PlayerUpdate
+    {
+        [JsonProperty("info")]
+        public PlayerInfoResponse Info;
+
+        [JsonProperty("history")]
+        public List<PlayerHistoryResponse> History;
+    }
+
+    public class PlayerInfoResponse
     {
         [JsonProperty("points")]
         public int Points;
@@ -19,12 +36,21 @@ public class Queries
 
         [JsonProperty("draw_count")]
         public int DrawCount;
+    }
 
+    public class PlayerHistoryResponse
+    {
+        [JsonProperty("session_id")]
+        public string SessionId;
 
-        public override string ToString()
-        {
-            return $"Points: {Points}\nWins: {WinCount}\nLooses: {LooseCount}\nDraws: {DrawCount}";
-        }
+        [JsonProperty("opponent")]
+        public Buffer Opponent;
+
+        [JsonProperty("outcome")]
+        public Outcome Outcome;
+
+        [JsonProperty("points")]
+        public int Points;
     }
 
     public class EifEventData
@@ -50,10 +76,10 @@ public class Queries
         }
     }
 
-    public static async Task<PlayerInfoResponse> GetPlayerInfo(ChromiaClient client, Buffer pubKey)
+    public static async Task<PlayerUpdate> GetPlayerUpdate(ChromiaClient client, Buffer pubKey)
     {
-        return await client.Query<PlayerInfoResponse>(
-            "ttt.IPlayer.get_info",
+        return await client.Query<PlayerUpdate>(
+            "ttt.IPlayer.get_update",
             ("pubkey", Buffer.From(pubKey))
         );
     }
