@@ -5,18 +5,21 @@ using UnityEngine;
 using System;
 
 using Buffer = Chromia.Buffer;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 public class MenuController
 {
     private readonly string DUID = null;
     private readonly string DISPLAY_NAME = "TicTacToe";
+
+    // TODO: second queue for pve
     private readonly string QUEUE_NAME = "1Vs1";
 
     private readonly MenuView view;
     private readonly BlockchainConnectionManager connectionManager;
     private readonly AccountManager accountManager;
     private readonly Action<Uri, string> OnStartGame;
-    private CancellationTokenSource cts;
     private CancellationTokenSource updateCts;
 
     public MenuController(
@@ -57,38 +60,59 @@ public class MenuController
 
     private async void OnPlay()
     {
-        cts?.Dispose();
-        cts = new CancellationTokenSource();
+        var cts = new CancellationTokenSource();
 
         var matchmakingService = MatchmakingServiceFactory.Get(
             connectionManager.AlliancesGamesClient, accountManager.SignatureProvider);
         var duid = DUID;
         duid ??= await MatchmakingService.GetDuid(connectionManager.AlliancesGamesClient, DISPLAY_NAME, cts.Token);
 
-        OpenWaitForMatch(cts.Token).Forget();
-        async UniTaskVoid OpenWaitForMatch(CancellationToken ct)
+        RunMatchmaking(cts, matchmakingService, duid).Forget();
+
+        try
         {
-            var res = await view.OpenWaitingForMatch(ct);
-            if (res == false)
+            var ticketId = await CreateMatchmakingTicket(matchmakingService, duid, cts.Token);
+            if (string.IsNullOrEmpty(ticketId))
             {
-                await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
-                {
-                    Identifier = Buffer.From(accountManager.Address),
-                    Duid = duid
-                }, cts.Token);
-
-                cts?.Cancel();
-
+                Debug.Log("Failed to get ticket ID");
                 return;
             }
+
+            var (sessionId, node) = await WaitForMatch(matchmakingService, ticketId, cts.Token);
+
+            cts?.CancelAndDispose();
+            view.CloseWaitingForMatch();
+
+            var uriBuilder = new UriBuilder(node);
+            if (uriBuilder.Host == "host.docker.internal")
+            {
+                uriBuilder.Host = "localhost";
+            }
+
+            Debug.Log($"Connecting to {uriBuilder.Uri}...");
+            OnStartGame?.Invoke(uriBuilder.Uri, sessionId);
+        }
+        catch (OperationCanceledException)
+        { }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error while in matchmaking: {e.Message}");
         }
 
+    }
+
+    private async UniTask<string> CreateMatchmakingTicket(
+        IMatchmakingService matchmakingService,
+        string duid,
+        CancellationToken ct
+    )
+    {
         Debug.Log("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {
             Identifier = Buffer.From(accountManager.Address),
             Duid = duid
-        }, cts.Token);
+        }, ct);
 
         Debug.Log("Creating ticket...");
         var response = await matchmakingService.CreateMatchmakingTicket(new()
@@ -97,55 +121,93 @@ public class MenuController
             NetworkSigner = accountManager.SignatureProvider.PubKey,
             Duid = duid,
             QueueName = QUEUE_NAME
-        }, cts.Token);
+        }, ct);
 
-        if (response.Status == Chromia.TransactionReceipt.ResponseStatus.Rejected)
+        if (response.Status != Chromia.TransactionReceipt.ResponseStatus.Confirmed)
         {
             Debug.Log("Creating ticket transaction got rejected " + response.RejectReason);
-            return;
+            return null;
         }
 
-        var ticketId = await matchmakingService.GetMatchmakingTicket(new()
+        return await matchmakingService.GetMatchmakingTicket(new()
         {
             Identifier = Buffer.From(accountManager.Address),
             Duid = duid,
             QueueName = QUEUE_NAME
-        }, cts.Token);
+        }, ct);
+    }
 
-        Debug.Log($"Waiting for match with ticket ID {ticketId}...");
+    private async UniTask<(string sessionId, string node)> WaitForMatch(
+        IMatchmakingService matchmakingService,
+        string ticketId,
+        CancellationToken ct
+    )
+    {
         string sessionId = null;
-        while (!cts.Token.IsCancellationRequested)
+        while (!ct.IsCancellationRequested)
         {
             var ticket = await matchmakingService.GetMatchmakingTicketStatus(new()
             {
                 TicketId = ticketId
-            }, cts.Token);
+            }, ct);
 
-            if (ticket.SessionId != "")
+            if (!string.IsNullOrEmpty(ticket.SessionId))
             {
                 sessionId = ticket.SessionId;
                 break;
             }
 
             Debug.Log($"Waiting for match with ticket ID {ticketId}...\nStatus: {ticket.Status}");
-            await UniTask.Delay(1000);
+            await UniTask.Delay(1000, cancellationToken: ct);
         }
 
         Debug.Log($"Match found! Getting server details for match ID {sessionId}...");
-        var connectionDetails = await matchmakingService.GetConnectionDetails(new()
+        var node = await matchmakingService.GetConnectionDetails(new()
         {
             SessionId = sessionId
-        }, cts.Token);
+        }, ct);
 
-        var node = new UriBuilder(connectionDetails);
-        if (node.Host == "host.docker.internal")
+        return (sessionId, node);
+    }
+
+    private async UniTaskVoid RunMatchmaking(
+        CancellationTokenSource cts,
+        IMatchmakingService matchmakingService,
+        string duid
+    )
+    {
+        view.OpenMatchmaking();
+
+        Timer().Forget();
+
+        if (!await view.OpenWaitingForMatch(cts.Token))
         {
-            node.Host = "localhost";
+            try
+            {
+                cts?.CancelAndDispose();
+            }
+            catch (ObjectDisposedException)
+            { }
+
+            view.CloseWaitingForMatch();
+
+            await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
+            {
+                Identifier = Buffer.From(accountManager.Address),
+                Duid = duid
+            }, CancellationToken.None);
         }
 
-        Debug.Log($"Connecting to {node}...");
-        view.CloseWaitingForMatch();
-        OnStartGame?.Invoke(node.Uri, sessionId);
+        async UniTask<string> Timer()
+        {
+            var count = 0;
+            while (!cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(1000, cancellationToken: cts.Token);
+                view.UpdateMatchmakingTimer(++count);
+            }
+            return null;
+        }
     }
 
     private void AutoPlayerInfoUpdate()
@@ -159,11 +221,11 @@ public class MenuController
         {
             while (true)
             {
-                if(view.IsVisible())
+                if (view.IsVisible())
                 {
                     OnUpdatePlayerInfo(accountManager.Address);
                 }
-                   
+
                 await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
             }
         }

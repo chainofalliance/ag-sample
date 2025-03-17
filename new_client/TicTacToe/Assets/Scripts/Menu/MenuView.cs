@@ -83,7 +83,8 @@ public class MenuView
             labelWonMatches.text = info.WinCount.ToString();
             labelDrawMatches.text = info.DrawCount.ToString();
             labelLostMatches.text = info.LooseCount.ToString();
-        } else
+        }
+        else
         {
             labelPoints.text = "0";
             labelPoints.text = "0";
@@ -96,18 +97,20 @@ public class MenuView
         tableSessions.Populate(update.History);
     }
 
+    public void OpenMatchmaking()
+    {
+        modalMatchmaking.SetVisible(true);
+        UpdateMatchmakingTimer(0);
+    }
+
+    public void UpdateMatchmakingTimer(int seconds)
+    {
+        modalMatchmaking.UpdateTimer(seconds);
+    }
+
     public async UniTask<bool> OpenWaitingForMatch(CancellationToken ct)
     {
-        try
-        {
-            modalMatchmaking.SetVisible(true);
-            modalMatchmaking.StartTimer(ct);
-            var response = await modalMatchmaking.OnDialogAction.Task(ct);
-
-            return response;
-        }
-        catch (OperationCanceledException) { }
-        return default;
+        return await modalMatchmaking.OnDialogAction.Task(ct);
     }
 
     public void CloseWaitingForMatch()

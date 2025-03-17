@@ -7,7 +7,7 @@ using System;
 namespace TTT.Components
 {
     [UxmlElement]
-    partial class ModalMatchmaking: VisualElement
+    partial class ModalMatchmaking : VisualElement
     {
         public IAsyncEnumerableWithEvent<bool> OnDialogAction => onDialogAction;
         protected readonly AsyncEnumerableWithEvent<bool> onDialogAction = new();
@@ -33,21 +33,9 @@ namespace TTT.Components
             parent.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
-        public void StartTimer(CancellationToken ct)
+        public void UpdateTimer(int seconds)
         {
-            timerTask(ct).Forget();
-
-            async UniTaskVoid timerTask(CancellationToken cts)
-            {
-                var count = 0;
-                while (!cts.IsCancellationRequested)
-                {
-                    labelTimer.text = $"{count} sec";
-
-                    await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
-                    count++;
-                }
-            }
+            labelTimer.text = $"{seconds} sec";
         }
     }
 }
