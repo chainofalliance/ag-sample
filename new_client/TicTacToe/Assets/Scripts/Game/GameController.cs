@@ -87,11 +87,11 @@ public class GameController
                 .MinimumLevel.Debug()
                 .WriteTo.Unity3D()
             .CreateLogger();
-                
+
             var config = GetClientConfig(nodeUri, matchId, logger);
 
             allianceGamesClient = await AllianceGamesClient.Create(
-                new WebSocketTransport(config.Logger),
+                WebSocketTransportFactory.Get(config.Logger),
                 config,
                 ct: cts.Token
             );
@@ -148,7 +148,7 @@ public class GameController
         {
             var sync = new Messages.Sync(data);
             view.SetBoard(sync.Fields.ToList());
-            
+
 
             if (sync.Turn == Messages.Field.X)
             {
@@ -238,14 +238,14 @@ public class GameController
     );
 
 #else
-    return new ClientConfig(
-        matchId,
-        nodeUri,
-        accountManager.SignatureProvider,
-        new UniTaskRunner(),
-        new UnityHttpClient(),
-        logger: logger
-    );
+        return new ClientConfig(
+            matchId,
+            nodeUri,
+            accountManager.SignatureProvider,
+            new UniTaskRunner(),
+            new UnityHttpClient(),
+            logger: logger
+        );
 #endif
     }
 
@@ -261,7 +261,7 @@ public class GameController
 
         var res = await view.OpenGameResult(sessionId, winner, playerData, connectionManager, openGameResultCts.Token);
 
-        if(res == TTT.Components.ModalAction.CLOSE || res == TTT.Components.ModalAction.NEXT_ROUND)
+        if (res == TTT.Components.ModalAction.CLOSE || res == TTT.Components.ModalAction.NEXT_ROUND)
         {
             view.CloseGameResult();
             OnEndGame?.Invoke();
