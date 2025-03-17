@@ -1,27 +1,18 @@
-namespace ILeaderboard {
-    query get_points(pubkey) {
-        val res = Leaderboard.__def @? {pubkey};
-        return if(res == null) 0 else res.points;
-    }
-}
-
 namespace IPlayer {
-    query get_info(pubkey) {
-        return Leaderboard.__def @? {pubkey} (
-            points = .points,
-            win_count = .win_count,
-            loose_count = .loose_count,
-            draw_count = .draw_count
+    query get_update(pubkey) {
+        return (
+            info = Leaderboard.__def @? {pubkey} (
+                points = .points,
+                win_count = .win_count,
+                loose_count = .loose_count,
+                draw_count = .draw_count
+            ),
+            history = History.__def @* {.player == pubkey} (
+                session_id = .session_id,
+                opponent = .opponent,
+                outcome = .outcome,
+                points = .points
+            ) limit 3
         );
-    }
-
-    query get_history(pubkey) {
-        return History.__def @? {.player == pubkey} (
-            player = .player,
-            session_id = .session_id,
-            opponent = .opponent,
-            outcome = .outcome,
-            points = .points
-        ) limit 5;
     }
 }

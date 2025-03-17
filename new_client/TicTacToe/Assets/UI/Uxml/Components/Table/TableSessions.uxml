@@ -1,0 +1,21 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:Template name="TableSessionsEntry" src="project://database/Assets/UI/Uxml/Components/Table/TableSessionsEntry.uxml?fileID=9197481963319205126&amp;guid=81da1aa15be9d234ca4ea3d2057c9f22&amp;type=3#TableSessionsEntry" />
+    <TTT.Components.TableSessions>
+        <engine:VisualElement name="SectionLastSessions" style="flex-grow: 1; width: 100%; margin-bottom: 40px; padding-top: 16px; padding-bottom: 12px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgba(255, 255, 255, 0.08); border-right-color: rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.08); border-bottom-color: rgba(255, 255, 255, 0.08);">
+            <engine:VisualElement name="ContainerTableHeader" style="height: 30px; padding-left: 20px; padding-right: 20px; padding-bottom: 12px; flex-direction: row; justify-content: space-between;">
+                <engine:Label text="Session ID" name="LabelSessionId" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); font-size: 12px; color: rgb(184, 179, 179); width: 25%;" />
+                <engine:Label text="Opponent" name="LabelOpponent" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); font-size: 12px; color: rgb(184, 179, 179); width: 25%;" />
+                <engine:Label text="Outcome" name="LabelOutcome" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); font-size: 12px; color: rgb(184, 179, 179); width: 25%;" />
+                <engine:Label text="Points" name="LabelPoints" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); font-size: 12px; color: rgb(184, 179, 179); width: 25%; -unity-text-align: upper-right;" />
+            </engine:VisualElement>
+            <engine:VisualElement name="Content" style="flex-grow: 1; margin-bottom: 16px;">
+                <engine:Instance template="TableSessionsEntry" name="SessionEntry" />
+                <engine:Instance template="TableSessionsEntry" name="SessionEntry" />
+                <engine:Instance template="TableSessionsEntry" name="SessionEntry" />
+            </engine:VisualElement>
+            <engine:Button text="View all sessions" name="ButtonViewAll" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 8px; padding-right: 20px; padding-bottom: 8px; padding-left: 20px; height: 43px; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; background-color: rgba(188, 188, 188, 0); -unity-font-definition: resource(&apos;AzeretMono-Bold&apos;); color: rgb(255, 255, 255);">
+                <engine:VisualElement name="IconLink" picking-mode="Ignore" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/UI/Textures/icon_link2.png?fileID=2800000&amp;guid=71e478bddbfdaab4b96c08bcc224940e&amp;type=3#icon_link2&quot;); background-size: 16px 16px; left: 90px; width: 16px; height: 16px; align-self: center; right: auto;" />
+            </engine:Button>
+        </engine:VisualElement>
+    </TTT.Components.TableSessions>
+</engine:UXML>

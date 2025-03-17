@@ -5,6 +5,7 @@ using Reown.AppKit.Unity;
 using Reown.Sign.Unity;
 using UnityEngine;
 using System;
+using Reown.Sign.Models.Engine.Events;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -58,9 +59,19 @@ public class Bootstrap : MonoBehaviour
         var gameView = new GameView(gameElement);
         gameController = new GameController(gameView, accountManager, connectionManager, OnEndGame);
 
-        accountManager.OnAddressConnected += (_) =>
+        accountManager.OnAddressConnected += async (_) =>
         {
             OnChangeScreen(Screen.MENU);
+
+            var eventData = await Queries.getEifEventBySession(connectionManager.AlliancesGamesClient, "0321d8c1fd9b366c7bf1cdfdf2c0a2c15e124b02847d45a1c0e0f673eec66377");
+            var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventData.EventHash);
+            var merkleProof = EIFUtils.Construct(rawMerkleProof);
+
+            foreach (var signer in merkleProof.Signers)
+            {
+                Debug.Log(signer);
+            }
+            //await TicTacToeContract.Claim(merkleProof, eventData.EncodedData);
         };
 
         AppKit.AccountDisconnected += (sender, eventArgs) =>
@@ -68,24 +79,25 @@ public class Bootstrap : MonoBehaviour
             OnChangeScreen(Screen.LOGIN);
         };
 
-        //AppKit.AccountConnected += async (sender, eventArgs) => {
+        //AppKit.AccountConnected += async (sender, eventArgs) =>
+        //{
         //    OnChangeScreen(Screen.MENU);
 
-        //    //var account = await eventArgs.GetAccount();
+        //    var account = await eventArgs.GetAccount();
 
-        //    //Debug.Log(res.ToString());
+        //    Debug.Log(res.ToString());
 
-        //    //var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
-        //    //Debug.Log("Amount events found: " + events.Length);
+        //    var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
+        //    Debug.Log("Amount events found: " + events.Length);
 
-        //    //foreach (var e in events)
-        //    //{
-        //    //    Debug.Log(e.ToString());
-        //    //    var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
-        //    //    var merkleProof = EIFUtils.Construct(rawMerkleProof);
+        //    foreach (var e in events)
+        //    {
+        //        Debug.Log(e.ToString());
+        //        var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
+        //        var merkleProof = EIFUtils.Construct(rawMerkleProof);
 
-        //    //    await TicTacToeContract.Claim(merkleProof, e.EncodedData);
-        //    //}
+        //        await TicTacToeContract.Claim(merkleProof, e.EncodedData);
+        //    }
         //};
 
         OnChangeScreen(Screen.LOGIN);
