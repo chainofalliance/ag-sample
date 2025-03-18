@@ -1,3 +1,4 @@
+using System.Numerics;
 using Cysharp.Threading.Tasks;
 using Nethereum.Util;
 using Nethereum.Web3;
@@ -8,12 +9,18 @@ using UnityEngine;
 public class ReownAccount : IAccount
 {
     public string Address => account.Address;
+    public BigInteger Balance { get; private set; }
 
     private readonly Account account;
 
     public ReownAccount(Account account)
     {
         this.account = account;
+    }
+
+    public async UniTask SyncBalance()
+    {
+        Balance = await AppKit.Evm.GetBalanceAsync(Address);
     }
 
     public async UniTask<string> SendTransaction(
@@ -46,7 +53,7 @@ public class ReownAccount : IAccount
         object[] parameters
     )
     {
-        var balance = await AppKit.Evm.GetBalanceAsync(Address);
+        await SyncBalance();
         var gasLimit = await AppKit.Evm.EstimateGasAsync(
             contractAddress,
             abi,
@@ -54,6 +61,6 @@ public class ReownAccount : IAccount
             0,
             parameters
         );
-        return balance >= gasLimit * Web3.Convert.ToWei(1, UnitConversion.EthUnit.Gwei);
+        return Balance >= gasLimit * Web3.Convert.ToWei(1, UnitConversion.EthUnit.Gwei);
     }
 }

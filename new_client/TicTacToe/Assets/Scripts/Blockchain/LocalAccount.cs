@@ -9,7 +9,9 @@ using Nethereum.Util;
 public class LocalAccount : IAccount
 {
     public string Address { get; private set; }
+    public BigInteger Balance => balanceWei.Value;
     private readonly Web3 web3;
+    private HexBigInteger balanceWei;
 
     private const string PRIVKEY_PLAYER_PREFS_KEY = "local-privkey";
 
@@ -22,6 +24,11 @@ public class LocalAccount : IAccount
 
         var ethAccount = new Nethereum.Web3.Accounts.Account(privateKey);
         web3 = new Web3(ethAccount, TicTacToeContract.RPC_URL);
+    }
+
+    public async UniTask SyncBalance()
+    {
+        balanceWei = await web3.Eth.GetBalance.SendRequestAsync(Address);
     }
 
     public async UniTask<string> SendTransaction(
@@ -42,7 +49,12 @@ public class LocalAccount : IAccount
         }
 
         var transactionInput = function.CreateTransactionInput(Address, estimatedGas, new HexBigInteger(0), parameters);
-        var transactionHash = await web3.Eth.Transactions.SendTransaction.SendRequestAsync(transactionInput);
+
+        transactionInput.ChainId = new HexBigInteger(97);
+        transactionInput.GasPrice = new HexBigInteger(Web3.Convert.ToWei(1, UnitConversion.EthUnit.Gwei));
+
+        var signedTransaction = await web3.Eth.TransactionManager.SignTransactionAsync(transactionInput);
+        var transactionHash = await web3.Eth.Transactions.SendRawTransaction.SendRequestAsync(signedTransaction);
         Debug.Log($"Transaction Sent. Hash: {transactionHash}");
 
         return transactionHash;
@@ -50,7 +62,7 @@ public class LocalAccount : IAccount
 
     private async UniTask<bool> HasEnoughGas(BigInteger estimatedGas)
     {
-        var balanceWei = await web3.Eth.GetBalance.SendRequestAsync(Address);
+        await SyncBalance();
         var gasCost = estimatedGas * Web3.Convert.ToWei(1, UnitConversion.EthUnit.Gwei);
 
         Debug.Log($"Balance: {balanceWei.Value} Wei, Estimated Gas Cost: {gasCost} Wei");

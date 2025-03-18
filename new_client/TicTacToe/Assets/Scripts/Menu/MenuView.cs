@@ -8,7 +8,9 @@ using System.Threading;
 
 public class MenuView
 {
+    public event Action OnClaim;
     public event Action OnPlayPve;
+    public event Action OnPlayPvp;
 
     public event Action OnClickViewAllSessions
     {
@@ -24,7 +26,9 @@ public class MenuView
 
     private readonly VisualElement root;
     private readonly Button playPveButton;
+    private readonly Button playPvpButton;
     private readonly Label labelAddress;
+    private readonly Label labelBalance;
     private readonly Label labelPointsChr;
     private readonly Label labelPointsEvm;
     private readonly Label labelTotalMatches;
@@ -34,11 +38,16 @@ public class MenuView
     private readonly TableSessions tableSessions;
     private readonly ModalMatchmaking modalMatchmaking;
 
+    private readonly VisualElement containerUnclaimedPoints;
+    private readonly Label labelUnclaimedPointsValue;
+    private readonly Button buttonClaim;
+
     public MenuView(VisualElement root)
     {
         this.root = root;
 
         labelAddress = root.Q<Label>("LabelAddressValue");
+        labelBalance = root.Q<Label>("LabelBalanceValue");
         labelPointsChr = root.Q<Label>("LabelPointsValueChr");
         labelPointsEvm = root.Q<Label>("LabelPointsValueEvm");
         labelTotalMatches = root.Q<Label>("LabelTotalMatchesValue");
@@ -50,12 +59,21 @@ public class MenuView
         tableSessions = tableElem.Q<TableSessions>();
 
         modalMatchmaking = root.panel.visualTree.Q("ModalMatchmaking").Q<ModalMatchmaking>();
-        //ContainerUnclaimedPoints
-        //LabelUnclaimedPointsValue
-        //ButtonClaim
+
+        containerUnclaimedPoints = root.Q<VisualElement>("ContainerUnclaimedPoints");
+        containerUnclaimedPoints.style.display = DisplayStyle.None;
+
+        labelUnclaimedPointsValue = root.Q<Label>("LabelUnclaimedPointsValue");
+        labelUnclaimedPointsValue.text = "0";
+        buttonClaim = root.Q<Button>("ButtonClaim");
+        buttonClaim.clicked += () => OnClaim?.Invoke();
 
         playPveButton = root.Q<Button>("ButtonPlayPve");
         playPveButton.clicked += () => OnPlayPve?.Invoke();
+
+        playPvpButton = root.Q<Button>("ButtonPlayPvp");
+        playPvpButton.clicked += () => OnPlayPvp?.Invoke();
+
     }
 
     public void SetVisible(bool visible)
@@ -73,7 +91,7 @@ public class MenuView
         labelAddress.text = Util.FormatAddress(address);
     }
 
-    public void SetPlayerUpdate(PlayerUpdate update, int pointsEvm)
+    public void SetPlayerUpdate(PlayerUpdate update, int pointsEvm, string balance)
     {
         var info = update.Info;
 
@@ -94,6 +112,19 @@ public class MenuView
             labelWonMatches.text = "0";
             labelDrawMatches.text = "0";
             labelLostMatches.text = "0";
+        }
+
+        labelBalance.text = balance;
+
+        var unclaimedPoints = info.Points - pointsEvm;
+        if (unclaimedPoints > 0)
+        {
+            containerUnclaimedPoints.style.display = DisplayStyle.Flex;
+            labelUnclaimedPointsValue.text = unclaimedPoints.ToString();
+        }
+        else
+        {
+            containerUnclaimedPoints.style.display = DisplayStyle.None;
         }
 
         tableSessions.Populate(update.History);

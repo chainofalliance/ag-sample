@@ -1,4 +1,6 @@
 using Chromia;
+using Nethereum.Util;
+using Nethereum.Web3;
 using Reown.AppKit.Unity;
 using System;
 using UnityEngine;
@@ -9,6 +11,7 @@ public class AccountManager
 
     public string AddressWithoutPrefix => Address.StartsWith("0x") ? Address.Substring(2) : Address;
     public string Address => Account.Address;
+    public string Balance => Web3.Convert.FromWei(Account.Balance, UnitConversion.EthUnit.Ether).ToString("N5");
     public IAccount Account { get; private set; }
     public SignatureProvider SignatureProvider { get; set; }
     public TicTacToeContract TicTacToeContract { get; private set; }

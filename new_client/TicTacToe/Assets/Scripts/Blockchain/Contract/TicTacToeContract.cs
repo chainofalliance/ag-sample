@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using Reown.AppKit.Unity;
@@ -12,12 +13,14 @@ public class TicTacToeContract
     private const string CONTRACT_ADDRESS = "0x0A881312dBb60C0111c090d3eE64567CcDecACeD";
 
     private readonly IAccount account;
+    private readonly Web3 web3;
     private readonly string abi;
 
     public TicTacToeContract(IAccount account)
     {
         this.account = account;
         abi = Resources.Load<TextAsset>("TicTacToeAbi").text;
+        web3 = new Web3(RPC_URL);
     }
 
     public async Task<int> GetPoints(string address)
@@ -39,10 +42,16 @@ public class TicTacToeContract
             eventWithProof.Sigs,
             eventWithProof.Signers,
             eventWithProof.ExtraProof,
-            Nethereum.Hex.HexConvertors.Extensions.HexByteConvertorExtensions.HexToByteArray(encodedData)
+            encodedData.HexToByteArray()
         };
 
         var txHash = await account.SendTransaction(CONTRACT_ADDRESS, abi, "Claim", arguments);
+        if (string.IsNullOrEmpty(txHash))
+        {
+            Debug.LogError("Failed to send transaction");
+            return null;
+        }
+
         var receipt = await WaitForTransactionConfirmation(txHash);
 
         return receipt.TransactionHash;
@@ -52,8 +61,9 @@ public class TicTacToeContract
     {
         Debug.Log($"Waiting for transaction confirmation: {transactionHash}");
 
-        var web3 = new Web3(RPC_URL);
-        while (true)
+        var tries = 0;
+        var maxTries = 30;
+        while (tries < maxTries)
         {
             var receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
             if (receipt != null)
@@ -64,6 +74,10 @@ public class TicTacToeContract
 
             Debug.Log("Waiting for transaction to be mined...");
             await UniTask.Delay(TimeSpan.FromSeconds(1));
+            tries++;
         }
+
+        Debug.LogError($"Transaction failed to be mined after {maxTries} tries");
+        return null;
     }
 }

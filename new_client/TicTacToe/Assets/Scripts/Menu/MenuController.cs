@@ -11,13 +11,14 @@ public class MenuController
     private readonly string DUID = null;
     private readonly string DISPLAY_NAME = "TicTacToe";
 
-    // TODO: second queue for pve
-    private readonly string QUEUE_NAME = "1Vs1";
+    private readonly string AI_QUEUE_NAME = "1Vs1";
+    private readonly string PVP_QUEUE_NAME = "1Vs1";
 
     private readonly MenuView view;
     private readonly BlockchainConnectionManager connectionManager;
     private readonly AccountManager accountManager;
     private readonly Action<Uri, string> OnStartGame;
+    private Queries.EifEventData[] unclaimedRewards;
     private CancellationTokenSource updateCts;
 
     public MenuController(
@@ -32,8 +33,9 @@ public class MenuController
         this.accountManager = accountManager;
         this.OnStartGame = OnStartGame;
 
-        view.OnPlayPve += OnPlay;
-
+        view.OnPlayPve += () => OnPlay(AI_QUEUE_NAME);
+        view.OnPlayPvp += () => OnPlay(PVP_QUEUE_NAME);
+        view.OnClaim += OnClaim;
         view.OnClickViewAllSessions += () =>
         {
             Application.OpenURL($"https://alliance-games-explorer.vercel.app/address/{accountManager.AddressWithoutPrefix}/sessions");
@@ -51,13 +53,40 @@ public class MenuController
 
     private async void OnUpdatePlayerInfo(string address)
     {
+        await accountManager.Account.SyncBalance();
         var pointsEvm = await accountManager.TicTacToeContract.GetPoints(address);
-        var res = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
-        view.SetPlayerUpdate(res, pointsEvm);
+        var tttUpdate = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
+        unclaimedRewards = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(address));
+
+        var balanceString = accountManager.Balance == "0" ? "0 (Get TBNB from faucet)" : accountManager.Balance;
+        view.SetPlayerUpdate(tttUpdate, pointsEvm, balanceString);
         view.SetAddress(address);
     }
 
-    private async void OnPlay()
+    private async void OnClaim()
+    {
+        if (unclaimedRewards.Length == 0)
+        {
+            Debug.Log("No unclaimed rewards");
+            return;
+        }
+
+        var eventToClaim = unclaimedRewards[0];
+
+        var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventToClaim.EventHash);
+        var merkleProof = EIFUtils.Construct(rawMerkleProof);
+
+        var result = await accountManager.TicTacToeContract.Claim(
+            merkleProof,
+            eventToClaim.EncodedData
+        );
+
+        Debug.Log($"Claim result: {result}");
+
+        OnUpdatePlayerInfo(accountManager.Address);
+    }
+
+    private async void OnPlay(string queueName)
     {
         var cts = new CancellationTokenSource();
 
@@ -70,7 +99,7 @@ public class MenuController
 
         try
         {
-            var ticketId = await CreateMatchmakingTicket(matchmakingService, duid, cts.Token);
+            var ticketId = await CreateMatchmakingTicket(matchmakingService, duid, queueName, cts.Token);
             if (string.IsNullOrEmpty(ticketId))
             {
                 Debug.Log("Failed to get ticket ID");
@@ -97,12 +126,12 @@ public class MenuController
         {
             Debug.LogError($"Error while in matchmaking: {e.Message}");
         }
-
     }
 
     private async UniTask<string> CreateMatchmakingTicket(
         IMatchmakingService matchmakingService,
         string duid,
+        string queueName,
         CancellationToken ct
     )
     {
@@ -119,7 +148,7 @@ public class MenuController
             Identifier = Buffer.From(accountManager.Address),
             NetworkSigner = accountManager.SignatureProvider.PubKey,
             Duid = duid,
-            QueueName = QUEUE_NAME
+            QueueName = queueName
         }, ct);
 
         if (response.Status != Chromia.TransactionReceipt.ResponseStatus.Confirmed)
@@ -132,7 +161,7 @@ public class MenuController
         {
             Identifier = Buffer.From(accountManager.Address),
             Duid = duid,
-            QueueName = QUEUE_NAME
+            QueueName = queueName
         }, ct);
     }
 

@@ -92,7 +92,7 @@ public class Queries
         );
     }
 
-    public static async Task<EifEventData?> getEifEventBySession(ChromiaClient client, string sessionId)
+    public static async Task<EifEventData?> GetEifEventBySession(ChromiaClient client, string sessionId)
     {
         return await client.Query<EifEventData?>(
             "ag.ISession.get_eif_event_by_session_id",
