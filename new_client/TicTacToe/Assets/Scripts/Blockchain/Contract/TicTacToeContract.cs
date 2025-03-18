@@ -42,7 +42,7 @@ public class TicTacToeContract
             Nethereum.Hex.HexConvertors.Extensions.HexByteConvertorExtensions.HexToByteArray(encodedData)
         };
 
-        var gasAmount = await AppKit.Evm.EstimateGasAsync(contractAddress, abi, "Claim", arguments: arguments);
+        var gasAmount = await AppKit.Evm.EstimateGasAsync(contractAddress, abi, "Claim", arguments: arguments) + 100000; // Cannot check reentrancy correctly
         Debug.Log("Gas Amount: " +  gasAmount);
 
         return await AppKit.Evm.WriteContractAsync(contractAddress, abi, "Claim", gasAmount, arguments);
