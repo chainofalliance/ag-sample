@@ -32,6 +32,6 @@ var config = new InjectedNodeConfig(
 );
 
 
-var logic = new Logic(config, true);
+var logic = new Logic(config);
 await logic.Run();
 await logger.DisposeAsync();

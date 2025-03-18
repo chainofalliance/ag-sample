@@ -17,17 +17,15 @@ internal class Logic
     private readonly TaskCompletionSource initCs = new();
     private readonly TaskCompletionSource readyCs = new();
     private List<Buffer> players = new();
-    private readonly bool isAi;
+    private bool IsAi => server.Clients.Count == 1;
     private int readyPlayers = 0;
     private Buffer currentPlayerId = Buffer.Empty();
     private TaskCompletionSource<Messages.MoveResponse>? moveTcs;
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
 
-    public Logic(INodeConfig config, bool isAi)
+    public Logic(INodeConfig config)
     {
-        this.isAi = isAi;
-
         var server = AllianceGamesServer.Create(
             new WebSocketTransport(config.Logger),
             config
@@ -87,7 +85,7 @@ internal class Logic
                     Log.Information($"Send request to player {currentPlayerId.Parse()}");
 
                     int move;
-                    if (isAi && currentPlayerId == aiAddress)
+                    if (IsAi && currentPlayerId == aiAddress)
                     {
                         move = RandomMove();
                         var cts = new TaskCompletionSource();
@@ -141,7 +139,7 @@ internal class Logic
             players.Add(client);
         }
 
-        if (isAi)
+        if (IsAi)
         {
             Log.Information($"Initialize AI player");
             players.Add(aiAddress);
@@ -265,7 +263,7 @@ internal class Logic
         {
             readyPlayers++;
             Log.Information($"Player {address.Parse()} is ready");
-            if (readyPlayers == (isAi ? 1 : 2))
+            if (readyPlayers == (IsAi ? 1 : 2))
             {
                 readyCs.SetResult();
             }
