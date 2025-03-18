@@ -1,36 +1,36 @@
+using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Web3;
 using Reown.AppKit.Unity;
 using UnityEngine;
 
 public class TicTacToeContract
 {
-    public static string contractAddress = "0x0A881312dBb60C0111c090d3eE64567CcDecACeD";
-    public static string abi = null;
+    public const string RPC_URL = "https://data-seed-prebsc-2-s1.binance.org:8545/";
+    private const string CONTRACT_ADDRESS = "0x0A881312dBb60C0111c090d3eE64567CcDecACeD";
 
-    public static void LoadAbi()
+    private readonly IAccount account;
+    private readonly string abi;
+
+    public TicTacToeContract(IAccount account)
     {
-        if (abi == null)
-        {
-            TextAsset abiTextAsset = Resources.Load<TextAsset>("TicTacToe");
-            abi = abiTextAsset.text;
-        }
+        this.account = account;
+        abi = Resources.Load<TextAsset>("TicTacToeAbi").text;
     }
 
-    public static async Task<int> GetPoints(string address)
+    public async Task<int> GetPoints(string address)
     {
-        LoadAbi();
-
         var evm = AppKit.Evm;
-        return await evm.ReadContractAsync<int>(contractAddress, abi, "getPoints", new object[]
+        return await evm.ReadContractAsync<int>(CONTRACT_ADDRESS, abi, "getPoints", new object[]
         {
             address
         });
     }
 
-    public static async Task<string> Claim(EvmTypes.EventWithProof eventWithProof, string encodedData)
+    public async Task<string> Claim(EvmTypes.EventWithProof eventWithProof, string encodedData)
     {
-        LoadAbi();
-
         var arguments = new object[]
         {
             eventWithProof._Event,
@@ -42,9 +42,28 @@ public class TicTacToeContract
             Nethereum.Hex.HexConvertors.Extensions.HexByteConvertorExtensions.HexToByteArray(encodedData)
         };
 
-        var gasAmount = await AppKit.Evm.EstimateGasAsync(contractAddress, abi, "Claim", arguments: arguments) + 100000; // Cannot check reentrancy correctly
-        Debug.Log("Gas Amount: " +  gasAmount);
+        var txHash = await account.SendTransaction(CONTRACT_ADDRESS, abi, "Claim", arguments);
+        var receipt = await WaitForTransactionConfirmation(txHash);
 
-        return await AppKit.Evm.WriteContractAsync(contractAddress, abi, "Claim", gasAmount, arguments);
+        return receipt.TransactionHash;
+    }
+
+    private async UniTask<TransactionReceipt> WaitForTransactionConfirmation(string transactionHash)
+    {
+        Debug.Log($"Waiting for transaction confirmation: {transactionHash}");
+
+        var web3 = new Web3(RPC_URL);
+        while (true)
+        {
+            var receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
+            if (receipt != null)
+            {
+                Debug.Log($"Transaction Confirmed! Block: {receipt.BlockNumber.Value}");
+                return receipt;
+            }
+
+            Debug.Log("Waiting for transaction to be mined...");
+            await UniTask.Delay(TimeSpan.FromSeconds(1));
+        }
     }
 }

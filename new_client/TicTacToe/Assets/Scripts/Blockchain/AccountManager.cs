@@ -1,7 +1,7 @@
 using Chromia;
 using Reown.AppKit.Unity;
-using Reown.Sign.Models;
 using System;
+using UnityEngine;
 
 public class AccountManager
 {
@@ -9,29 +9,34 @@ public class AccountManager
 
     public string AddressWithoutPrefix => Address.StartsWith("0x") ? Address.Substring(2) : Address;
 
-    public string Address;
-    public Account? Account { get; set; } = null;
+    public string Address => Account.Address;
+    public IAccount Account { get; private set; }
     public SignatureProvider SignatureProvider { get; set; }
+    public TicTacToeContract TicTacToeContract { get; private set; }
 
     public AccountManager()
     {
         AppKit.AccountConnected += OnAccountConnected;
+
+        SignatureProvider = SignatureProvider.Create();
     }
 
-    public void LocalLoginIn()
+    public void LocalLogin()
     {
-        SignatureProvider = SignatureProvider.Create();
-        Address = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
-        OnAddressConnected?.Invoke(Address);
+        Account = new LocalAccount();
+        FinishLogin();
     }
 
     private async void OnAccountConnected(object sender, Connector.AccountConnectedEventArgs eventArgs)
     {
-        UnityEngine.Debug.Log("AccountManager: New Account Connected!");
-        Account = await eventArgs.GetAccount();
-        SignatureProvider = SignatureProvider.Create();
+        Debug.Log("AccountManager: New Account Connected!");
+        Account = new ReownAccount(await eventArgs.GetAccount());
+        FinishLogin();
+    }
 
-        OnAddressConnected?.Invoke(Account?.Address);
-        Address = Account?.Address;
+    private void FinishLogin()
+    {
+        TicTacToeContract = new TicTacToeContract(Account);
+        OnAddressConnected?.Invoke(Address);
     }
 }

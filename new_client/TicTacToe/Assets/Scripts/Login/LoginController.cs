@@ -26,6 +26,6 @@ public class LoginController
 
     private void OnGuestLogin()
     {
-        accountManager.LocalLoginIn();
+        accountManager.LocalLogin();
     }
 }

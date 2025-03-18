@@ -12,14 +12,14 @@ public struct BlockchainConfig
     public static BlockchainConfig TicTacToe()
     {
 #if AG_DEVNET
-    return new()
-    {
-        ChainId = 2,
-        NodeUrls = new[]
+        return new()
         {
+            ChainId = 2,
+            NodeUrls = new[]
+            {
             "http://localhost:7740/"
         }
-    };
+        };
 #else
         return new()
         {
@@ -37,14 +37,14 @@ public struct BlockchainConfig
     public static BlockchainConfig AllianceGames()
     {
 #if AG_DEVNET
-    return new()
-    {
-        ChainId = 1,
-        NodeUrls = new[]
+        return new()
         {
+            ChainId = 1,
+            NodeUrls = new[]
+            {
             "http://localhost:7740/"
         }
-    };
+        };
 #else
         return new()
         {

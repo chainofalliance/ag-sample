@@ -40,7 +40,7 @@ namespace TTT.Components
         private CancellationTokenSource resultCts;
 
 
-        public ModalResult() 
+        public ModalResult()
         {
             RegisterCallback<AttachToPanelEvent>(OnAttach);
         }
@@ -119,48 +119,48 @@ namespace TTT.Components
                 resultCts?.CancelAndDispose();
                 resultCts = new();
 
-                EifEventData eventData = null;
-                waitForProof(resultCts.Token).Forget();
-                async UniTaskVoid waitForProof(CancellationToken ct)
-                {
-                    while (eventData == null)
-                    {
-                        await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
-                        eventData = await Queries.getEifEventBySession(connectionManager.AlliancesGamesClient, sessionId);
-                    }
+                // EifEventData eventData = null;
+                // waitForProof(resultCts.Token).Forget();
+                // async UniTaskVoid waitForProof(CancellationToken ct)
+                // {
+                //     while (eventData == null)
+                //     {
+                //         await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
+                //         eventData = await Queries.getEifEventBySession(connectionManager.AlliancesGamesClient, sessionId);
+                //     }
 
-                    claimButton.SetEnabled(true);
-                }
+                //     claimButton.SetEnabled(true);
+                // }
 
-                claimAction = async () =>
-                {
-                    if(AppKit.NetworkController.ActiveChain.ChainId != Bootstrap.ChainBNBTestnet.ChainId)
-                    {
-                        await AppKit.NetworkController.ChangeActiveChainAsync(Bootstrap.ChainBNBTestnet);
+                // claimAction = async () =>
+                // {
+                //     if(AppKit.NetworkController.ActiveChain.ChainId != Bootstrap.ChainBNBTestnet.ChainId)
+                //     {
+                //         await AppKit.NetworkController.ChangeActiveChainAsync(Bootstrap.ChainBNBTestnet);
 
-                        UnityEngine.Debug.LogError("Error: Not the correct chain active!");
-                        return;
-                    }
+                //         UnityEngine.Debug.LogError("Error: Not the correct chain active!");
+                //         return;
+                //     }
 
-                    if (eventData == null)
-                    {
-                        UnityEngine.Debug.LogError("Error: eventData is null, claim cannot proceed!");
-                        return;
-                    }
-                    
-                    claimButton.SetEnabled(false);
-                    UnityEngine.Debug.Log(eventData.ToString());
+                //     if (eventData == null)
+                //     {
+                //         UnityEngine.Debug.LogError("Error: eventData is null, claim cannot proceed!");
+                //         return;
+                //     }
 
-                    var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventData.EventHash);
-                    var merkleProof = EIFUtils.Construct(rawMerkleProof);
+                //     claimButton.SetEnabled(false);
+                //     UnityEngine.Debug.Log(eventData.ToString());
 
-                    var claimRes = await TicTacToeContract.Claim(merkleProof, eventData.EncodedData);
-                    UnityEngine.Debug.Log("Claim Result: " + claimRes);
+                //     var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventData.EventHash);
+                //     var merkleProof = EIFUtils.Construct(rawMerkleProof);
 
-                    claimButton.text = $"Claimed {labelPointsGainedValue.text} points";
-                };
+                //     var claimRes = await TicTacToeContract.Claim(merkleProof, eventData.EncodedData);
+                //     UnityEngine.Debug.Log("Claim Result: " + claimRes);
 
-                claimButton.clicked += claimAction;
+                //     claimButton.text = $"Claimed {labelPointsGainedValue.text} points";
+                // };
+
+                // claimButton.clicked += claimAction;
             }
             catch
             {
