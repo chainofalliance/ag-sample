@@ -79,6 +79,7 @@ public class MenuView
     public void SetVisible(bool visible)
     {
         root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        modalMatchmaking.SetVisible(false);
     }
 
     public bool IsVisible()
@@ -134,6 +135,18 @@ public class MenuView
     {
         modalMatchmaking.SetVisible(true);
         UpdateMatchmakingTimer(0);
+        SetMatchmakingStatus("");
+        modalMatchmaking.EnableLeaveButton();
+    }
+
+    public void SetMatchmakingStatus(string status)
+    {
+        modalMatchmaking.SetStatus(status);
+    }
+
+    public void DisableLeaveButton()
+    {
+        modalMatchmaking.DisableLeaveButton();
     }
 
     public void UpdateMatchmakingTimer(int seconds)

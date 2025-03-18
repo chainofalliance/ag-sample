@@ -19,7 +19,7 @@
                     </engine:VisualElement>
                 </engine:VisualElement>
                 <engine:VisualElement name="FooterContent" style="flex-grow: 0;">
-                    <engine:VisualElement name="HowItWorks" style="flex-grow: 0; width: 220px; height: 44px; padding-left: 12px; padding-right: 12px; padding-top: 10px; padding-bottom: 10px; flex-direction: row; align-items: center; margin-bottom: 20px;">
+                    <engine:VisualElement name="HowItWorks" style="flex-grow: 0; width: 220px; height: 44px; padding-left: 12px; padding-right: 12px; padding-top: 10px; padding-bottom: 10px; flex-direction: row; align-items: center; margin-bottom: 20px; display: none;">
                         <engine:VisualElement name="Icon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/UI/Textures/icon_info.png?fileID=2800000&amp;guid=1c55ad195e2460f4e871430ebb6da00b&amp;type=3#icon_info&quot;); width: 18px; height: 18px; margin-right: 8px;" />
                         <engine:Label text="How it works" name="LabelItem" style="-unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgba(255, 255, 255, 0.82); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; font-size: 16px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
                     </engine:VisualElement>

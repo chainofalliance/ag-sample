@@ -99,6 +99,7 @@ public class MenuController
 
         try
         {
+            view.SetMatchmakingStatus("Creating matchmaking ticket...");
             var ticketId = await CreateMatchmakingTicket(matchmakingService, duid, queueName, cts.Token);
             if (string.IsNullOrEmpty(ticketId))
             {
@@ -106,10 +107,10 @@ public class MenuController
                 return;
             }
 
+            view.SetMatchmakingStatus("Waiting for a match...");
             var (sessionId, node) = await WaitForMatch(matchmakingService, ticketId, cts.Token);
 
             cts?.CancelAndDispose();
-            view.CloseWaitingForMatch();
 
             var uriBuilder = new UriBuilder(node);
             if (uriBuilder.Host == "host.docker.internal")
@@ -118,6 +119,8 @@ public class MenuController
             }
 
             Debug.Log($"Connecting to {uriBuilder.Uri}...");
+            view.SetMatchmakingStatus("Connecting to the game...");
+            view.DisableLeaveButton();
             OnStartGame?.Invoke(uriBuilder.Uri, sessionId);
         }
         catch (OperationCanceledException)
