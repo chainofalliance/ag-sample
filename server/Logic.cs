@@ -16,7 +16,6 @@ internal class Logic
     private readonly CancellationTokenSource cts = new();
     private readonly TaskCompletionSource initCs = new();
     private readonly TaskCompletionSource readyCs = new();
-    private readonly INodeConfig config;
     private List<Buffer> players = new();
     private readonly bool isAi;
     private int readyPlayers = 0;
@@ -27,7 +26,6 @@ internal class Logic
 
     public Logic(INodeConfig config, bool isAi)
     {
-        this.config = config;
         this.isAi = isAi;
 
         var server = AllianceGamesServer.Create(
@@ -57,7 +55,7 @@ internal class Logic
 
         if (server == null)
         {
-            config.Logger.Error("Failed to create server");
+            Log.Error("Failed to create server");
             return;
         }
 

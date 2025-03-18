@@ -10,6 +10,7 @@ var privKey = Buffer.From(DEFAULT_ADMIN_PRIVKEY);
 var logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .WriteTo.File($".\\log.txt", shared: true, outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateLogger();
 Log.Logger = logger;
 

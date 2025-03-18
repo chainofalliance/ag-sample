@@ -57,6 +57,11 @@
             <returns>The session data instance.</returns>
             <exception cref="T:System.InvalidOperationException">Thrown when the session data is not accessible.</exception>
         </member>
+        <member name="P:AllianceGamesSdk.Server.AllianceGamesServer.Logger">
+            <summary>
+            Gets the logger instance for the server.
+            </summary>
+        </member>
         <member name="P:AllianceGamesSdk.Server.AllianceGamesServer.Clients">
             <summary>
             Gets the collection of authorized client identifier public keys.

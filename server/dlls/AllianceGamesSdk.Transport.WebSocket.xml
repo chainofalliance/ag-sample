@@ -15,7 +15,7 @@
             Initializes a new instance of the WebSocket connection.
             </summary>
             <param name="webSocket">The underlying WebSocket instance.</param>
-            <param name="logger">Optional logger for connection-related events.</param>
+            <param name="logger">Logger for connection-related events.</param>
         </member>
         <member name="M:AllianceGamesSdk.Transport.WebSocket.WebSocketConnection.Send(System.Byte[],System.Threading.CancellationToken)">
             <inheritdoc />
