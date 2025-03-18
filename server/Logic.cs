@@ -122,7 +122,7 @@ internal class Logic
                 CancellationToken
             );
 
-            await GameOver(winner);
+            await GameOver(winner.Value);
         }
         catch (WebSocketException) { }
         catch (OperationCanceledException) { }
@@ -152,9 +152,9 @@ internal class Logic
         initCs.SetResult();
     }
 
-    private async Task GameOver(Messages.Field? winner)
+    private async Task GameOver(Messages.Field winner)
     {
-        Buffer? winnerPlayer = winner == null || winner == Messages.Field.Empty ? null : players[(int)winner - 1];
+        Buffer? winnerPlayer = winner == Messages.Field.Empty ? null : players[(int)winner - 1];
         Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}");
         await server!.Send(
             (int)Messages.Header.GameOver,
@@ -168,7 +168,7 @@ internal class Logic
             for (int i = 0; i < players.Count; i++)
             {
                 blockchainReward.Add(
-                    new Reward(players[i], server.SessionId, players[i + 1 % 2], 50, Outcome.Draw)
+                    new Reward(players[i], server.SessionId, players[(i + 1) % 2], 50, Outcome.Draw)
                 );
             }
         }
