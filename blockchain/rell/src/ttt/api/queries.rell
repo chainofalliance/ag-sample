@@ -8,6 +8,7 @@ namespace IPlayer {
                 draw_count = .draw_count
             ),
             history = History.__def @* {.player == pubkey} (
+                @omit @sort_desc .rowid,
                 session_id = .session_id,
                 opponent = .opponent,
                 outcome = .outcome,
