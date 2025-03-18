@@ -4,7 +4,6 @@ using System;
 using static Queries;
 using Cysharp.Threading.Tasks;
 using static GameController;
-using System.Collections.Generic;
 using System.Threading;
 
 public class MenuView
@@ -26,7 +25,8 @@ public class MenuView
     private readonly VisualElement root;
     private readonly Button playPveButton;
     private readonly Label labelAddress;
-    private readonly Label labelPoints;
+    private readonly Label labelPointsChr;
+    private readonly Label labelPointsEvm;
     private readonly Label labelTotalMatches;
     private readonly Label labelWonMatches;
     private readonly Label labelDrawMatches;
@@ -39,7 +39,8 @@ public class MenuView
         this.root = root;
 
         labelAddress = root.Q<Label>("LabelAddressValue");
-        labelPoints = root.Q<Label>("LabelPointsValue");
+        labelPointsChr = root.Q<Label>("LabelPointsValueChr");
+        labelPointsEvm = root.Q<Label>("LabelPointsValueEvm");
         labelTotalMatches = root.Q<Label>("LabelTotalMatchesValue");
         labelWonMatches = root.Q<Label>("LabelWonMatchesValue");
         labelDrawMatches = root.Q<Label>("LabelDrawMatchesValue");
@@ -72,13 +73,14 @@ public class MenuView
         labelAddress.text = Util.FormatAddress(address);
     }
 
-    public void SetPlayerUpdate(PlayerUpdate update)
+    public void SetPlayerUpdate(PlayerUpdate update, int pointsEvm)
     {
         var info = update.Info;
 
         if (info != null)
         {
-            labelPoints.text = info.Points.ToString();
+            labelPointsChr.text = info.Points.ToString();
+            labelPointsEvm.text = pointsEvm.ToString();
             labelTotalMatches.text = (info.WinCount + info.LooseCount + info.DrawCount).ToString();
             labelWonMatches.text = info.WinCount.ToString();
             labelDrawMatches.text = info.DrawCount.ToString();
@@ -86,8 +88,8 @@ public class MenuView
         }
         else
         {
-            labelPoints.text = "0";
-            labelPoints.text = "0";
+            labelPointsChr.text = "0";
+            labelPointsEvm.text = "0";
             labelTotalMatches.text = "0";
             labelWonMatches.text = "0";
             labelDrawMatches.text = "0";

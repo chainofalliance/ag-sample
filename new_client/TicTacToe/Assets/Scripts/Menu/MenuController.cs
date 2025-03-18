@@ -5,8 +5,6 @@ using UnityEngine;
 using System;
 
 using Buffer = Chromia.Buffer;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 public class MenuController
 {
@@ -53,8 +51,9 @@ public class MenuController
 
     private async void OnUpdatePlayerInfo(string address)
     {
+        var pointsEvm = await accountManager.TicTacToeContract.GetPoints(address);
         var res = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
-        view.SetPlayerUpdate(res);
+        view.SetPlayerUpdate(res, pointsEvm);
         view.SetAddress(address);
     }
 

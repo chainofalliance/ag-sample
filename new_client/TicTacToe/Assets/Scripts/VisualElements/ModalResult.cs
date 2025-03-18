@@ -83,7 +83,7 @@ namespace TTT.Components
 
         public void Resolve(
             string sessionId,
-            string winner,
+            bool? amIWinner,
             List<PlayerData> player,
             BlockchainConnectionManager connectionManager
         )
@@ -97,21 +97,20 @@ namespace TTT.Components
 
                 var home = player.Find(e => e.IsMe);
                 var away = player.Find(e => !e.IsMe);
-                var homeWinner = Buffer.From(winner) == Buffer.From(home.Address);
 
-                if (winner == null)
+                if (amIWinner == null)
                 {
                     labelTitle.text = "Draw";
                 }
                 else
                 {
-                    labelTitle.text = homeWinner ? "You Win" : "You Lose";
+                    labelTitle.text = amIWinner.Value ? "You Win" : "You Lose";
                 }
 
-                homeInfo.Populate(home, homeWinner);
-                awayInfo.Populate(away, !homeWinner);
+                homeInfo.Populate(home, amIWinner.HasValue && amIWinner.Value);
+                awayInfo.Populate(away, amIWinner.HasValue && !amIWinner.Value);
 
-                labelPointsGainedValue.text = homeWinner ? "100" : "50";
+                labelPointsGainedValue.text = amIWinner.HasValue && amIWinner.Value ? "100" : "50";
                 labelSessionValue.text = Util.FormatAddress(sessionId);
 
 

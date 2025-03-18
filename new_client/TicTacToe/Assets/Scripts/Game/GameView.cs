@@ -115,11 +115,11 @@ public class GameView
     }
 
     public async UniTask<ModalAction> OpenGameResult(
-        string sessionId, string winner, List<PlayerData> player,
+        string sessionId, bool? amIWinner, List<PlayerData> player,
         BlockchainConnectionManager connectionManager, CancellationToken ct)
     {
         modalResult.SetVisible(true);
-        modalResult.Resolve(sessionId, winner, player, connectionManager);
+        modalResult.Resolve(sessionId, amIWinner, player, connectionManager);
 
         try
         {

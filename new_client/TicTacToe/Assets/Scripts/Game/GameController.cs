@@ -129,11 +129,10 @@ public class GameController
                 });
             }
 
-            var pubKey = accountManager.Address;
             view.Populate(
                 matchId,
-                playerData.Find(p => p.Address == pubKey),
-                playerData.Find(p => p.Address != pubKey)
+                playerData.Find(p => accountManager.IsMyAddress(p.Address)),
+                playerData.Find(p => !accountManager.IsMyAddress(p.Address))
             );
 
             Debug.Log($"Send ready");
@@ -259,7 +258,8 @@ public class GameController
         openGameResultCts?.CancelAndDispose();
         openGameResultCts = new CancellationTokenSource();
 
-        var res = await view.OpenGameResult(sessionId, winner, playerData, connectionManager, openGameResultCts.Token);
+        var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
+        var res = await view.OpenGameResult(sessionId, amIWinner, playerData, connectionManager, openGameResultCts.Token);
 
         if (res == TTT.Components.ModalAction.CLOSE || res == TTT.Components.ModalAction.NEXT_ROUND)
         {
