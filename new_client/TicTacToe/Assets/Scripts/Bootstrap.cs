@@ -48,6 +48,10 @@ public class Bootstrap : MonoBehaviour
 
         var navbarView = new NavbarView(sideNavbarElement);
         navbarController = new NavbarController(navbarView, accountManager);
+        navbarController.OnDisconnect += () =>
+        {
+            OnChangeScreen(Screen.LOGIN);
+        };
 
         var loginView = new LoginView(loginElement);
         loginController = new LoginController(loginView, accountManager);

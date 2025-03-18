@@ -1,12 +1,17 @@
+using System;
 using Reown.AppKit.Unity;
 
 public class NavbarController
 {
+    public event Action OnDisconnect;
+
     private readonly NavbarView view;
+    private readonly AccountManager accountManager;
 
     public NavbarController(NavbarView view, AccountManager accountManager)
     {
         this.view = view;
+        this.accountManager = accountManager;
 
         view.OnWalletDisconnect += OnWalletDisconnect;
 
@@ -23,6 +28,13 @@ public class NavbarController
 
     private void OnWalletDisconnect()
     {
-        AppKit.OpenModal();
+        if (accountManager.Account is LocalAccount)
+        {
+            OnDisconnect?.Invoke();
+        }
+        else
+        {
+            AppKit.OpenModal();
+        }
     }
 }
