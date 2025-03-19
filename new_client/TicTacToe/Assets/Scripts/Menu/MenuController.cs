@@ -19,6 +19,7 @@ public class MenuController
     private readonly AccountManager accountManager;
     private readonly Action<Uri, string> OnStartGame;
     private Queries.EifEventData[] unclaimedRewards;
+    private CancellationTokenSource timerCts;
     private CancellationTokenSource updateCts;
 
     public MenuController(
@@ -33,8 +34,8 @@ public class MenuController
         this.accountManager = accountManager;
         this.OnStartGame = OnStartGame;
 
-        view.OnPlayPve += () => OnPlay(AI_QUEUE_NAME);
-        view.OnPlayPvp += () => OnPlay(PVP_QUEUE_NAME);
+        view.OnPlayPve += OpenPvEMatchmaking;
+        view.OnPlayPvp += OpenPvPMatchmaking;
         view.OnClaim += OnClaim;
         view.OnClickViewAllSessions += () =>
         {
@@ -48,7 +49,20 @@ public class MenuController
 
     public void SetVisible(bool visible)
     {
+        timerCts?.CancelAndDispose();
+        timerCts = null;
+
         view.SetVisible(visible);
+    }
+
+    public void OpenPvEMatchmaking()
+    {
+        OnPlay(AI_QUEUE_NAME);
+    }
+
+    public void OpenPvPMatchmaking()
+    {
+        OnPlay(PVP_QUEUE_NAME);
     }
 
     private async void OnUpdatePlayerInfo(string address)
@@ -216,6 +230,8 @@ public class MenuController
             try
             {
                 cts?.CancelAndDispose();
+                timerCts?.CancelAndDispose();
+                timerCts = null;
             }
             catch (ObjectDisposedException)
             { }
@@ -228,16 +244,17 @@ public class MenuController
                 Duid = duid
             }, CancellationToken.None);
         }
+    }
 
-        async UniTask<string> Timer()
+    private async UniTaskVoid Timer()
+    {
+        timerCts?.CancelAndDispose();
+        timerCts = new();
+        var count = 0;
+        while (!timerCts.IsCancellationRequested)
         {
-            var count = 0;
-            while (!cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(1000, cancellationToken: cts.Token);
-                view.UpdateMatchmakingTimer(++count);
-            }
-            return null;
+            await UniTask.Delay(1000, cancellationToken: timerCts.Token);
+            view.UpdateMatchmakingTimer(++count);
         }
     }
 

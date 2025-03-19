@@ -16,11 +16,19 @@ using static Messages;
 
 public class GameController
 {
+    public enum AfterGameAction
+    {
+        Menu,
+        NextRoundPvE,
+        NextRoundPvP,
+    }
+
     public struct PlayerData
     {
         public string Address;
         public Messages.Field Symbol;
         public bool IsMe;
+        public bool IsAI => Address == "0x0000000000000000000000000000000000000000";
     }
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
@@ -29,7 +37,7 @@ public class GameController
     private readonly GameView view;
     private readonly AccountManager accountManager;
     private readonly BlockchainConnectionManager connectionManager;
-    private readonly Action onEndGame;
+    private readonly Action<AfterGameAction> onEndGame;
 
     private string sessionId;
     private AllianceGamesClient allianceGamesClient;
@@ -42,7 +50,7 @@ public class GameController
         GameView view,
         AccountManager accountManager,
         BlockchainConnectionManager connectionManager,
-        Action onEndGame
+        Action<AfterGameAction> onEndGame
     )
     {
         this.view = view;
@@ -70,7 +78,7 @@ public class GameController
         view.SetVisible(visible);
     }
 
-    public async Task StartGame(Uri nodeUri, string matchId)
+    public async Task<bool> StartGame(Uri nodeUri, string matchId)
     {
         Debug.Log("StartGame");
         cts = new CancellationTokenSource();
@@ -94,8 +102,8 @@ public class GameController
 
             if (allianceGamesClient == null)
             {
-                Debug.Log("Could not create client");
-                return;
+                await OnError("Could not connect to the game server.");
+                return false;
             }
 
             sessionId = matchId;
@@ -109,8 +117,8 @@ public class GameController
 
             if (response == null)
             {
-                Debug.Log("Could not retrieve player data");
-                return;
+                await OnError("Could not retrieve player data");
+                return false;
             }
 
             foreach (var player in response.Players)
@@ -135,46 +143,72 @@ public class GameController
             await allianceGamesClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
         }
         catch (OperationCanceledException) { }
+        catch (Exception e)
+        {
+            await OnError($"Failed to start game: {e.Message}");
+        }
+        return true;
     }
 
     private void RegisterHandlers()
     {
-        allianceGamesClient.RegisterMessageHandler((int)Messages.Header.Sync, data =>
+        allianceGamesClient.RegisterMessageHandler((int)Messages.Header.Sync, async data =>
         {
-            var sync = Decode<Sync>(data);
-            view.SetBoard(sync.Fields.ToList());
-
-            if (sync.Turn == Messages.Field.X)
+            try
             {
-                view.StartTurn(Field.X);
-                view.EndTurn(Field.O);
+                var sync = Decode<Sync>(data);
+                view.SetBoard(sync.Fields.ToList());
 
+                if (sync.Turn == Messages.Field.X)
+                {
+                    view.StartTurn(Field.X);
+                    view.EndTurn(Field.O);
+
+                }
+                else
+                {
+                    view.StartTurn(Field.O);
+                    view.EndTurn(Field.X);
+                }
             }
-            else
+            catch (Exception e)
             {
-                view.StartTurn(Field.O);
-                view.EndTurn(Field.X);
+                await OnError($"Failed to sync game state: {e.Message}");
             }
         });
 
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.GameOver, async data =>
         {
-            var gameOver = Decode<GameOver>(data);
-            Debug.Log($"{gameOver.Winner} has won {(gameOver.IsForfeit ? "by forfeit" : "")}!");
-            OpenGameResult(gameOver);
-            await GameOver();
+            try
+            {
+                var gameOver = Decode<GameOver>(data);
+                Debug.Log($"{gameOver.Winner} has won {(gameOver.IsForfeit ? "by forfeit" : "")}!");
+                OpenGameResult(gameOver);
+                await GameOver();
+            }
+            catch (Exception e)
+            {
+                await OnError($"Failed to handle game over: {e.Message}");
+            }
         });
 
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
         {
-            Debug.Log("Received move request.");
-            turn = new UniTaskCompletionSource<int>();
-            var idx = await turn.Task;
-            turn = null;
-            Debug.Log($"Send move response {idx}.");
+            try
+            {
+                Debug.Log("Received move request.");
+                turn = new UniTaskCompletionSource<int>();
+                var idx = await turn.Task;
+                turn = null;
+                Debug.Log($"Send move response {idx}.");
 
-            var response = Encode(new MoveResponse(idx));
-            await allianceGamesClient.Send((int)Messages.Header.MoveResponse, response, cts.Token);
+                var response = Encode(new MoveResponse(idx));
+                await allianceGamesClient.Send((int)Messages.Header.MoveResponse, response, cts.Token);
+            }
+            catch (Exception e)
+            {
+                await OnError($"Failed to handle move request: {e.Message}");
+            }
         });
     }
 
@@ -192,7 +226,6 @@ public class GameController
 
     private async UniTask GameOver()
     {
-
         view.Reset();
 
         if (allianceGamesClient != null)
@@ -252,10 +285,21 @@ public class GameController
         var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
         var res = await view.OpenGameResult(sessionId, amIWinner, playerData, gameOver.IsForfeit, connectionManager, openGameResultCts.Token);
 
-        if (res == TTT.Components.ModalAction.CLOSE || res == TTT.Components.ModalAction.NEXT_ROUND)
+        view.CloseGameResult();
+        if (res == TTT.Components.ModalAction.CLOSE)
         {
-            view.CloseGameResult();
-            onEndGame?.Invoke();
+            onEndGame?.Invoke(AfterGameAction.Menu);
+        }
+        else if (res == TTT.Components.ModalAction.NEXT_ROUND)
+        {
+            if (playerData.Any(p => p.IsAI))
+            {
+                onEndGame?.Invoke(AfterGameAction.NextRoundPvE);
+            }
+            else
+            {
+                onEndGame?.Invoke(AfterGameAction.NextRoundPvP);
+            }
         }
     }
 
@@ -269,5 +313,13 @@ public class GameController
         {
             await allianceGamesClient.Send((int)Messages.Header.Forfeit, Buffer.Empty(), cts.Token);
         }
+    }
+
+    private async UniTask OnError(string info)
+    {
+        Debug.LogError(info);
+        await GameOver();
+        await view.OpenError(info, CancellationToken.None);
+        onEndGame?.Invoke(AfterGameAction.Menu);
     }
 }

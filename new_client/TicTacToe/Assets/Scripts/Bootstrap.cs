@@ -145,13 +145,24 @@ public class Bootstrap : MonoBehaviour
 
     private async void OnStartGame(Uri nodeUri, string matchId)
     {
-        await gameController.StartGame(nodeUri, matchId);
-        OnChangeScreen(Screen.GAME);
+        var res = await gameController.StartGame(nodeUri, matchId);
+        if (res)
+        {
+            OnChangeScreen(Screen.GAME);
+        }
     }
 
-    private void OnEndGame()
+    private void OnEndGame(GameController.AfterGameAction afterGameAction)
     {
         OnChangeScreen(Screen.MENU);
+        if (afterGameAction == GameController.AfterGameAction.NextRoundPvE)
+        {
+            menuController.OpenPvEMatchmaking();
+        }
+        else if (afterGameAction == GameController.AfterGameAction.NextRoundPvP)
+        {
+            menuController.OpenPvPMatchmaking();
+        }
     }
 
     public enum Screen
