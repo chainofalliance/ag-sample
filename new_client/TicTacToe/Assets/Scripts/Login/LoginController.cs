@@ -1,4 +1,7 @@
+using System.Threading;
+using System.Threading.Tasks;
 using Reown.AppKit.Unity;
+using UnityEngine;
 
 public class LoginController
 {
@@ -12,20 +15,29 @@ public class LoginController
 
         view.OnWalletLogin += OnWalletLogin;
         view.OnGuestLogin += OnGuestLogin;
+        accountManager.OnLoginFailed += OnLoginFailed;
     }
 
     public void SetVisible(bool visible)
     {
         view.SetVisible(visible);
+        view.CloseInfo();
     }
 
     private void OnWalletLogin()
     {
         AppKit.OpenModal();
+        view.OpenInfo("Waiting for wallet connection...");
     }
 
     private void OnGuestLogin()
     {
         accountManager.LocalLogin();
+        view.OpenInfo("Logging in as guest...");
+    }
+
+    private async void OnLoginFailed(string error)
+    {
+        await view.OpenError($"Failed to login: {error}", CancellationToken.None);
     }
 }

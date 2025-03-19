@@ -8,6 +8,7 @@ using UnityEngine;
 public class AccountManager
 {
     public event Action<string> OnAddressConnected;
+    public event Action<string> OnLoginFailed;
 
     public string AddressWithoutPrefix => Address.StartsWith("0x") ? Address.Substring(2) : Address;
     public string Address => Account.Address;
@@ -31,15 +32,31 @@ public class AccountManager
 
     public void LocalLogin()
     {
-        Account = new LocalAccount();
-        FinishLogin();
+        try
+        {
+            Account = new LocalAccount();
+            FinishLogin();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to local login: {e.Message}");
+            OnLoginFailed?.Invoke(e.Message);
+        }
     }
 
     private async void OnAccountConnected(object sender, Connector.AccountConnectedEventArgs eventArgs)
     {
-        Debug.Log("AccountManager: New Account Connected!");
-        Account = new ReownAccount(await eventArgs.GetAccount());
-        FinishLogin();
+        try
+        {
+            Debug.Log("AccountManager: New Account Connected!");
+            Account = new ReownAccount(await eventArgs.GetAccount());
+            FinishLogin();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to connect account: {e.Message}");
+            OnLoginFailed?.Invoke(e.Message);
+        }
     }
 
     private void FinishLogin()

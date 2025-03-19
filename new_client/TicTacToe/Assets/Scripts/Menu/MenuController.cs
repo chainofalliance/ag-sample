@@ -42,8 +42,6 @@ public class MenuController
             Application.OpenURL($"https://alliance-games-explorer.vercel.app/address/{accountManager.AddressWithoutPrefix}/sessions");
         };
 
-        accountManager.OnAddressConnected += OnUpdatePlayerInfo;
-
         AutoPlayerInfoUpdate();
     }
 
@@ -65,7 +63,12 @@ public class MenuController
         OnPlay(PVP_QUEUE_NAME);
     }
 
-    private async void OnUpdatePlayerInfo(string address)
+    public async UniTask UpdatePlayerInfo()
+    {
+        await OnUpdatePlayerInfo(accountManager.Address);
+    }
+
+    private async UniTask OnUpdatePlayerInfo(string address)
     {
         await accountManager.Account.SyncBalance();
         var pointsEvm = await accountManager.TicTacToeContract.GetPoints(address);

@@ -128,6 +128,7 @@ public class GameView
 
     public async UniTask OpenError(string info, CancellationToken ct)
     {
+        modalError.SetTitle("Something went wrong");
         modalError.SetInfo(info);
         modalError.SetVisible(true);
         await modalError.OnDialogAction.Task(ct);
