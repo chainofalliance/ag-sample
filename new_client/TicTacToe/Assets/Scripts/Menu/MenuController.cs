@@ -34,8 +34,8 @@ public class MenuController
         this.accountManager = accountManager;
         this.OnStartGame = OnStartGame;
 
-        view.OnPlayPve += () => OnPlay(AI_QUEUE_NAME);
-        view.OnPlayPvp += () => OnPlay(PVP_QUEUE_NAME);
+        view.OnPlayPve += OpenPvEMatchmaking;
+        view.OnPlayPvp += OpenPvPMatchmaking;
         view.OnClaim += OnClaim;
         view.OnClickViewAllSessions += () =>
         {
@@ -53,6 +53,16 @@ public class MenuController
         timerCts = null;
 
         view.SetVisible(visible);
+    }
+
+    public void OpenPvEMatchmaking()
+    {
+        OnPlay(AI_QUEUE_NAME);
+    }
+
+    public void OpenPvPMatchmaking()
+    {
+        OnPlay(PVP_QUEUE_NAME);
     }
 
     private async void OnUpdatePlayerInfo(string address)
