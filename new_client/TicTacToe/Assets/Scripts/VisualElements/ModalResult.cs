@@ -85,6 +85,7 @@ namespace TTT.Components
             string sessionId,
             bool? amIWinner,
             List<PlayerData> player,
+            bool forfeit,
             BlockchainConnectionManager connectionManager
         )
         {
@@ -98,7 +99,11 @@ namespace TTT.Components
                 var home = player.Find(e => e.IsMe);
                 var away = player.Find(e => !e.IsMe);
 
-                if (amIWinner == null)
+                if (forfeit)
+                {
+                    labelTitle.text = "Game Canceled";
+                }
+                else if (amIWinner == null)
                 {
                     labelTitle.text = "Draw";
                 }

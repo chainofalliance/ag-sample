@@ -44,7 +44,7 @@ internal class Logic
         Log.Information($"Player {address.Parse()} forfeited the game");
 
         var winnerField = GetField(players.First(p => p != address.Parse()));
-        await GameOver(winnerField);
+        await GameOver(winnerField, true);
     }
 
     public async Task Run()
@@ -79,7 +79,7 @@ internal class Logic
                 {
                     await server.Send(
                         (int)Messages.Header.Sync,
-                        new Messages.Sync(GetField(currentPlayerId), board).Encode(),
+                        Messages.Encode(new Messages.Sync(GetField(currentPlayerId), board)),
                         CancellationToken
                     );
                     Log.Information($"Send request to player {currentPlayerId.Parse()}");
@@ -116,11 +116,11 @@ internal class Logic
 
             await server.Send(
                 (int)Messages.Header.Sync,
-                new Messages.Sync(GetField(currentPlayerId), board).Encode(),
+                Messages.Encode(new Messages.Sync(GetField(currentPlayerId), board)),
                 CancellationToken
             );
 
-            await GameOver(winner.Value);
+            await GameOver(winner.Value, false);
         }
         catch (WebSocketException) { }
         catch (OperationCanceledException) { }
@@ -150,14 +150,14 @@ internal class Logic
         initCs.SetResult();
     }
 
-    private async Task GameOver(Messages.Field winner)
+    private async Task GameOver(Messages.Field winner, bool isForfeit)
     {
         Buffer? winnerPlayer = winner == Messages.Field.Empty ? null : players[(int)winner - 1];
-        Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}");
+        Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}, forfeit: {isForfeit}");
         await server!.Send(
             (int)Messages.Header.GameOver,
-            winnerPlayer ?? Buffer.Empty(),
-            default
+            Messages.Encode(new Messages.GameOver(winnerPlayer, isForfeit)),
+            CancellationToken
         );
 
         List<Reward> blockchainReward = new();
@@ -282,7 +282,7 @@ internal class Logic
                 return;
             }
 
-            moveTcs.SetResult(new Messages.MoveResponse(data));
+            moveTcs.SetResult(Messages.Decode<Messages.MoveResponse>(data));
         });
 
         server.RegisterMessageHandler((uint)Messages.Header.Forfeit, async (address, _) =>
@@ -306,9 +306,9 @@ internal class Logic
                 return Buffer.Empty();
             }
 
-            return new Messages.PlayerDataResponse(players.Select(
+            return Messages.Encode(new Messages.PlayerDataResponse(players.Select(
                 p => new Messages.PlayerDataResponse.Player(p, GetField(p))
-            ).ToArray()).Encode();
+            ).ToArray()));
         });
 
         server.OnClientConnect += address => Log.Information($"Player {address.Parse()} connected");

@@ -16,6 +16,7 @@ public class GameView
     private readonly PlayerInfoElement playerInfoSelf;
     private readonly PlayerInfoElement playerInfoOpponent;
     private readonly CellElement[] cells;
+    private readonly ModalCancelGame modalCancel;
     private readonly ModalResult modalResult;
     private readonly Label labelSessionId;
     private readonly Button buttonViewInExplorer;
@@ -42,6 +43,7 @@ public class GameView
             cells[i].RegisterCallback<ClickEvent>((_) => OnClickField?.Invoke(index));
         }
 
+        modalCancel = root.panel.visualTree.Q("ModalCancelGame").Q<ModalCancelGame>();
         modalResult = root.panel.visualTree.Q("ModalGameResult").Q<ModalResult>();
 
         labelSessionId = root.Q<Label>("LabelSessionIdValue");
@@ -49,8 +51,8 @@ public class GameView
 
         buttonViewInExplorer.clicked += () => OnClickViewInExplorer?.Invoke();
 
-        //var backButton = root.Q<Button>("BackButton");
-        //backButton.clicked += () => OnClickBack?.Invoke();
+        var backButton = root.Q<Button>("ButtonExit");
+        backButton.clicked += () => OnClickBack?.Invoke();
     }
 
     public void SetVisible(bool visible)
@@ -114,12 +116,20 @@ public class GameView
         players[turn].EndTurn();
     }
 
+    public async UniTask<bool> OpenCancelGame(CancellationToken ct)
+    {
+        modalCancel.SetVisible(true);
+        var response = await modalCancel.OnDialogAction.Task(ct);
+        modalCancel.SetVisible(false);
+        return response;
+    }
+
     public async UniTask<ModalAction> OpenGameResult(
-        string sessionId, bool? amIWinner, List<PlayerData> player,
+        string sessionId, bool? amIWinner, List<PlayerData> player, bool forfeit,
         BlockchainConnectionManager connectionManager, CancellationToken ct)
     {
         modalResult.SetVisible(true);
-        modalResult.Resolve(sessionId, amIWinner, player, connectionManager);
+        modalResult.Resolve(sessionId, amIWinner, player, forfeit, connectionManager);
 
         try
         {

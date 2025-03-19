@@ -5,6 +5,14 @@ using Reown.AppKit.Unity;
 using Reown.Sign.Unity;
 using UnityEngine;
 using System;
+using Chromia;
+using Buffer = Chromia.Buffer;
+using Chromia.Encoding;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using Newtonsoft.Json.Serialization;
+using System.Reflection;
 
 public class Bootstrap : MonoBehaviour
 {

@@ -1,9 +1,32 @@
-using Chromia;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Chromia;
+using Chromia.Encoding;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Buffer = Chromia.Buffer;
 
 public class Messages
 {
+    private static readonly JsonSerializerSettings settings = new JsonSerializerSettings()
+    {
+        Converters = new List<JsonConverter> { new BigIntegerConverter(), new BufferConverter() },
+        ContractResolver = new PostchainPropertyContractResolver()
+    };
+
+    public static Buffer Encode(IMessage message)
+    {
+        return ChromiaClient.EncodeToGtv(message);
+    }
+
+    public static T Decode<T>(Buffer data) where T : IMessage
+    {
+        var gtv = ChromiaClient.DecodeFromGtv(data);
+        var str = JsonConvert.SerializeObject(gtv, settings);
+        return JsonConvert.DeserializeObject<T>(str, settings);
+    }
+
     public enum Field
     {
         Empty,
@@ -11,7 +34,7 @@ public class Messages
         O
     }
 
-    public enum Header
+    public enum Header : uint
     {
         Ready,
         Sync,
@@ -26,60 +49,62 @@ public class Messages
     public interface IMessage
     {
         Header Header { get; }
-        Buffer Encode();
-        void Decode(Buffer data);
     }
 
+    [PostchainSerializable]
     public class Sync : IMessage
     {
         public Header Header => Header.Sync;
-        public Field Turn { get; private set; }
-        public int[] Fields { get; private set; }
 
-        public Sync()
-        { }
+        [PostchainProperty("turn")]
+        public Field Turn { get; private set; }
+
+        [PostchainProperty("fields")]
+        public int[] Fields { get; private set; }
 
         public Sync(Field turn, Field[,] board)
         {
             Turn = turn;
-            Fields = board.Cast<int>().ToArray();
-        }
-
-        public Sync(Buffer data)
-        {
-            Decode(data);
-        }
-
-        public Buffer Encode()
-        {
-            var obj = new object[] { Turn, Fields };
-            return ChromiaClient.EncodeToGtv(obj);
-        }
-
-        public void Decode(Buffer data)
-        {
-            var obj = ChromiaClient.DecodeFromGtv(data) as object[];
-            Turn = (Field)(long)obj[0];
-            Fields = ((object[])obj[1]).Select(i => (int)(long)i).ToArray();
+            Fields = board?.Cast<int>()?.ToArray();
         }
     }
 
+    [PostchainSerializable]
+    public class GameOver : IMessage
+    {
+        public Header Header => Header.GameOver;
+
+        [PostchainProperty("winner")]
+        public Buffer? Winner { get; private set; }
+
+        [PostchainProperty("is_forfeit")]
+        public bool IsForfeit { get; private set; }
+
+        public GameOver(Buffer? winner, bool isForfeit)
+        {
+            Winner = winner;
+            IsForfeit = isForfeit;
+        }
+    }
+
+    [PostchainSerializable]
     public class PlayerDataRequest : IMessage
     {
         public Header Header => Header.PlayerDataRequest;
-        public Buffer Encode()
-        {
-            return Buffer.Empty();
-        }
-        public void Decode(Buffer data) { }
     }
 
+    [PostchainSerializable]
     public class PlayerDataResponse : IMessage
     {
+        [PostchainSerializable]
         public class Player : IMessage
         {
             public Header Header => Header.PlayerDataResponse;
+
+            [PostchainProperty("pubkey")]
             public Buffer PubKey { get; private set; }
+
+            [PostchainProperty("symbol")]
             public Field Symbol { get; private set; }
 
             public Player(Buffer pubKey, Field symbol)
@@ -87,91 +112,53 @@ public class Messages
                 PubKey = pubKey;
                 Symbol = symbol;
             }
-
-            public Player(Buffer data)
-            {
-                Decode(data);
-            }
-
-            public Buffer Encode()
-            {
-                var obj = new object[] { PubKey, Symbol };
-                return ChromiaClient.EncodeToGtv(obj);
-            }
-
-            public void Decode(Buffer data)
-            {
-                var obj = ChromiaClient.DecodeFromGtv(data) as object[];
-                PubKey = (Buffer)obj[0];
-                Symbol = (Field)(long)obj[1];
-            }
         }
 
         public Header Header => Header.PlayerDataResponse;
+
+        [PostchainProperty("players")]
         public Player[] Players { get; private set; }
-        public PlayerDataResponse()
-        { }
 
         public PlayerDataResponse(Player[] players)
         {
             Players = players;
         }
-
-        public PlayerDataResponse(Buffer data)
-        {
-            Decode(data);
-        }
-
-        public Buffer Encode()
-        {
-            var obj = Players.Select(p => p.Encode()).ToArray();
-            return ChromiaClient.EncodeToGtv(obj);
-        }
-        public void Decode(Buffer data)
-        {
-            var obj = ChromiaClient.DecodeFromGtv(data) as object[];
-            Players = obj.Select(o => new Player((Buffer)o)).ToArray();
-        }
     }
 
-
+    [PostchainSerializable]
     public class MoveRequest : IMessage
     {
         public Header Header => Header.MoveRequest;
-        public Buffer Encode()
-        {
-            return Buffer.Empty();
-        }
-        public void Decode(Buffer data) { }
     }
 
+    [PostchainSerializable]
     public class MoveResponse : IMessage
     {
         public Header Header => Header.MoveResponse;
-        public int Move { get; private set; }
 
-        public MoveResponse()
-        { }
+        [PostchainProperty("move")]
+        public int Move { get; private set; }
 
         public MoveResponse(int move)
         {
             Move = move;
         }
+    }
 
-        public MoveResponse(Buffer data)
+    internal class PostchainPropertyContractResolver : DefaultContractResolver
+    {
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
-            Decode(data);
-        }
+            JsonProperty property = base.CreateProperty(member, memberSerialization);
 
-        public Buffer Encode()
-        {
-            var obj = new object[] { Move };
-            return ChromiaClient.EncodeToGtv(obj);
-        }
-        public void Decode(Buffer data)
-        {
-            var obj = ChromiaClient.DecodeFromGtv(data) as object[];
-            Move = (int)(long)obj[0];
+            var customAttr = member.GetCustomAttribute<PostchainPropertyAttribute>();
+            if (customAttr != null)
+            {
+                property.PropertyName = customAttr.Name;
+                property.Writable = true;
+            }
+
+            return property;
         }
     }
 }

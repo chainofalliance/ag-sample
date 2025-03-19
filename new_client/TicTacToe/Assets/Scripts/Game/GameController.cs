@@ -29,7 +29,7 @@ public class GameController
     private readonly GameView view;
     private readonly AccountManager accountManager;
     private readonly BlockchainConnectionManager connectionManager;
-    private readonly Action OnEndGame;
+    private readonly Action onEndGame;
 
     private string sessionId;
     private AllianceGamesClient allianceGamesClient;
@@ -42,13 +42,13 @@ public class GameController
         GameView view,
         AccountManager accountManager,
         BlockchainConnectionManager connectionManager,
-        Action OnEndGame
+        Action onEndGame
     )
     {
         this.view = view;
         this.accountManager = accountManager;
         this.connectionManager = connectionManager;
-        this.OnEndGame = OnEndGame;
+        this.onEndGame = onEndGame;
 
         view.OnClickField += idx =>
         {
@@ -60,11 +60,7 @@ public class GameController
             }
         };
 
-        view.OnClickBack += async () =>
-        {
-            await GameOver(true);
-            OnEndGame?.Invoke();
-        };
+        view.OnClickBack += OpenCancelGame;
 
         view.OnClickViewInExplorer += () => OpenLinkToExplorer(sessionId);
     }
@@ -106,7 +102,7 @@ public class GameController
 
             RegisterHandlers();
 
-            var response = await Request<Messages.PlayerDataResponse>(
+            var response = await Request<PlayerDataResponse>(
                 new Messages.PlayerDataRequest(),
                 cts.Token
             );
@@ -145,9 +141,8 @@ public class GameController
     {
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.Sync, data =>
         {
-            var sync = new Messages.Sync(data);
+            var sync = Decode<Sync>(data);
             view.SetBoard(sync.Fields.ToList());
-
 
             if (sync.Turn == Messages.Field.X)
             {
@@ -162,11 +157,12 @@ public class GameController
             }
         });
 
-        allianceGamesClient.RegisterMessageHandler((int)Messages.Header.GameOver, async winner =>
+        allianceGamesClient.RegisterMessageHandler((int)Messages.Header.GameOver, async data =>
         {
-            Debug.Log($"{winner} has won!");
-            OpenGameResult(winner.Parse());
-            await GameOver(false);
+            var gameOver = Decode<GameOver>(data);
+            Debug.Log($"{gameOver.Winner} has won {(gameOver.IsForfeit ? "by forfeit" : "")}!");
+            OpenGameResult(gameOver);
+            await GameOver();
         });
 
         allianceGamesClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
@@ -177,7 +173,7 @@ public class GameController
             turn = null;
             Debug.Log($"Send move response {idx}.");
 
-            var response = new Messages.MoveResponse(idx).Encode();
+            var response = Encode(new MoveResponse(idx));
             await allianceGamesClient.Send((int)Messages.Header.MoveResponse, response, cts.Token);
         });
     }
@@ -185,28 +181,22 @@ public class GameController
     private async UniTask<T> Request<T>(
         IMessage message,
         CancellationToken ct
-    ) where T : class, IMessage, new()
+    ) where T : class, IMessage
     {
-        var response = await allianceGamesClient.RequestUnverified((uint)message.Header, message.Encode(), ct);
+        var response = await allianceGamesClient.RequestUnverified((uint)message.Header, Encode(message), ct);
         if (response == null)
             return null;
 
-        var responseMessage = new T();
-        responseMessage.Decode(response.Value);
-        return responseMessage;
+        return Decode<T>(response.Value);
     }
 
-    private async UniTask GameOver(bool forfeit)
+    private async UniTask GameOver()
     {
+
         view.Reset();
 
         if (allianceGamesClient != null)
         {
-            if (forfeit)
-            {
-                await allianceGamesClient.Send((int)Messages.Header.Forfeit, Buffer.Empty(), cts.Token);
-            }
-
             await allianceGamesClient.Stop(cts?.Token ?? CancellationToken.None);
             allianceGamesClient = null;
         }
@@ -253,18 +243,28 @@ public class GameController
         Application.OpenURL($"{Config.EXPLORER_URL}sessions/{sessionId}");
     }
 
-    private async void OpenGameResult(string winner)
+    private async void OpenGameResult(Messages.GameOver gameOver)
     {
         openGameResultCts?.CancelAndDispose();
         openGameResultCts = new CancellationTokenSource();
 
+        var winner = gameOver.Winner?.Parse();
         var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
-        var res = await view.OpenGameResult(sessionId, amIWinner, playerData, connectionManager, openGameResultCts.Token);
+        var res = await view.OpenGameResult(sessionId, amIWinner, playerData, gameOver.IsForfeit, connectionManager, openGameResultCts.Token);
 
         if (res == TTT.Components.ModalAction.CLOSE || res == TTT.Components.ModalAction.NEXT_ROUND)
         {
             view.CloseGameResult();
-            OnEndGame?.Invoke();
+            onEndGame?.Invoke();
+        }
+    }
+
+    private async void OpenCancelGame()
+    {
+        var res = await view.OpenCancelGame(cts.Token);
+        if (res)
+        {
+            await allianceGamesClient.Send((int)Messages.Header.Forfeit, Buffer.Empty(), cts.Token);
         }
     }
 }
