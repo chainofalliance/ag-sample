@@ -65,11 +65,7 @@ public class MenuController
 
     public async UniTask UpdatePlayerInfo()
     {
-        await OnUpdatePlayerInfo(accountManager.Address);
-    }
-
-    private async UniTask OnUpdatePlayerInfo(string address)
-    {
+        var address = accountManager.Address;
         await accountManager.Account.SyncBalance();
         var pointsEvm = await accountManager.TicTacToeContract.GetPoints(address);
         var tttUpdate = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
@@ -79,6 +75,7 @@ public class MenuController
         view.SetPlayerUpdate(tttUpdate, pointsEvm, balanceString);
         view.SetAddress(address);
     }
+
 
     private async void OnClaim()
     {
@@ -100,7 +97,7 @@ public class MenuController
 
         Debug.Log($"Claim result: {result}");
 
-        OnUpdatePlayerInfo(accountManager.Address);
+        await UpdatePlayerInfo();
     }
 
     private async void OnPlay(string queueName)
@@ -274,7 +271,7 @@ public class MenuController
             {
                 if (view.IsVisible())
                 {
-                    OnUpdatePlayerInfo(accountManager.Address);
+                    await UpdatePlayerInfo();
                 }
 
                 await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
