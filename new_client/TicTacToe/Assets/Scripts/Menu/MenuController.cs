@@ -19,6 +19,7 @@ public class MenuController
     private readonly AccountManager accountManager;
     private readonly Action<Uri, string> OnStartGame;
     private Queries.EifEventData[] unclaimedRewards;
+    private CancellationTokenSource timerCts;
     private CancellationTokenSource updateCts;
 
     public MenuController(
@@ -48,6 +49,9 @@ public class MenuController
 
     public void SetVisible(bool visible)
     {
+        timerCts?.CancelAndDispose();
+        timerCts = null;
+
         view.SetVisible(visible);
     }
 
@@ -216,6 +220,8 @@ public class MenuController
             try
             {
                 cts?.CancelAndDispose();
+                timerCts?.CancelAndDispose();
+                timerCts = null;
             }
             catch (ObjectDisposedException)
             { }
@@ -228,16 +234,17 @@ public class MenuController
                 Duid = duid
             }, CancellationToken.None);
         }
+    }
 
-        async UniTask<string> Timer()
+    private async UniTaskVoid Timer()
+    {
+        timerCts?.CancelAndDispose();
+        timerCts = new();
+        var count = 0;
+        while (!timerCts.IsCancellationRequested)
         {
-            var count = 0;
-            while (!cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(1000, cancellationToken: cts.Token);
-                view.UpdateMatchmakingTimer(++count);
-            }
-            return null;
+            await UniTask.Delay(1000, cancellationToken: timerCts.Token);
+            view.UpdateMatchmakingTimer(++count);
         }
     }
 
