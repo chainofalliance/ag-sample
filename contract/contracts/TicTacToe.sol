@@ -29,14 +29,24 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         uint8 outcome;
     }
 
+    struct ClaimData {
+        bytes eventData;
+        Data.Proof eventProof;
+        bytes blockHeader;
+        bytes[] signatures;
+        address[] signers;
+        Data.ExtraProofData extraProof;
+        bytes encodedData;
+    }
+
     IValidator public validator;
     bytes32 internal blockchainRid;
-    mapping(bytes32 => bool) internal _events;
+    mapping(bytes32 => address[]) internal _eventClaimers;
     mapping(address => uint256) internal _points;
 
     event Initialize(IValidator indexed _validator);
     event SetBlockchainRid(bytes32 rid);
-    event RewardClaimed(bytes32 indexed hash, bytes32 eventHash);
+    event RewardClaimed(bytes32 indexed hash, bytes32 eventHash, address indexed claimer);
 
     function initialize(IValidator _validator, bytes32 rid, address _defaultAdmin) public initializer {
         require(address(_validator) != address(0), "TicTacToe: validator address is invalid");
@@ -67,39 +77,44 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         _unpause();
     }
 
-    function Claim(
-        bytes memory _event,
-        Data.Proof memory eventProof,
-        bytes memory blockHeader,
-        bytes[] memory sigs,
-        address[] memory signers,
-        Data.ExtraProofData memory extraProof,
-        bytes memory encodedData
-    ) external whenNotPaused {
+    function batchClaim(ClaimData[] memory claims) external {
         require(blockchainRid != bytes32(0), "TicTacToe: blockchain rid is not set");
-        require(_events[eventProof.leaf] == false, "TicTacToe: event hash was already used");
 
-        require(Hash.hashGtvBytes64Leaf(extraProof.leaf) == extraProof.hashedLeaf, "Postchain: invalid EIF extra data");
-        (, bytes32 blockRid) = Postchain.verifyBlockHeader(blockchainRid, blockHeader, extraProof);
-        bytes32 eventRoot = _bytesToBytes32(extraProof.leaf, 0);
-        
-        if (!validator.isValidSignatures(blockRid, sigs, signers)) revert("TicTacToe: block signature is invalid");
-        if (!MerkleProof.verify(eventProof.merkleProofs, eventProof.leaf, eventProof.position, eventRoot)) revert("TicTacToe: invalid merkle proof");
-        
-        RewardEvent memory evt = abi.decode(_event, (RewardEvent));
-        require(keccak256(_event) == eventProof.leaf, "Postchain: invalid event");
-        _events[eventProof.leaf] = true;
+        for (uint i = 0; i < claims.length; i++) {
+            ClaimData memory claim = claims[i];
 
-        require(keccak256(encodedData) == evt.rewardHash, "TicTacToe: invalid reward hash");
+            addClaimer(claim.eventProof.leaf, msg.sender);
 
-        GameResult[] memory grs = abi.decode(encodedData, (GameResult[]));
-        for (uint i = 0; i < grs.length; i++) {
-            if(grs[i].pubkey == msg.sender) {
-                _points[grs[i].pubkey] += grs[i].points;
+            require(Hash.hashGtvBytes64Leaf(claim.extraProof.leaf) == claim.extraProof.hashedLeaf, "Postchain: invalid EIF extra data");
+            (, bytes32 blockRid) = Postchain.verifyBlockHeader(blockchainRid, claim.blockHeader, claim.extraProof);
+            bytes32 eventRoot = _bytesToBytes32(claim.extraProof.leaf, 0);
+            
+            if (!validator.isValidSignatures(blockRid, claim.signatures, claim.signers)) revert("TicTacToe: block signature is invalid");
+            if (!MerkleProof.verify(claim.eventProof.merkleProofs, claim.eventProof.leaf, claim.eventProof.position, eventRoot)) revert("TicTacToe: invalid merkle proof");
+            
+            RewardEvent memory evt = abi.decode(claim.eventData, (RewardEvent));
+            require(keccak256(claim.eventData) == claim.eventProof.leaf, "Postchain: invalid event");
+            require(keccak256(claim.encodedData) == evt.rewardHash, "TicTacToe: invalid reward hash");
+
+            GameResult[] memory grs = abi.decode(claim.encodedData, (GameResult[]));
+            bool found = false;
+            for (uint j = 0; j < grs.length; j++) {
+                if(grs[j].pubkey == msg.sender) {
+                    _points[grs[j].pubkey] += grs[j].points;
+                    found = true;
+                }
             }
+            require(found, "TicTacToe: invalid claimer");
+            
+            emit RewardClaimed(evt.rewardHash, claim.eventProof.leaf, msg.sender);
         }
-        
-        emit RewardClaimed(evt.rewardHash, eventProof.leaf);
+    }
+
+    function addClaimer(bytes32 eventHash, address claimer) internal {
+        for (uint i = 0; i < _eventClaimers[eventHash].length; i++) {
+            require(_eventClaimers[eventHash][i] != claimer, "Address already added");
+        }
+        _eventClaimers[eventHash].push(claimer);
     }
 
     function getPoints(address pubkey) external view returns (uint256) {
