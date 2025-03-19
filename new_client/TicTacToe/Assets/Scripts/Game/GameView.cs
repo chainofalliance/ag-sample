@@ -11,6 +11,7 @@ public class GameView
     public event Action OnClickViewInExplorer;
     public event Action<int> OnClickField;
     public event Action OnClickBack;
+    public event Action OnClaim;
 
     private readonly VisualElement root;
     private readonly PlayerInfoElement playerInfoSelf;
@@ -52,6 +53,7 @@ public class GameView
         buttonViewInExplorer = root.Q<Button>("ButtonViewInExplorer");
 
         buttonViewInExplorer.clicked += () => OnClickViewInExplorer?.Invoke();
+        modalResult.OnClaim += () => OnClaim?.Invoke();
 
         var backButton = root.Q<Button>("ButtonExit");
         backButton.clicked += () => OnClickBack?.Invoke();
@@ -136,11 +138,15 @@ public class GameView
     }
 
     public async UniTask<ModalAction> OpenGameResult(
-        string sessionId, bool? amIWinner, List<PlayerData> player, bool forfeit,
-        BlockchainConnectionManager connectionManager, CancellationToken ct)
+        string sessionId,
+        bool? amIWinner,
+        List<PlayerData> player,
+        bool forfeit,
+        CancellationToken ct
+    )
     {
         modalResult.SetVisible(true);
-        modalResult.Resolve(sessionId, amIWinner, player, forfeit, connectionManager);
+        modalResult.Resolve(sessionId, amIWinner, player, forfeit);
 
         try
         {
@@ -149,6 +155,11 @@ public class GameView
         }
         catch (OperationCanceledException) { }
         return default;
+    }
+
+    public void UpdateClaimState(bool canClaim)
+    {
+        modalResult.SetClaimState(canClaim);
     }
 
     public void CloseGameResult()

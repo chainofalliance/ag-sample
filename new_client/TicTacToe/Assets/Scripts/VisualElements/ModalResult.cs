@@ -20,6 +20,7 @@ namespace TTT.Components
     [UxmlElement]
     partial class ModalResult : VisualElement
     {
+        public event Action OnClaim;
         public IAsyncEnumerableWithEvent<ModalAction> OnDialogAction => onDialogAction;
         protected readonly AsyncEnumerableWithEvent<ModalAction> onDialogAction = new();
 
@@ -36,8 +37,6 @@ namespace TTT.Components
         private Button viewInExplorerButton;
 
         private Action openLinkAction = null;
-        private Action claimAction = null;
-        private CancellationTokenSource resultCts;
 
 
         public ModalResult()
@@ -62,6 +61,7 @@ namespace TTT.Components
             nextRoundButton = this.Q<Button>("ButtonNextRound");
             viewInExplorerButton = this.Q<Button>("ButtonViewInExplorer");
 
+            claimButton.clicked += () => OnClaim?.Invoke();
             homeButton.clicked += () => onDialogAction.Write(ModalAction.CLOSE);
             nextRoundButton.clicked += () => onDialogAction.Write(ModalAction.NEXT_ROUND);
         }
@@ -70,10 +70,7 @@ namespace TTT.Components
         {
             homeInfo.Reset();
             awayInfo.Reset();
-            claimButton.text = "Claim points";
-            claimButton.SetEnabled(false);
             viewInExplorerButton.clicked -= openLinkAction;
-            claimButton.clicked -= claimAction;
         }
 
         public void SetVisible(bool visible)
@@ -81,12 +78,18 @@ namespace TTT.Components
             parent.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
+        public void SetClaimState(bool canClaim)
+        {
+            claimButton.text = canClaim ? "Claim points" : "Waiting for proof...";
+            claimButton.SetEnabled(canClaim);
+            claimButton.MarkDirtyRepaint();
+        }
+
         public void Resolve(
             string sessionId,
             bool? amIWinner,
             List<PlayerData> player,
-            bool forfeit,
-            BlockchainConnectionManager connectionManager
+            bool forfeit
         )
         {
             try
@@ -117,54 +120,6 @@ namespace TTT.Components
 
                 labelPointsGainedValue.text = amIWinner.HasValue && amIWinner.Value ? "100" : "50";
                 labelSessionValue.text = Util.FormatAddress(sessionId);
-
-
-                // wait until proof is written
-                resultCts?.CancelAndDispose();
-                resultCts = new();
-
-                // EifEventData eventData = null;
-                // waitForProof(resultCts.Token).Forget();
-                // async UniTaskVoid waitForProof(CancellationToken ct)
-                // {
-                //     while (eventData == null)
-                //     {
-                //         await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
-                //         eventData = await Queries.getEifEventBySession(connectionManager.AlliancesGamesClient, sessionId);
-                //     }
-
-                //     claimButton.SetEnabled(true);
-                // }
-
-                // claimAction = async () =>
-                // {
-                //     if(AppKit.NetworkController.ActiveChain.ChainId != Bootstrap.ChainBNBTestnet.ChainId)
-                //     {
-                //         await AppKit.NetworkController.ChangeActiveChainAsync(Bootstrap.ChainBNBTestnet);
-
-                //         UnityEngine.Debug.LogError("Error: Not the correct chain active!");
-                //         return;
-                //     }
-
-                //     if (eventData == null)
-                //     {
-                //         UnityEngine.Debug.LogError("Error: eventData is null, claim cannot proceed!");
-                //         return;
-                //     }
-
-                //     claimButton.SetEnabled(false);
-                //     UnityEngine.Debug.Log(eventData.ToString());
-
-                //     var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventData.EventHash);
-                //     var merkleProof = EIFUtils.Construct(rawMerkleProof);
-
-                //     var claimRes = await TicTacToeContract.Claim(merkleProof, eventData.EncodedData);
-                //     UnityEngine.Debug.Log("Claim Result: " + claimRes);
-
-                //     claimButton.text = $"Claimed {labelPointsGainedValue.text} points";
-                // };
-
-                // claimButton.clicked += claimAction;
             }
             catch
             {

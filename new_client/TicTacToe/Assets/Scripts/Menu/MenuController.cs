@@ -8,6 +8,8 @@ using Buffer = Chromia.Buffer;
 
 public class MenuController
 {
+    public event Action OnClaim;
+
     private readonly string DUID = null;
     private readonly string DISPLAY_NAME = "TicTacToe";
 
@@ -36,7 +38,7 @@ public class MenuController
 
         view.OnPlayPve += OpenPvEMatchmaking;
         view.OnPlayPvp += OpenPvPMatchmaking;
-        view.OnClaim += OnClaim;
+        view.OnClaim += Claim;
         view.OnClickViewAllSessions += () =>
         {
             Application.OpenURL($"https://alliance-games-explorer.vercel.app/address/{accountManager.AddressWithoutPrefix}/sessions");
@@ -76,8 +78,7 @@ public class MenuController
         view.SetAddress(address);
     }
 
-
-    private async void OnClaim()
+    private void Claim()
     {
         if (unclaimedRewards.Length == 0)
         {
@@ -85,19 +86,7 @@ public class MenuController
             return;
         }
 
-        var eventToClaim = unclaimedRewards[0];
-
-        var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventToClaim.EventHash);
-        var merkleProof = EIFUtils.Construct(rawMerkleProof);
-
-        var result = await accountManager.TicTacToeContract.Claim(
-            merkleProof,
-            eventToClaim.EncodedData
-        );
-
-        Debug.Log($"Claim result: {result}");
-
-        await UpdatePlayerInfo();
+        OnClaim?.Invoke();
     }
 
     private async void OnPlay(string queueName)

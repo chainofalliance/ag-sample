@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -9,6 +10,12 @@ using UnityEngine;
 
 public class TicTacToeContract
 {
+    public struct ClaimData
+    {
+        public EvmTypes.EventWithProof EventWithProof;
+        public string EncodedData;
+    }
+
     public const string RPC_URL = "https://data-seed-prebsc-2-s1.binance.org:8545/";
     private const string CONTRACT_ADDRESS = "0x0A881312dBb60C0111c090d3eE64567CcDecACeD";
 
@@ -32,20 +39,24 @@ public class TicTacToeContract
         });
     }
 
-    public async Task<string> Claim(EvmTypes.EventWithProof eventWithProof, string encodedData)
+    public async Task<string> ClaimBatch(ClaimData[] claimData)
     {
-        var arguments = new object[]
+        var arguments = new List<object>();
+        foreach (var data in claimData)
         {
-            eventWithProof._Event,
-            eventWithProof.EventProof,
-            eventWithProof.BlockHeader,
-            eventWithProof.Sigs,
-            eventWithProof.Signers,
-            eventWithProof.ExtraProof,
-            encodedData.HexToByteArray()
-        };
+            arguments.Add(new object[]
+            {
+                data.EventWithProof._Event,
+                data.EventWithProof.EventProof,
+                data.EventWithProof.BlockHeader,
+                data.EventWithProof.Sigs,
+                data.EventWithProof.Signers,
+                data.EventWithProof.ExtraProof,
+                data.EncodedData.HexToByteArray()
+            });
+        }
 
-        var txHash = await account.SendTransaction(CONTRACT_ADDRESS, abi, "Claim", arguments);
+        var txHash = await account.SendTransaction(CONTRACT_ADDRESS, abi, "batchClaim", arguments.ToArray());
         if (string.IsNullOrEmpty(txHash))
         {
             Debug.LogError("Failed to send transaction");

@@ -66,6 +66,7 @@ public class Bootstrap : MonoBehaviour
 
         var menuView = new MenuView(menuElement);
         menuController = new MenuController(menuView, connectionManager, accountManager, OnStartGame);
+        menuController.OnClaim += OnClaim;
 
         var gameView = new GameView(gameElement);
         gameController = new GameController(gameView, accountManager, connectionManager, OnEndGame);
@@ -73,6 +74,7 @@ public class Bootstrap : MonoBehaviour
         {
             gameController.OpenCancelGame();
         };
+        gameController.OnClaim += OnClaim;
 
         accountManager.OnAddressConnected += async (_) =>
         {
@@ -142,6 +144,29 @@ public class Bootstrap : MonoBehaviour
         await AppKit.InitializeAsync(
             appKitConfig
         );
+    }
+
+    private async void OnClaim()
+    {
+        var unclaimedRewards = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(accountManager.Address));
+
+        var claimData = new List<TicTacToeContract.ClaimData>();
+        foreach (var e in unclaimedRewards)
+        {
+            var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
+            var merkleProof = EIFUtils.Construct(rawMerkleProof);
+            claimData.Add(new TicTacToeContract.ClaimData
+            {
+                EventWithProof = merkleProof,
+                EncodedData = e.EncodedData
+            });
+        }
+
+        var result = await accountManager.TicTacToeContract.ClaimBatch(claimData.ToArray());
+
+        Debug.Log($"Claim result: {result}");
+
+        await menuController.UpdatePlayerInfo();
     }
 
     private async void OnStartGame(Uri nodeUri, string matchId)

@@ -31,6 +31,12 @@ public class GameController
         public bool IsAI => Address == "0x0000000000000000000000000000000000000000";
     }
 
+    public event Action OnClaim
+    {
+        add { view.OnClaim += value; }
+        remove { view.OnClaim -= value; }
+    }
+
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
     private readonly List<PlayerData> playerData = new List<PlayerData>();
 
@@ -69,13 +75,18 @@ public class GameController
         };
 
         view.OnClickBack += OpenCancelGame;
-
         view.OnClickViewInExplorer += () => OpenLinkToExplorer(sessionId);
     }
 
     public void SetVisible(bool visible)
     {
         view.SetVisible(visible);
+
+        if (!visible)
+        {
+            openGameResultCts?.CancelAndDispose();
+            openGameResultCts = null;
+        }
     }
 
     public async Task<bool> StartGame(Uri nodeUri, string matchId)
@@ -278,14 +289,19 @@ public class GameController
 
     private async void OpenGameResult(Messages.GameOver gameOver)
     {
-        openGameResultCts?.CancelAndDispose();
         openGameResultCts = new CancellationTokenSource();
 
         var winner = gameOver.Winner?.Parse();
         var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
-        var res = await view.OpenGameResult(sessionId, amIWinner, playerData, gameOver.IsForfeit, connectionManager, openGameResultCts.Token);
+
+        CheckClaimState(openGameResultCts.Token).Forget();
+        var res = await view.OpenGameResult(sessionId, amIWinner, playerData, gameOver.IsForfeit, openGameResultCts.Token);
 
         view.CloseGameResult();
+
+        openGameResultCts?.CancelAndDispose();
+        openGameResultCts = null;
+
         if (res == TTT.Components.ModalAction.CLOSE)
         {
             onEndGame?.Invoke(AfterGameAction.Menu);
@@ -300,6 +316,21 @@ public class GameController
             {
                 onEndGame?.Invoke(AfterGameAction.NextRoundPvP);
             }
+        }
+    }
+
+    private async UniTaskVoid CheckClaimState(CancellationToken ct)
+    {
+        view.UpdateClaimState(false);
+        while (!ct.IsCancellationRequested)
+        {
+            var result = await Queries.GetEifEventBySession(connectionManager.AlliancesGamesClient, sessionId);
+            if (result != null)
+            {
+                view.UpdateClaimState(true);
+                break;
+            }
+            await UniTask.Delay(500, cancellationToken: ct);
         }
     }
 
