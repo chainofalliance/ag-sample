@@ -1,4 +1,4 @@
-[
+ [
     {
       "inputs": [],
       "name": "AccessControlBadConfirmation",
@@ -98,6 +98,12 @@
           "internalType": "bytes32",
           "name": "eventHash",
           "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "claimer",
+          "type": "address"
         }
       ],
       "name": "RewardClaimed",
@@ -205,93 +211,6 @@
       "type": "event"
     },
     {
-      "inputs": [
-        {
-          "internalType": "bytes",
-          "name": "_event",
-          "type": "bytes"
-        },
-        {
-          "components": [
-            {
-              "internalType": "bytes32",
-              "name": "leaf",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "uint256",
-              "name": "position",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bytes32[]",
-              "name": "merkleProofs",
-              "type": "bytes32[]"
-            }
-          ],
-          "internalType": "struct Data.Proof",
-          "name": "eventProof",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bytes",
-          "name": "blockHeader",
-          "type": "bytes"
-        },
-        {
-          "internalType": "bytes[]",
-          "name": "sigs",
-          "type": "bytes[]"
-        },
-        {
-          "internalType": "address[]",
-          "name": "signers",
-          "type": "address[]"
-        },
-        {
-          "components": [
-            {
-              "internalType": "bytes",
-              "name": "leaf",
-              "type": "bytes"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "hashedLeaf",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "uint256",
-              "name": "position",
-              "type": "uint256"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "extraRoot",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32[]",
-              "name": "extraMerkleProofs",
-              "type": "bytes32[]"
-            }
-          ],
-          "internalType": "struct Data.ExtraProofData",
-          "name": "extraProof",
-          "type": "tuple"
-        },
-        {
-          "internalType": "bytes",
-          "name": "encodedData",
-          "type": "bytes"
-        }
-      ],
-      "name": "Claim",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "DEFAULT_ADMIN_ROLE",
       "outputs": [
@@ -328,6 +247,100 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes",
+              "name": "eventData",
+              "type": "bytes"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bytes32",
+                  "name": "leaf",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "position",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32[]",
+                  "name": "merkleProofs",
+                  "type": "bytes32[]"
+                }
+              ],
+              "internalType": "struct Data.Proof",
+              "name": "eventProof",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bytes",
+              "name": "blockHeader",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes[]",
+              "name": "signatures",
+              "type": "bytes[]"
+            },
+            {
+              "internalType": "address[]",
+              "name": "signers",
+              "type": "address[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "bytes",
+                  "name": "leaf",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "hashedLeaf",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "position",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bytes32",
+                  "name": "extraRoot",
+                  "type": "bytes32"
+                },
+                {
+                  "internalType": "bytes32[]",
+                  "name": "extraMerkleProofs",
+                  "type": "bytes32[]"
+                }
+              ],
+              "internalType": "struct Data.ExtraProofData",
+              "name": "extraProof",
+              "type": "tuple"
+            },
+            {
+              "internalType": "bytes",
+              "name": "encodedData",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct TicTacToe.ClaimData[]",
+          "name": "claims",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "batchClaim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
