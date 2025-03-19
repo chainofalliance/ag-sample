@@ -259,8 +259,11 @@ public class GameController
         }
     }
 
-    private async void OpenCancelGame()
+    public async void OpenCancelGame()
     {
+        if (cts == null)
+            return;
+
         var res = await view.OpenCancelGame(cts.Token);
         if (res)
         {

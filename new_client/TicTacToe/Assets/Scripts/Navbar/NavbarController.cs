@@ -3,6 +3,11 @@ using Reown.AppKit.Unity;
 
 public class NavbarController
 {
+    public event Action OnHome
+    {
+        add => view.OnHome += value;
+        remove => view.OnHome -= value;
+    }
     public event Action OnDisconnect;
 
     private readonly NavbarView view;

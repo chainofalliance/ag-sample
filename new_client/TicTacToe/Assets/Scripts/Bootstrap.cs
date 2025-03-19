@@ -69,6 +69,10 @@ public class Bootstrap : MonoBehaviour
 
         var gameView = new GameView(gameElement);
         gameController = new GameController(gameView, accountManager, connectionManager, OnEndGame);
+        navbarController.OnHome += () =>
+        {
+            gameController.OpenCancelGame();
+        };
 
         accountManager.OnAddressConnected += async (_) =>
         {

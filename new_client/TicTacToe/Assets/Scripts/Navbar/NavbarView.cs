@@ -3,6 +3,7 @@ using System;
 
 public class NavbarView
 {
+    public event Action OnHome;
     public event Action OnWalletDisconnect;
 
     private readonly VisualElement root;
@@ -14,6 +15,9 @@ public class NavbarView
         this.root = root;
 
         addressLabel = root.Q<Label>("LabelAddress");
+
+        var homeButton = root.Q<Button>("ButtonHome");
+        homeButton.clicked += () => OnHome?.Invoke();
 
         var walletDisconnectButton = root.Q<Button>("ButtonDisconnect");
         walletDisconnectButton.clicked += () => OnWalletDisconnect?.Invoke();
