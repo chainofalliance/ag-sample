@@ -74,7 +74,7 @@ public class MenuController
         unclaimedRewards = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(address));
 
         var balanceString = accountManager.Balance == "0" ? "0 (Get TBNB from faucet)" : accountManager.Balance;
-        view.SetPlayerUpdate(tttUpdate, pointsEvm, balanceString);
+        view.SetPlayerUpdate(tttUpdate, pointsEvm, balanceString, unclaimedRewards.Length > 0);
         view.SetAddress(address);
     }
 

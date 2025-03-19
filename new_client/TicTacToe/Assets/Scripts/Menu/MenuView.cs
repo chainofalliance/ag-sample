@@ -92,7 +92,7 @@ public class MenuView
         labelAddress.text = Util.FormatAddress(address);
     }
 
-    public void SetPlayerUpdate(PlayerUpdate update, int pointsEvm, string balance)
+    public void SetPlayerUpdate(PlayerUpdate update, int pointsEvm, string balance, bool canClaim)
     {
         var info = update.Info;
 
@@ -117,9 +117,9 @@ public class MenuView
 
         labelBalance.text = balance;
 
-        var unclaimedPoints = info.Points - pointsEvm;
-        if (unclaimedPoints > 0)
+        if (canClaim)
         {
+            var unclaimedPoints = info.Points - pointsEvm;
             containerUnclaimedPoints.style.display = DisplayStyle.Flex;
             labelUnclaimedPointsValue.text = unclaimedPoints.ToString();
         }

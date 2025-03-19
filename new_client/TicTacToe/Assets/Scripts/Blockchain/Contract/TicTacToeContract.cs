@@ -17,7 +17,7 @@ public class TicTacToeContract
     }
 
     public const string RPC_URL = "https://data-seed-prebsc-2-s1.binance.org:8545/";
-    private const string CONTRACT_ADDRESS = "0x0A881312dBb60C0111c090d3eE64567CcDecACeD";
+    private const string CONTRACT_ADDRESS = "0x10cA23ea4Cb9f05A58ed7820Aa07319d3Be4d65A";
 
     private readonly IAccount account;
     private readonly Web3 web3;
