@@ -156,7 +156,7 @@ internal class Logic
         Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}, forfeit: {isForfeit}");
         await server!.Send(
             (int)Messages.Header.GameOver,
-            Messages.Encode(new Messages.GameOver(winnerPlayer, isForfeit)),
+            Messages.Encode(new Messages.GameOver(winnerPlayer?.Bytes, isForfeit)),
             CancellationToken
         );
 

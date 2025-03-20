@@ -75,12 +75,12 @@ public class Messages
         public Header Header => Header.GameOver;
 
         [PostchainProperty("winner")]
-        public Buffer? Winner { get; private set; }
+        public byte[]? Winner { get; private set; }
 
         [PostchainProperty("is_forfeit")]
         public bool IsForfeit { get; private set; }
 
-        public GameOver(Buffer? winner, bool isForfeit)
+        public GameOver(byte[]? winner, bool isForfeit)
         {
             Winner = winner;
             IsForfeit = isForfeit;
