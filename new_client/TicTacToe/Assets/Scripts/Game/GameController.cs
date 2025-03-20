@@ -154,13 +154,13 @@ public class GameController
 
             view.Populate(
                 matchId,
-                myPlayerData,
-                opponentPlayerData,
+                myPlayerData.Symbol == Field.X ? myPlayerData : opponentPlayerData,
+                myPlayerData.Symbol == Field.X ? opponentPlayerData : myPlayerData,
                 myPlayerData.Symbol
             );
 
             Debug.Log($"Send ready");
-            await allianceGamesClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
+            await allianceGamesClient.Send((int)Header.Ready, Buffer.Empty(), cts.Token);
         }
         catch (OperationCanceledException) { }
         catch (Exception e)
