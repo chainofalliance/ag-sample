@@ -14,8 +14,8 @@ public class GameView
     public event Action OnClaim;
 
     private readonly VisualElement root;
-    private readonly PlayerInfoElement playerX;
-    private readonly PlayerInfoElement playerO;
+    private readonly PlayerInfoElement myPlayerInfo;
+    private readonly PlayerInfoElement opponentPlayerInfo;
     private readonly CellElement[] cells;
     private readonly ModalCancelGame modalCancel;
     private readonly ModalResult modalResult;
@@ -32,8 +32,8 @@ public class GameView
 
         players = new();
 
-        playerX = root.Q("PlayerInfoMe").Q<PlayerInfoElement>();
-        playerO = root.Q("PlayerInfoOpponent").Q<PlayerInfoElement>();
+        myPlayerInfo = root.Q("PlayerInfoMe").Q<PlayerInfoElement>();
+        opponentPlayerInfo = root.Q("PlayerInfoOpponent").Q<PlayerInfoElement>();
 
         cells = new CellElement[9];
         for (int i = 0; i < 9; i++)
@@ -67,23 +67,23 @@ public class GameView
 
     public void Populate(
         string sessionId,
-        PlayerData playerX,
-        PlayerData playerO,
+        PlayerData me,
+        PlayerData opponent,
         Messages.Field mySymbol
     )
     {
         labelSessionId.text = Util.FormatAddress(sessionId);
 
-        players.Add(playerX.Symbol, this.playerX);
-        this.playerX.Populate(playerX.Symbol, playerX.Address);
+        players.Add(me.Symbol, myPlayerInfo);
+        myPlayerInfo.Populate(me.Symbol, me.Address);
 
         foreach (var cell in cells)
         {
             cell.SetMyHoverSymbol(mySymbol);
         }
 
-        players.Add(playerO.Symbol, this.playerO);
-        this.playerO.Populate(playerO.Symbol, playerO.Address, true);
+        players.Add(opponent.Symbol, opponentPlayerInfo);
+        opponentPlayerInfo.Populate(opponent.Symbol, opponent.Address, true);
     }
 
     public void Reset()
@@ -93,8 +93,8 @@ public class GameView
             cells[i].SetSymbol(Messages.Field.Empty);
         }
 
-        playerX.EndTurn();
-        playerO.EndTurn();
+        myPlayerInfo.Reset();
+        opponentPlayerInfo.Reset();
 
         players.Clear();
         turnTimerCts?.CancelAndDispose();

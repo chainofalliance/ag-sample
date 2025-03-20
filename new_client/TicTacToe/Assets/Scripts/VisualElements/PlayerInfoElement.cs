@@ -61,5 +61,13 @@ namespace TTT.Components
             turnClassTracker.Set("");
             labelTurnTimer.text = "00:30";
         }
+
+        public void Reset()
+        {
+            symbolClassTracker.Set("");
+            turnClassTracker.Set("");
+            labelTurnTimer.text = "00:30";
+
+        }
     }
 }

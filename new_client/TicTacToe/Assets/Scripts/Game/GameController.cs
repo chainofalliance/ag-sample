@@ -154,8 +154,8 @@ public class GameController
 
             view.Populate(
                 matchId,
-                myPlayerData.Symbol == Field.X ? myPlayerData : opponentPlayerData,
-                myPlayerData.Symbol == Field.X ? opponentPlayerData : myPlayerData,
+                myPlayerData,
+                opponentPlayerData,
                 myPlayerData.Symbol
             );
 
