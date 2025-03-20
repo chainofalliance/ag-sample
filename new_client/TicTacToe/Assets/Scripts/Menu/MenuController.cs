@@ -210,7 +210,6 @@ public class MenuController
                 return null;
             }
 
-            Debug.Log($"Waiting for match with ticket ID {ticketId}...\nStatus: {ticket.Status}");
             await UniTask.Delay(1000, cancellationToken: ct);
         }
 

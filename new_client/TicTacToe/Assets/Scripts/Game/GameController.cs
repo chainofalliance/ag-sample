@@ -193,7 +193,7 @@ public class GameController
             }
         });
 
-        allianceGamesClient.RegisterMessageHandler((int)Messages.Header.GameOver, async data =>
+        allianceGamesClient.RegisterMessageHandler((int)Header.GameOver, async data =>
         {
             try
             {
@@ -292,11 +292,11 @@ public class GameController
         Application.OpenURL($"{Config.EXPLORER_URL}sessions/{sessionId}");
     }
 
-    private async void OpenGameResult(Messages.GameOver gameOver)
+    private async void OpenGameResult(GameOver gameOver)
     {
         openGameResultCts = new CancellationTokenSource();
 
-        var winner = gameOver.Winner?.Parse();
+        var winner = gameOver.Winner != null ? Buffer.From(gameOver.Winner).Parse() : null;
         var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
         Debug.Log($"Winner: {winner} {accountManager.Address} {amIWinner}");
 
