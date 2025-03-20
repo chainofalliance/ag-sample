@@ -5,6 +5,7 @@ using UnityEngine;
 using System;
 
 using Buffer = Chromia.Buffer;
+using System.Numerics;
 
 public class MenuController
 {
@@ -14,7 +15,7 @@ public class MenuController
     private readonly string DISPLAY_NAME = "TicTacToe";
 
     private readonly string AI_QUEUE_NAME = "1Vs1";
-    private readonly string PVP_QUEUE_NAME = "1Vs1";
+    private readonly string PVP_QUEUE_NAME = "pvp";
 
     private readonly MenuView view;
     private readonly BlockchainConnectionManager connectionManager;
@@ -71,9 +72,9 @@ public class MenuController
         await accountManager.Account.SyncBalance();
         var pointsEvm = await accountManager.TicTacToeContract.GetPoints(address);
         var tttUpdate = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
-        unclaimedRewards = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(address));
+        unclaimedRewards = await accountManager.GetUnclaimedEifEvents();
 
-        var balanceString = accountManager.Balance == "0" ? "0 (Get TBNB from faucet)" : accountManager.Balance;
+        var balanceString = accountManager.Account.Balance == BigInteger.Zero ? "0 (Get TBNB from faucet)" : accountManager.Balance;
         view.SetPlayerUpdate(tttUpdate, pointsEvm, balanceString, unclaimedRewards.Length > 0);
         view.SetAddress(address);
     }

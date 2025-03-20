@@ -1,9 +1,13 @@
 using Chromia;
+using Cysharp.Threading.Tasks;
 using Nethereum.Util;
 using Nethereum.Web3;
 using Reown.AppKit.Unity;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
+using Buffer = Chromia.Buffer;
 
 public class AccountManager
 {
@@ -17,14 +21,17 @@ public class AccountManager
     public SignatureProvider SignatureProvider { get; set; }
     public TicTacToeContract TicTacToeContract { get; private set; }
 
+    private BlockchainConnectionManager connectionManager;
+
     public bool IsMyAddress(string address)
     {
         var incoming = address.StartsWith("0x") ? address.Substring(2) : address;
         return incoming.ToLower() == AddressWithoutPrefix.ToLower();
     }
 
-    public AccountManager()
+    public AccountManager(BlockchainConnectionManager connectionManager)
     {
+        this.connectionManager = connectionManager;
         AppKit.AccountConnected += OnAccountConnected;
         SignatureProvider = SignatureProvider.Create();
     }
@@ -41,6 +48,13 @@ public class AccountManager
             Debug.LogError($"Failed to local login: {e.Message}");
             OnLoginFailed?.Invoke(e.Message);
         }
+    }
+
+    public async UniTask<Queries.EifEventData[]> GetUnclaimedEifEvents()
+    {
+        var chrEvents = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(Address));
+        var evmEvents = await TicTacToeContract.GetClaimStatus(chrEvents);
+        return chrEvents.Where((e, i) => !evmEvents[i]).ToArray();
     }
 
     private async void OnAccountConnected(object sender, Connector.AccountConnectedEventArgs eventArgs)

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
@@ -60,26 +62,33 @@ public class TicTacToeContract
 
         var arguments = new object[] { argumentsList.ToArray() };
 
-        var estimatedGas = await EstimateGas("batchClaim", arguments);
+        var estimatedGas = await account.EstimateGas(CONTRACT_ADDRESS, abi, "batchClaim", arguments);
         if (!await HasEnoughGas(estimatedGas))
         {
-            Debug.LogError("Insufficient funds for gas.");
-            return null;
+            throw new Exception("Insufficient funds for gas.");
         }
 
         var txHash = await account.SendTransaction(CONTRACT_ADDRESS, abi, "batchClaim", estimatedGas, arguments);
         if (string.IsNullOrEmpty(txHash))
         {
-            Debug.LogError("Failed to send transaction");
-            return null;
+            throw new Exception("Failed to send transaction");
         }
 
-        var receipt = await WaitForTransactionConfirmation(txHash);
-
-        return receipt.TransactionHash;
+        var success = await WaitForTransactionConfirmation(txHash);
+        return success ? txHash : null;
     }
 
-    private async UniTask<TransactionReceipt> WaitForTransactionConfirmation(string transactionHash)
+    public async Task<List<bool>> GetClaimStatus(Queries.EifEventData[] eventData)
+    {
+        var contract = web3.Eth.GetContract(abi, CONTRACT_ADDRESS);
+        var function = contract.GetFunction("getClaimStatus");
+        return await function.CallAsync<List<bool>>(
+            eventData.Select(e => CryptoUtils.ToBytesLike(e.EventHash)).ToArray(),
+            account.Address
+        );
+    }
+
+    private async UniTask<bool> WaitForTransactionConfirmation(string transactionHash)
     {
         Debug.Log($"Waiting for transaction confirmation: {transactionHash}");
 
@@ -87,11 +96,11 @@ public class TicTacToeContract
         var maxTries = 30;
         while (tries < maxTries)
         {
-            var receipt = await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
-            if (receipt != null)
+            var receipt = await account.GetTransactionReceipt(transactionHash);
+            if (receipt != null && receipt.BlockNumber != null && receipt.BlockNumber.Value > 0)
             {
                 Debug.Log($"Transaction Confirmed! Block: {receipt.BlockNumber.Value}");
-                return receipt;
+                return true;
             }
 
             Debug.Log("Waiting for transaction to be mined...");
@@ -100,17 +109,10 @@ public class TicTacToeContract
         }
 
         Debug.LogError($"Transaction failed to be mined after {maxTries} tries");
-        return null;
+        return false;
     }
 
-    private async UniTask<HexBigInteger> EstimateGas(string methodName, object[] parameters)
-    {
-        var contract = web3.Eth.GetContract(abi, CONTRACT_ADDRESS);
-        var function = contract.GetFunction(methodName);
-        return await function.EstimateGasAsync(account.Address, null, null, parameters);
-    }
-
-    private async UniTask<bool> HasEnoughGas(HexBigInteger estimatedGas)
+    private async UniTask<bool> HasEnoughGas(BigInteger estimatedGas)
     {
         await account.SyncBalance();
 

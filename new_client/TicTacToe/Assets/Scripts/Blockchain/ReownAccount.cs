@@ -1,10 +1,9 @@
 using System.Numerics;
 using Cysharp.Threading.Tasks;
 using Nethereum.Hex.HexTypes;
-using Nethereum.Util;
-using Nethereum.Web3;
+using Nethereum.RPC.Eth.DTOs;
+using Newtonsoft.Json;
 using Reown.AppKit.Unity;
-using Reown.AppKit.Unity.WebGl.Wagmi;
 using Reown.Sign.Models;
 using UnityEngine;
 
@@ -29,7 +28,7 @@ public class ReownAccount : IAccount
         string contractAddress,
         string abi,
         string methodName,
-        HexBigInteger gasLimit,
+        BigInteger gasLimit,
         object[] parameters
     )
     {
@@ -43,4 +42,21 @@ public class ReownAccount : IAccount
         Debug.Log($"Transaction Sent. Hash: {transactionHash}");
         return transactionHash;
     }
+
+    public async UniTask<TransactionReceipt> GetTransactionReceipt(string transactionHash)
+    {
+        return await AppKit.Evm.RpcRequestAsync<TransactionReceipt>("eth_getTransactionByHash", transactionHash);
+    }
+
+    public async UniTask<BigInteger> EstimateGas(string contractAddress, string abi, string methodName, object[] parameters)
+    {
+        return await AppKit.Evm.EstimateGasAsync(
+            contractAddress,
+            abi,
+            methodName,
+            0,
+            parameters
+        );
+    }
+
 }

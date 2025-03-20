@@ -14,6 +14,8 @@ public class LoginView
     private readonly Button guestLoginButton;
     private readonly ModalInfo modalInfo;
 
+    private bool isGuestLoginDisabled = false;
+
     public LoginView(VisualElement root)
     {
         this.root = root;
@@ -37,13 +39,26 @@ public class LoginView
     public void EnableButtons()
     {
         walletLoginButton.SetEnabled(true);
-        guestLoginButton.SetEnabled(true);
+        if (!isGuestLoginDisabled)
+        {
+            guestLoginButton.SetEnabled(true);
+        }
     }
 
     public void DisableButtons()
     {
         walletLoginButton.SetEnabled(false);
-        guestLoginButton.SetEnabled(false);
+        if (!isGuestLoginDisabled)
+        {
+            guestLoginButton.SetEnabled(false);
+        }
+    }
+
+    public void DisableGuestLogin()
+    {
+        isGuestLoginDisabled = true;
+        guestLoginButton.style.display = DisplayStyle.None;
+        guestLoginButton.clicked -= () => OnGuestLogin?.Invoke();
     }
 
     public async UniTask OpenError(string error, CancellationToken ct)

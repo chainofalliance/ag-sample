@@ -24,6 +24,11 @@ public class LoginController
                 view.CloseInfo();
             }
         };
+
+
+#if UNTIY_WEBGL && !UNITY_EDITOR
+        view.DisableGuestLogin();
+#endif
     }
 
     public void SetVisible(bool visible)

@@ -5,6 +5,8 @@ using Nethereum.Web3;
 using Nethereum.Signer;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Util;
+using Nethereum.RPC.Eth.DTOs;
+using System;
 
 public class LocalAccount : IAccount
 {
@@ -35,7 +37,7 @@ public class LocalAccount : IAccount
         string contractAddress,
         string abi,
         string methodName,
-        HexBigInteger estimatedGas,
+        BigInteger estimatedGas,
         object[] parameters
     )
     {
@@ -51,6 +53,23 @@ public class LocalAccount : IAccount
         Debug.Log($"Transaction Sent. Hash: {transactionHash}");
 
         return transactionHash;
+    }
+
+    public async UniTask<TransactionReceipt> GetTransactionReceipt(string transactionHash)
+    {
+        return await web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(transactionHash);
+    }
+
+    public async UniTask<BigInteger> EstimateGas(
+        string contractAddress,
+        string abi,
+        string methodName,
+        object[] parameters
+    )
+    {
+        var contract = web3.Eth.GetContract(abi, contractAddress);
+        var function = contract.GetFunction(methodName);
+        return await function.EstimateGasAsync(Address, null, null, parameters);
     }
 
     private string LoadOrCreatePrivateKey()

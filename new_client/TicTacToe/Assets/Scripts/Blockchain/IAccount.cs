@@ -1,6 +1,7 @@
 using System.Numerics;
 using Cysharp.Threading.Tasks;
 using Nethereum.Hex.HexTypes;
+using Nethereum.RPC.Eth.DTOs;
 
 public interface IAccount
 {
@@ -13,7 +14,15 @@ public interface IAccount
         string contractAddress,
         string abi,
         string methodName,
-        HexBigInteger gasLimit,
+        BigInteger gasLimit,
+        object[] parameters
+    );
+
+    UniTask<TransactionReceipt> GetTransactionReceipt(string transactionHash);
+    UniTask<BigInteger> EstimateGas(
+        string contractAddress,
+        string abi,
+        string methodName,
         object[] parameters
     );
 }

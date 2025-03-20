@@ -15,6 +15,7 @@ using Newtonsoft.Json.Serialization;
 using System.Reflection;
 using TTT.Components;
 using System.Threading;
+using System.Linq;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -57,7 +58,7 @@ public class Bootstrap : MonoBehaviour
         connectionManager = new BlockchainConnectionManager();
         await connectionManager.Connect();
 
-        accountManager = new AccountManager();
+        accountManager = new AccountManager(connectionManager);
 
         var navbarView = new NavbarView(sideNavbarElement);
         navbarController = new NavbarController(navbarView, accountManager);
@@ -157,7 +158,7 @@ public class Bootstrap : MonoBehaviour
         {
             const string title = "Claiming rewards...";
             modalInfo.ShowInfo(title, "Fetching unclaimed rewards...");
-            unclaimedRewards ??= await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(accountManager.Address));
+            unclaimedRewards ??= await accountManager.GetUnclaimedEifEvents();
 
             if (unclaimedRewards.Length == 0)
             {
@@ -185,9 +186,9 @@ public class Bootstrap : MonoBehaviour
                 });
             }
 
-            modalInfo.ShowInfo(title, "Claiming rewards...");
+
+            modalInfo.ShowInfo(title, "Waiting for transaction confirmation...");
             var result = await accountManager.TicTacToeContract.ClaimBatch(claimData.ToArray());
-            Debug.Log($"Claim result: {result}");
 
             modalInfo.ShowInfo(title, "Syncing player data...");
             await menuController.UpdatePlayerInfo();
@@ -196,7 +197,7 @@ public class Bootstrap : MonoBehaviour
             {
                 Application.OpenURL($"https://testnet.bscscan.com/tx/{result}");
             });
-            await modalInfo.Show("Claiming Success!", $"{claimData.Count} reward{(claimData.Count == 1 ? "" : "s")} claimed at transaction hash <color=blue><u>{result}</u></color>.");
+            await modalInfo.Show("Claiming Success!", $"{claimData.Count} reward{(claimData.Count == 1 ? "" : "s")} claimed at transaction hash <color=cyan><u>{result}</u></color>");
         }
         catch (Exception e)
         {
