@@ -149,10 +149,14 @@ public class GameController
                 });
             }
 
+            var myPlayerData = playerData.Find(p => p.IsMe);
+            var opponentPlayerData = playerData.Find(p => !p.IsMe);
+
             view.Populate(
                 matchId,
-                playerData.Find(p => accountManager.IsMyAddress(p.Address)),
-                playerData.Find(p => !accountManager.IsMyAddress(p.Address))
+                myPlayerData,
+                opponentPlayerData,
+                myPlayerData.Symbol
             );
 
             Debug.Log($"Send ready");

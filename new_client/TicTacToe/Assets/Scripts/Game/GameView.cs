@@ -68,7 +68,8 @@ public class GameView
     public void Populate(
         string sessionId,
         PlayerData player1,
-        PlayerData player2
+        PlayerData player2,
+        Messages.Field mySymbol
     )
     {
         labelSessionId.text = Util.FormatAddress(sessionId);
@@ -78,7 +79,7 @@ public class GameView
 
         foreach (var cell in cells)
         {
-            cell.SetMyHoverSymbol(player1.Symbol);
+            cell.SetMyHoverSymbol(mySymbol);
         }
 
         players.Add(player2.Symbol, playerInfoOpponent);
