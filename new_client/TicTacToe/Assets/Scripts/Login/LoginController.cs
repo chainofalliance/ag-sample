@@ -22,8 +22,8 @@ public class LoginController
             view.OpenInfo("Waiting for wallet connection...");
         };
 
-#if UNTIY_WEBGL && !UNITY_EDITOR
-        view.DisableGuestLogin();
+#if !UNTIY_WEBGL || UNITY_EDITOR
+        view.EnableGuestLogin();
 #endif
     }
 

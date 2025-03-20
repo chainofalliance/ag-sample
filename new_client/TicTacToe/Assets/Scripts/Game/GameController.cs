@@ -96,7 +96,6 @@ public class GameController
 
     public async Task<bool> StartGame(Uri nodeUri, string matchId)
     {
-        Debug.Log("StartGame");
         cts = new CancellationTokenSource();
 
         view.Reset();
@@ -139,7 +138,7 @@ public class GameController
 
             foreach (var player in response.Players)
             {
-                Debug.Log($"Adding player {player.PubKey.Parse()}...");
+                Debug.Log($"Adding player {player.PubKey.Parse()} {player.Symbol}...");
                 var address = $"0x{player.PubKey.Parse()}";
                 playerData.Add(new PlayerData()
                 {
@@ -202,7 +201,7 @@ public class GameController
             try
             {
                 var gameOver = Decode<GameOver>(data);
-                Debug.Log($"{gameOver.Winner} has won {(gameOver.IsForfeit ? "by forfeit" : "")}!");
+                Debug.Log($"{Buffer.From(gameOver.Winner ?? new byte[0]).Parse()} has won {(gameOver.IsForfeit ? "by forfeit" : "")}!");
                 OpenGameResult(gameOver);
                 await GameOver();
             }
@@ -216,11 +215,9 @@ public class GameController
         {
             try
             {
-                Debug.Log("Received move request.");
                 turn = new UniTaskCompletionSource<int>();
                 var idx = await turn.Task;
                 turn = null;
-                Debug.Log($"Send move response {idx}.");
 
                 var response = Encode(new MoveResponse(idx));
                 await allianceGamesClient.Send((int)Header.MoveResponse, response, cts.Token);
@@ -302,7 +299,6 @@ public class GameController
 
         var winner = gameOver.Winner != null ? Buffer.From(gameOver.Winner).Parse() : null;
         var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
-        Debug.Log($"Winner: {winner} {accountManager.Address} {amIWinner}");
 
         CheckClaimState(openGameResultCts.Token).Forget();
         var res = await view.OpenGameResult(sessionId, amIWinner, playerData, gameOver.IsForfeit, openGameResultCts.Token);

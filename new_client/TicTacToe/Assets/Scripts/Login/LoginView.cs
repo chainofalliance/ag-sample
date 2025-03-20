@@ -14,7 +14,7 @@ public class LoginView
     private readonly Button guestLoginButton;
     private readonly ModalInfo modalInfo;
 
-    private bool isGuestLoginDisabled = false;
+    private bool isGuestLoginDisabled = true;
 
     public LoginView(VisualElement root)
     {
@@ -25,7 +25,6 @@ public class LoginView
         modalInfo = root.panel.visualTree.Q("ModalInfo").Q<ModalInfo>();
 
         walletLoginButton.clicked += () => OnWalletLogin?.Invoke();
-        guestLoginButton.clicked += () => OnGuestLogin?.Invoke();
     }
 
     public void SetVisible(bool visible)
@@ -54,11 +53,11 @@ public class LoginView
         }
     }
 
-    public void DisableGuestLogin()
+    public void EnableGuestLogin()
     {
-        isGuestLoginDisabled = true;
-        guestLoginButton.style.display = DisplayStyle.None;
-        guestLoginButton.clicked -= () => OnGuestLogin?.Invoke();
+        isGuestLoginDisabled = false;
+        guestLoginButton.style.display = DisplayStyle.Flex;
+        guestLoginButton.clicked += () => OnGuestLogin?.Invoke();
     }
 
     public async UniTask OpenError(string error, CancellationToken ct)

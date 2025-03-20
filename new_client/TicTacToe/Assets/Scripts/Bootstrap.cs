@@ -5,17 +5,9 @@ using Reown.AppKit.Unity;
 using Reown.Sign.Unity;
 using UnityEngine;
 using System;
-using Chromia;
-using Buffer = Chromia.Buffer;
-using Chromia.Encoding;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using Newtonsoft.Json.Serialization;
-using System.Reflection;
 using TTT.Components;
-using System.Threading;
-using System.Linq;
+using Newtonsoft.Json.Utilities;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -255,5 +247,10 @@ public class Bootstrap : MonoBehaviour
                 gameController.SetVisible(true);
                 break;
         }
+    }
+
+    private void EnsureAot()
+    {
+        AotHelper.EnsureList<bool>();
     }
 }

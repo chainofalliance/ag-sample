@@ -23,6 +23,7 @@ internal class Logic
     private TaskCompletionSource<Messages.MoveResponse>? moveTcs;
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
+    private bool gameOver = false;
 
     public Logic(INodeConfig config)
     {
@@ -171,6 +172,7 @@ internal class Logic
 
     private async Task GameOver(Messages.Field winner, bool isForfeit)
     {
+        gameOver = true;
         Buffer? winnerPlayer = winner == Messages.Field.Empty ? null : players[(int)winner - 1];
         Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}, forfeit: {isForfeit}");
         await server!.Send(
@@ -331,7 +333,14 @@ internal class Logic
         });
 
         server.OnClientConnect += address => Log.Information($"Player {address.Parse()} connected");
-        server.OnClientDisconnect += address => Log.Information($"Player {address.Parse()} disconnected");
+        server.OnClientDisconnect += async address =>
+        {
+            Log.Information($"Player {address.Parse()} disconnected");
+            if (!gameOver)
+            {
+                await Forfeit(address);
+            }
+        };
     }
 
     private async Task Stop(string? reward)
@@ -348,6 +357,10 @@ internal class Logic
         }
         catch (Exception)
         { }
+        finally
+        {
+            Environment.Exit(0);
+        }
     }
 
     private Messages.Field? GetWinner()
