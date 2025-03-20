@@ -66,7 +66,26 @@ internal class Logic
             InitializeBoard();
 
             Log.Information($"Waiting for both players to ready up");
-            await readyCs.Task;
+            var timeout = server.SetTimeout(() => readyCs.TrySetCanceled(), 10000, CancellationToken);
+            try
+            {
+                await readyCs.Task;
+            }
+            catch (TaskCanceledException)
+            {
+                Log.Information($"Timeout waiting for both players to ready up");
+                await server!.Send(
+                    (int)Messages.Header.GameOver,
+                    Messages.Encode(new Messages.GameOver(null, true)),
+                    CancellationToken
+                );
+                // finally calls stop, so we don't need to do anything
+                return;
+            }
+            finally
+            {
+                timeout.Cancel();
+            }
 
             // play game
             Messages.Field? winner = null;
