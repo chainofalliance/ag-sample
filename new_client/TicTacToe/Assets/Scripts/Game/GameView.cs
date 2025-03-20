@@ -42,6 +42,7 @@ public class GameView
             cells[i] = cell.Q<CellElement>();
             int index = i;
 
+            cells[i].SetMyHoverSymbol(Messages.Field.X);
             cells[i].RegisterCallback<ClickEvent>((_) => OnClickField?.Invoke(index));
         }
 
@@ -74,6 +75,11 @@ public class GameView
 
         players.Add(player1.Symbol, playerInfoSelf);
         playerInfoSelf.Populate(player1.Symbol, player1.Address);
+
+        foreach (var cell in cells)
+        {
+            cell.SetMyHoverSymbol(player1.Symbol);
+        }
 
         players.Add(player2.Symbol, playerInfoOpponent);
         playerInfoOpponent.Populate(player2.Symbol, player2.Address, true);

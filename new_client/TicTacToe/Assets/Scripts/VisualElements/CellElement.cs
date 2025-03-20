@@ -12,6 +12,7 @@ namespace TTT.Components
         private readonly ClassTracker hoverClassTracker;
 
         private Messages.Field currentSymbol = Messages.Field.Empty;
+        private Messages.Field myHoverSymbol = Messages.Field.Empty;
 
         public CellElement()
         {
@@ -22,11 +23,16 @@ namespace TTT.Components
             RegisterCallback<PointerLeaveEvent>(OnHoverExit);
         }
 
+        public void SetMyHoverSymbol(Messages.Field symbol)
+        {
+            myHoverSymbol = symbol;
+        }
+
         private void OnHoverEnter(PointerEnterEvent evt)
         {
             if (currentSymbol == Messages.Field.Empty)
             {
-                hoverClassTracker.Set($"{HOVER}x");
+                hoverClassTracker.Set($"{HOVER}{myHoverSymbol.ToString().ToLower()}");
             }
         }
 
