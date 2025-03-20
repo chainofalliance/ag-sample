@@ -6,20 +6,13 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
-import "./Postchain.sol";
-import "./IValidator.sol";
+import "./IAllianceGamesProof.sol";
 
 contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
-    using Postchain for bytes32;
-    using MerkleProof for bytes32[];
-
     bytes32 public constant GAME_CONTROL = keccak256("GAME_CONTROL");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    struct RewardEvent {
-        uint256 serialNumber;
-        bytes32 rewardHash;
-    }
+    IAllianceGamesProof public allianceGamesProof;
 
     struct GameResult {
         address pubkey;
@@ -29,27 +22,14 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         uint8 outcome;
     }
 
-    struct ClaimData {
-        bytes eventData;
-        Data.Proof eventProof;
-        bytes blockHeader;
-        bytes[] signatures;
-        address[] signers;
-        Data.ExtraProofData extraProof;
-        bytes encodedData;
-    }
-
-    IValidator public validator;
-    bytes32 internal blockchainRid;
     mapping(bytes32 => address[]) internal _eventClaimers;
     mapping(address => uint256) internal _points;
 
-    event Initialize(IValidator indexed _validator);
-    event SetBlockchainRid(bytes32 rid);
-    event RewardClaimed(bytes32 indexed hash, bytes32 eventHash, address indexed claimer);
+    event RewardClaimed(bytes32 eventHash, address indexed claimer);
 
-    function initialize(IValidator _validator, bytes32 rid, address _defaultAdmin) public initializer {
-        require(address(_validator) != address(0), "TicTacToe: validator address is invalid");
+    function initialize(IAllianceGamesProof _allianceGamesProof, address _defaultAdmin) public initializer {
+        require(address(_allianceGamesProof) != address(0), "TicTacToe: allianceGamesProof address is invalid");
+        
         __AccessControl_init();
         __Pausable_init();
         __ReentrancyGuard_init();
@@ -58,15 +38,7 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         _grantRole(GAME_CONTROL, _defaultAdmin);
         _grantRole(PAUSER_ROLE, _defaultAdmin);
 
-        validator = _validator;
-        blockchainRid = rid;
-        emit Initialize(_validator);
-    }
-
-    function setBlockchainRid(bytes32 rid) public onlyRole(GAME_CONTROL) {
-        require(rid != bytes32(0), "TicTacToe: blockchain rid is invalid");
-        blockchainRid = rid;
-        emit SetBlockchainRid(rid);
+        allianceGamesProof = _allianceGamesProof;
     }
 
     function pause() external onlyRole(PAUSER_ROLE) {
@@ -77,24 +49,15 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         _unpause();
     }
 
-    function batchClaim(ClaimData[] memory claims) external {
-        require(blockchainRid != bytes32(0), "TicTacToe: blockchain rid is not set");
-
+    function batchClaim(AllianceGamesTypes.ProofData[] memory claims) external {
         for (uint i = 0; i < claims.length; i++) {
-            ClaimData memory claim = claims[i];
+            AllianceGamesTypes.ProofData memory claim = claims[i];
 
             addClaimer(claim.eventProof.leaf, msg.sender);
 
-            require(Hash.hashGtvBytes64Leaf(claim.extraProof.leaf) == claim.extraProof.hashedLeaf, "Postchain: invalid EIF extra data");
-            (, bytes32 blockRid) = Postchain.verifyBlockHeader(blockchainRid, claim.blockHeader, claim.extraProof);
-            bytes32 eventRoot = _bytesToBytes32(claim.extraProof.leaf, 0);
-            
-            if (!validator.isValidSignatures(blockRid, claim.signatures, claim.signers)) revert("TicTacToe: block signature is invalid");
-            if (!MerkleProof.verify(claim.eventProof.merkleProofs, claim.eventProof.leaf, claim.eventProof.position, eventRoot)) revert("TicTacToe: invalid merkle proof");
-            
-            RewardEvent memory evt = abi.decode(claim.eventData, (RewardEvent));
-            require(keccak256(claim.eventData) == claim.eventProof.leaf, "Postchain: invalid event");
-            require(keccak256(claim.encodedData) == evt.rewardHash, "TicTacToe: invalid reward hash");
+            if (!allianceGamesProof.isProofValid(claim)) {
+                revert("TicTacToe: invalid proof");
+            }
 
             GameResult[] memory grs = abi.decode(claim.encodedData, (GameResult[]));
             bool found = false;
@@ -106,7 +69,7 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
             }
             require(found, "TicTacToe: invalid claimer");
             
-            emit RewardClaimed(evt.rewardHash, claim.eventProof.leaf, msg.sender);
+            emit RewardClaimed(claim.eventProof.leaf, msg.sender);
         }
     }
 
@@ -121,12 +84,18 @@ contract TicTacToe is Initializable, PausableUpgradeable, AccessControlUpgradeab
         return _points[pubkey];
     }
 
-    function _bytesToBytes32(bytes memory b, uint offset) internal pure returns (bytes32) {
-        bytes32 out;
-
-        for (uint i = 0; i < 32; i++) {
-            out |= bytes32(b[offset + i] & 0xFF) >> (i * 8);
+    function getClaimStatus(bytes32[] memory eventHashes, address claimer) external view returns (bool[] memory) {
+        bool[] memory claimsStatus = new bool[](eventHashes.length);
+        
+        for (uint i = 0; i < eventHashes.length; i++) {
+            claimsStatus[i] = false; // Default to not claimed
+            for (uint j = 0; j < _eventClaimers[eventHashes[i]].length; j++) {
+                if (_eventClaimers[eventHashes[i]][j] == claimer) {
+                    claimsStatus[i] = true; // Claimed
+                }
+            }
         }
-        return out;
+        
+        return claimsStatus;
     }
 }

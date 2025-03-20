@@ -7,8 +7,7 @@ const TicTacToeModule = buildModule("TicTacToeModule", (m) => {
   const ticTacToe = m.contract("TicTacToe");
 
   m.call(ticTacToe, "initialize", [
-    "0x91c08e907b0aA3AbcB1280112A3a5C49D11B2006", // validator
-    "0x63F766110ED31818038A323D849ECBA64E85ABA5104E6D7F24014CEF2F0756A5", // rid
+    "0x8c10d38b33969fa5B901978ff862d1331254405B", // alliancesGamesProof
     "0xc328ff8De8A468D090A48dE40ae8e623B0725Ed8" // default admin
   ]);
 

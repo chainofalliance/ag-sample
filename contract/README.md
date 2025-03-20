@@ -16,6 +16,7 @@ npx hardhat ignition deploy ./ignition/modules/Lock.ts
 npx hardhat clean
 npx hardhat compile
 npx hardhat ignition deploy ignition/modules/Validator.ts --network testnet --verify
+npx hardhat ignition deploy ignition/modules/AllianceGamesProof.ts --network testnet --verify
 npx hardhat ignition deploy ignition/modules/TicTacToe.ts --network testnet --verify
 npx hardhat vars set BNB_PRIVATE_KEY
 npx hardhat vars set BSCSCAN_API_KEY
