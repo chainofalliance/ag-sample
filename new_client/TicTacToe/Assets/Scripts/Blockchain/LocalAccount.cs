@@ -72,6 +72,18 @@ public class LocalAccount : IAccount
         return await function.EstimateGasAsync(Address, null, null, parameters);
     }
 
+    public async UniTask<T> ReadContract<T>(
+        string contractAddress,
+        string abi,
+        string methodName,
+        object[] parameters
+    )
+    {
+        var contract = web3.Eth.GetContract(abi, contractAddress);
+        var function = contract.GetFunction(methodName);
+        return await function.CallAsync<T>(parameters);
+    }
+
     private string LoadOrCreatePrivateKey()
     {
         if (PlayerPrefs.HasKey(PRIVKEY_PLAYER_PREFS_KEY))

@@ -347,6 +347,7 @@ internal class Logic
     {
         if (server.IsRunning)
         {
+            await Task.Delay(1000);
             await server.Stop(reward);
         }
 

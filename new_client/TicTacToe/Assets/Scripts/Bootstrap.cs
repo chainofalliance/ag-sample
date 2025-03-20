@@ -7,7 +7,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using TTT.Components;
-using Newtonsoft.Json.Utilities;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -247,10 +246,5 @@ public class Bootstrap : MonoBehaviour
                 gameController.SetVisible(true);
                 break;
         }
-    }
-
-    private void EnsureAot()
-    {
-        AotHelper.EnsureList<bool>();
     }
 }

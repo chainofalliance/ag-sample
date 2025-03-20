@@ -5,8 +5,6 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.Hex.HexTypes;
-using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Util;
 using Nethereum.Web3;
 using Reown.AppKit.Unity;
@@ -24,14 +22,12 @@ public class TicTacToeContract
     private const string CONTRACT_ADDRESS = "0x21F3031936918685c29E37aCba99Af05D5275a60";
 
     private readonly IAccount account;
-    private readonly Web3 web3;
     private readonly string abi;
 
     public TicTacToeContract(IAccount account)
     {
         this.account = account;
         abi = Resources.Load<TextAsset>("TicTacToeAbi").text;
-        web3 = new Web3(RPC_URL);
     }
 
     public async Task<int> GetPoints(string address)
@@ -80,11 +76,15 @@ public class TicTacToeContract
 
     public async Task<List<bool>> GetClaimStatus(Queries.EifEventData[] eventData)
     {
-        var contract = web3.Eth.GetContract(abi, CONTRACT_ADDRESS);
-        var function = contract.GetFunction("getClaimStatus");
-        return await function.CallAsync<List<bool>>(
-            eventData.Select(e => CryptoUtils.ToBytesLike(e.EventHash)).ToArray(),
-            account.Address
+        return await account.ReadContract<List<bool>>(
+            CONTRACT_ADDRESS,
+            abi,
+            "getClaimStatus",
+            new object[]
+            {
+                eventData.Select(e => CryptoUtils.ToBytesLike(e.EventHash)).ToArray(),
+                account.Address
+            }
         );
     }
 

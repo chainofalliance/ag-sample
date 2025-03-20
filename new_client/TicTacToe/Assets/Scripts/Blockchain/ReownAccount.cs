@@ -59,4 +59,18 @@ public class ReownAccount : IAccount
         );
     }
 
+    public async UniTask<T> ReadContract<T>(
+        string contractAddress,
+        string abi,
+        string methodName,
+        object[] parameters
+    )
+    {
+        return await AppKit.Evm.ReadContractAsync<T>(
+            contractAddress,
+            abi,
+            methodName,
+            parameters
+        );
+    }
 }
