@@ -158,6 +158,11 @@ public class GameView
         modalResult.SetClaimState(canClaim);
     }
 
+    public void DisableClaimButton()
+    {
+        modalResult.DisableClaimButton();
+    }
+
     public void CloseGameResult()
     {
         modalResult.SetVisible(false);

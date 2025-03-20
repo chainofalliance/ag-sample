@@ -44,6 +44,10 @@ public class MenuController
         {
             Application.OpenURL($"https://alliance-games-explorer.vercel.app/address/{accountManager.AddressWithoutPrefix}/sessions");
         };
+        view.OnClickAddressLink += () =>
+        {
+            Application.OpenURL($"https://testnet.bscscan.com/address/{accountManager.Address}");
+        };
 
         AutoPlayerInfoUpdate();
     }
@@ -112,9 +116,19 @@ public class MenuController
             }
 
             view.SetMatchmakingStatus("Waiting for a match...");
-            var (sessionId, node) = await WaitForMatch(matchmakingService, ticketId, cts.Token);
-
+            var result = await WaitForMatch(matchmakingService, ticketId, cts.Token);
             cts?.CancelAndDispose();
+
+            if (result == null)
+            {
+                Debug.Log("Failed to get match");
+                view.CloseWaitingForMatch();
+                timerCts?.CancelAndDispose();
+                timerCts = null;
+                return;
+            }
+
+            var (sessionId, node) = result.Value;
 
             var uriBuilder = new UriBuilder(node);
             if (uriBuilder.Host == "host.docker.internal")
@@ -172,7 +186,7 @@ public class MenuController
         }, ct);
     }
 
-    private async UniTask<(string sessionId, string node)> WaitForMatch(
+    private async UniTask<(string sessionId, string node)?> WaitForMatch(
         IMatchmakingService matchmakingService,
         string ticketId,
         CancellationToken ct
@@ -190,6 +204,10 @@ public class MenuController
             {
                 sessionId = ticket.SessionId;
                 break;
+            }
+            else if (ticket.Status == MatchmakingTicketState.Closed)
+            {
+                return null;
             }
 
             Debug.Log($"Waiting for match with ticket ID {ticketId}...\nStatus: {ticket.Status}");

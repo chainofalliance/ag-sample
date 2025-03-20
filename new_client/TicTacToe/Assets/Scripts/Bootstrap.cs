@@ -198,6 +198,7 @@ public class Bootstrap : MonoBehaviour
                 Application.OpenURL($"https://testnet.bscscan.com/tx/{result}");
             });
             await modalInfo.Show("Claiming Success!", $"{claimData.Count} reward{(claimData.Count == 1 ? "" : "s")} claimed at transaction hash <color=cyan><u>{result}</u></color>");
+            gameController.OnSuccessfulClaim();
         }
         catch (Exception e)
         {

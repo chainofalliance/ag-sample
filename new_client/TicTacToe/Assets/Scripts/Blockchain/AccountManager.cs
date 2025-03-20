@@ -21,6 +21,8 @@ public class AccountManager
     public SignatureProvider SignatureProvider { get; set; }
     public TicTacToeContract TicTacToeContract { get; private set; }
 
+    public bool LoggingIn { get; private set; } = false;
+
     private BlockchainConnectionManager connectionManager;
 
     public bool IsMyAddress(string address)
@@ -59,6 +61,7 @@ public class AccountManager
 
     private async void OnAccountConnected(object sender, Connector.AccountConnectedEventArgs eventArgs)
     {
+        LoggingIn = true;
         try
         {
             Debug.Log("AccountManager: New Account Connected!");
@@ -76,5 +79,6 @@ public class AccountManager
     {
         TicTacToeContract = new TicTacToeContract(Account);
         OnAddressConnected?.Invoke(Address);
+        LoggingIn = false;
     }
 }

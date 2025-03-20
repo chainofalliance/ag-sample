@@ -11,6 +11,7 @@ public class MenuView
     public event Action OnClaim;
     public event Action OnPlayPve;
     public event Action OnPlayPvp;
+    public event Action OnClickAddressLink;
 
     public event Action OnClickViewAllSessions
     {
@@ -28,6 +29,7 @@ public class MenuView
     private readonly Button playPveButton;
     private readonly Button playPvpButton;
     private readonly Label labelAddress;
+    private readonly Button buttonAddressLink;
     private readonly Label labelBalance;
     private readonly Label labelPointsChr;
     private readonly Label labelPointsEvm;
@@ -47,6 +49,8 @@ public class MenuView
         this.root = root;
 
         labelAddress = root.Q<Label>("LabelAddressValue");
+        buttonAddressLink = root.Q<Button>("ButtonAddressLink");
+        buttonAddressLink.clicked += () => OnClickAddressLink?.Invoke();
         labelBalance = root.Q<Label>("LabelBalanceValue");
         labelPointsChr = root.Q<Label>("LabelPointsValueChr");
         labelPointsEvm = root.Q<Label>("LabelPointsValueEvm");

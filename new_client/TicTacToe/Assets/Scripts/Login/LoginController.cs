@@ -17,14 +17,10 @@ public class LoginController
         view.OnGuestLogin += OnGuestLogin;
         accountManager.OnLoginFailed += OnLoginFailed;
 
-        AppKit.ModalController.OpenStateChanged += (sender, eventArgs) =>
+        accountManager.OnAddressConnected += (address) =>
         {
-            if (!eventArgs.IsOpen)
-            {
-                view.CloseInfo();
-            }
+            view.OpenInfo("Waiting for wallet connection...");
         };
-
 
 #if UNTIY_WEBGL && !UNITY_EDITOR
         view.DisableGuestLogin();
@@ -40,7 +36,6 @@ public class LoginController
     private void OnWalletLogin()
     {
         AppKit.OpenModal();
-        view.OpenInfo("Waiting for wallet connection...");
     }
 
     private void OnGuestLogin()

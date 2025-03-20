@@ -86,6 +86,13 @@ namespace TTT.Components
             claimButton.MarkDirtyRepaint();
         }
 
+        public void DisableClaimButton()
+        {
+            claimButton.text = "Claimed points!";
+            claimButton.SetEnabled(false);
+            claimButton.MarkDirtyRepaint();
+        }
+
         public void Resolve(
             string sessionId,
             bool? amIWinner,

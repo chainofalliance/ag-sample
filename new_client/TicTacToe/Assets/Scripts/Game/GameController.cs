@@ -89,6 +89,11 @@ public class GameController
         }
     }
 
+    public void OnSuccessfulClaim()
+    {
+        view.DisableClaimButton();
+    }
+
     public async Task<bool> StartGame(Uri nodeUri, string matchId)
     {
         Debug.Log("StartGame");
