@@ -127,7 +127,7 @@ public class GameController
             RegisterHandlers();
 
             var response = await Request<PlayerDataResponse>(
-                new Messages.PlayerDataRequest(),
+                new PlayerDataRequest(),
                 cts.Token
             );
 
@@ -172,14 +172,14 @@ public class GameController
 
     private void RegisterHandlers()
     {
-        allianceGamesClient.RegisterMessageHandler((int)Messages.Header.Sync, async data =>
+        allianceGamesClient.RegisterMessageHandler((int)Header.Sync, async data =>
         {
             try
             {
                 var sync = Decode<Sync>(data);
                 view.SetBoard(sync.Fields.ToList());
 
-                if (sync.Turn == Messages.Field.X)
+                if (sync.Turn == Field.X)
                 {
                     view.StartTurn(Field.X);
                     view.EndTurn(Field.O);
@@ -212,7 +212,7 @@ public class GameController
             }
         });
 
-        allianceGamesClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
+        allianceGamesClient.RegisterMessageHandler((int)Header.MoveRequest, async data =>
         {
             try
             {
@@ -223,7 +223,7 @@ public class GameController
                 Debug.Log($"Send move response {idx}.");
 
                 var response = Encode(new MoveResponse(idx));
-                await allianceGamesClient.Send((int)Messages.Header.MoveResponse, response, cts.Token);
+                await allianceGamesClient.Send((int)Header.MoveResponse, response, cts.Token);
             }
             catch (Exception e)
             {

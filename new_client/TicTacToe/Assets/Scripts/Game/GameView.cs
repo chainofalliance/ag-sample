@@ -63,6 +63,10 @@ public class GameView
     public void SetVisible(bool visible)
     {
         root.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        if (!visible)
+        {
+            Reset();
+        }
     }
 
     public void Populate(

@@ -18,9 +18,11 @@ public class MenuController
     private readonly string PVP_QUEUE_NAME = "pvp";
 
     private readonly MenuView view;
+    private readonly IMatchmakingService matchmakingService;
     private readonly BlockchainConnectionManager connectionManager;
     private readonly AccountManager accountManager;
     private readonly Action<Uri, string> OnStartGame;
+    private string duid;
     private Queries.EifEventData[] unclaimedRewards;
     private CancellationTokenSource timerCts;
     private CancellationTokenSource updateCts;
@@ -36,6 +38,10 @@ public class MenuController
         this.connectionManager = connectionManager;
         this.accountManager = accountManager;
         this.OnStartGame = OnStartGame;
+        this.duid = DUID;
+
+        matchmakingService = MatchmakingServiceFactory.Get(
+            connectionManager.AlliancesGamesClient, accountManager.SignatureProvider);
 
         view.OnPlayPve += OpenPvEMatchmaking;
         view.OnPlayPvp += OpenPvPMatchmaking;
@@ -78,7 +84,15 @@ public class MenuController
         var tttUpdate = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
         unclaimedRewards = await accountManager.GetUnclaimedEifEvents();
 
+        duid ??= await MatchmakingService.GetDuid(connectionManager.AlliancesGamesClient, DISPLAY_NAME, CancellationToken.None);
+        var playersInQueue = await matchmakingService.GetAmountTicketsInQueue(new()
+        {
+            Duid = duid,
+            QueueName = PVP_QUEUE_NAME
+        }, CancellationToken.None);
+
         var balanceString = accountManager.Account.Balance == BigInteger.Zero ? "0 (Get TBNB from faucet)" : accountManager.Balance;
+        view.SetPlayersInQueue(playersInQueue);
         view.SetPlayerUpdate(tttUpdate, pointsEvm, balanceString, unclaimedRewards.Length > 0);
         view.SetAddress(address);
     }
@@ -98,11 +112,6 @@ public class MenuController
     {
         var cts = new CancellationTokenSource();
 
-        var matchmakingService = MatchmakingServiceFactory.Get(
-            connectionManager.AlliancesGamesClient, accountManager.SignatureProvider);
-        var duid = DUID;
-        duid ??= await MatchmakingService.GetDuid(connectionManager.AlliancesGamesClient, DISPLAY_NAME, cts.Token);
-
         RunMatchmaking(cts, matchmakingService, duid).Forget();
 
         try
@@ -112,6 +121,10 @@ public class MenuController
             if (string.IsNullOrEmpty(ticketId))
             {
                 Debug.Log("Failed to get ticket ID");
+                view.ShowError("Matchmaking ticket closed", "Failed to create matchmaking ticket. Please try again.");
+                view.CloseWaitingForMatch();
+                timerCts?.CancelAndDispose();
+                timerCts = null;
                 return;
             }
 
@@ -121,7 +134,6 @@ public class MenuController
 
             if (result == null)
             {
-                Debug.Log("Failed to get match");
                 view.CloseWaitingForMatch();
                 timerCts?.CancelAndDispose();
                 timerCts = null;
@@ -207,6 +219,7 @@ public class MenuController
             }
             else if (ticket.Status == MatchmakingTicketState.Closed)
             {
+                view.ShowError("Matchmaking ticket closed", "The matchmaking ticket has been closed. Please try again.");
                 return null;
             }
 

@@ -37,8 +37,10 @@ public class MenuView
     private readonly Label labelWonMatches;
     private readonly Label labelDrawMatches;
     private readonly Label labelLostMatches;
+    private readonly Label labelPlayersInQueue;
     private readonly TableSessions tableSessions;
     private readonly ModalMatchmaking modalMatchmaking;
+    private readonly ModalInfo modalInfo;
 
     private readonly VisualElement containerUnclaimedPoints;
     private readonly Label labelUnclaimedPointsValue;
@@ -58,11 +60,13 @@ public class MenuView
         labelWonMatches = root.Q<Label>("LabelWonMatchesValue");
         labelDrawMatches = root.Q<Label>("LabelDrawMatchesValue");
         labelLostMatches = root.Q<Label>("LabelLoseMatchesValue");
+        labelPlayersInQueue = root.Q<Label>("LabelPlayersInQueue");
 
         var tableElem = root.Q<VisualElement>("SectionLastSessions");
         tableSessions = tableElem.Q<TableSessions>();
 
         modalMatchmaking = root.panel.visualTree.Q("ModalMatchmaking").Q<ModalMatchmaking>();
+        modalInfo = root.panel.visualTree.Q("ModalInfo").Q<ModalInfo>();
 
         containerUnclaimedPoints = root.Q<VisualElement>("ContainerUnclaimedPoints");
         containerUnclaimedPoints.style.display = DisplayStyle.None;
@@ -94,6 +98,11 @@ public class MenuView
     public void SetAddress(string address)
     {
         labelAddress.text = Util.FormatAddress(address);
+    }
+
+    public void SetPlayersInQueue(int playersInQueue)
+    {
+        labelPlayersInQueue.text = $"{playersInQueue} player{(playersInQueue != 1 ? "s" : "")} in queue";
     }
 
     public void SetPlayerUpdate(PlayerUpdate update, int pointsEvm, string balance, bool canClaim)
@@ -133,6 +142,11 @@ public class MenuView
         }
 
         tableSessions.Populate(update.History);
+    }
+
+    public void ShowError(string title, string message)
+    {
+        modalInfo.Show(title, message).Forget();
     }
 
     public void OpenMatchmaking()
