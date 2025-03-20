@@ -133,7 +133,18 @@ namespace TTT.Components
                 homeInfo.Populate(home, amIWinner.HasValue && amIWinner.Value);
                 awayInfo.Populate(away, amIWinner.HasValue && !amIWinner.Value);
 
-                labelPointsGainedValue.text = amIWinner.HasValue && amIWinner.Value ? "100" : "50";
+                if (!amIWinner.HasValue)
+                {
+                    labelPointsGainedValue.text = "50";
+                }
+                else if (amIWinner.Value)
+                {
+                    labelPointsGainedValue.text = "100";
+                }
+                else
+                {
+                    labelPointsGainedValue.text = "25";
+                }
                 labelSessionValue.text = Util.FormatAddress(sessionId);
             }
             catch

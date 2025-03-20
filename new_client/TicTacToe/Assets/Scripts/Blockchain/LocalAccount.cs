@@ -43,7 +43,7 @@ public class LocalAccount : IAccount
     {
         var contract = web3.Eth.GetContract(abi, contractAddress);
         var function = contract.GetFunction(methodName);
-        var transactionInput = function.CreateTransactionInput(Address, estimatedGas, new HexBigInteger(0), parameters);
+        var transactionInput = function.CreateTransactionInput(Address, new HexBigInteger(estimatedGas), new HexBigInteger(0), parameters);
 
         transactionInput.ChainId = new HexBigInteger(97);
         transactionInput.GasPrice = new HexBigInteger(Web3.Convert.ToWei(1, UnitConversion.EthUnit.Gwei));

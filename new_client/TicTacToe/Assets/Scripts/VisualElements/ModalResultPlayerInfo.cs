@@ -28,7 +28,6 @@ namespace TTT.Components
 
         public void Populate(PlayerData data, bool isWinner)
         {
-            UnityEngine.Debug.Log($"Populate: {data.Address} {isWinner} {data.IsMe} {data.Symbol}");
             addressLabel.text = Util.FormatAddress(data.Address);
             winTracker.Set(isWinner ? WINNER : "");
             symbolTracker.Set($"{SYMBOL}{data.Symbol.ToString().ToLower()}");
