@@ -140,7 +140,7 @@ public class GameController
                 {
                     Address = address,
                     Symbol = player.Symbol,
-                    IsMe = accountManager.Address == address,
+                    IsMe = accountManager.IsMyAddress(address),
                 });
             }
 
@@ -293,6 +293,7 @@ public class GameController
 
         var winner = gameOver.Winner?.Parse();
         var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
+        Debug.Log($"Winner: {winner} {accountManager.Address} {amIWinner}");
 
         CheckClaimState(openGameResultCts.Token).Forget();
         var res = await view.OpenGameResult(sessionId, amIWinner, playerData, gameOver.IsForfeit, openGameResultCts.Token);

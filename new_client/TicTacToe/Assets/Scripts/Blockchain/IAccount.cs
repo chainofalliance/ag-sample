@@ -1,5 +1,6 @@
 using System.Numerics;
 using Cysharp.Threading.Tasks;
+using Nethereum.Hex.HexTypes;
 
 public interface IAccount
 {
@@ -12,6 +13,7 @@ public interface IAccount
         string contractAddress,
         string abi,
         string methodName,
+        HexBigInteger gasLimit,
         object[] parameters
     );
 }

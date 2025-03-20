@@ -19,7 +19,7 @@ public class GameView
     private readonly CellElement[] cells;
     private readonly ModalCancelGame modalCancel;
     private readonly ModalResult modalResult;
-    private readonly ModalError modalError;
+    private readonly ModalInfo modalInfo;
     private readonly Label labelSessionId;
     private readonly Button buttonViewInExplorer;
 
@@ -47,7 +47,7 @@ public class GameView
 
         modalCancel = root.panel.visualTree.Q("ModalCancelGame").Q<ModalCancelGame>();
         modalResult = root.panel.visualTree.Q("ModalGameResult").Q<ModalResult>();
-        modalError = root.panel.visualTree.Q("ModalError").Q<ModalError>();
+        modalInfo = root.panel.visualTree.Q("ModalInfo").Q<ModalInfo>();
 
         labelSessionId = root.Q<Label>("LabelSessionIdValue");
         buttonViewInExplorer = root.Q<Button>("ButtonViewInExplorer");
@@ -130,11 +130,7 @@ public class GameView
 
     public async UniTask OpenError(string info, CancellationToken ct)
     {
-        modalError.SetTitle("Something went wrong");
-        modalError.SetInfo(info);
-        modalError.SetVisible(true);
-        await modalError.OnDialogAction.Task(ct);
-        modalError.SetVisible(false);
+        await modalInfo.ShowError(info);
     }
 
     public async UniTask<ModalAction> OpenGameResult(

@@ -12,7 +12,7 @@ public class LoginView
     private readonly VisualElement root;
     private readonly Button walletLoginButton;
     private readonly Button guestLoginButton;
-    private readonly ModalError modalError;
+    private readonly ModalInfo modalInfo;
 
     public LoginView(VisualElement root)
     {
@@ -20,7 +20,7 @@ public class LoginView
 
         walletLoginButton = root.Q<Button>("ButtonConnectWallet");
         guestLoginButton = root.Q<Button>("ButtonLoginGuest");
-        modalError = root.panel.visualTree.Q("ModalError").Q<ModalError>();
+        modalInfo = root.panel.visualTree.Q("ModalInfo").Q<ModalInfo>();
 
         walletLoginButton.clicked += () => OnWalletLogin?.Invoke();
         guestLoginButton.clicked += () => OnGuestLogin?.Invoke();
@@ -48,24 +48,16 @@ public class LoginView
 
     public async UniTask OpenError(string error, CancellationToken ct)
     {
-        modalError.SetTitle("Something went wrong");
-        modalError.SetInfo(error);
-        modalError.SetVisible(true);
-        await modalError.OnDialogAction.Task(ct);
-        modalError.SetVisible(false);
+        await modalInfo.ShowError(error, ct: ct);
     }
 
     public void OpenInfo(string info)
     {
-        modalError.SetTitle(info);
-        modalError.SetInfo("");
-        modalError.SetVisible(true);
-        modalError.SetButton(false);
+        modalInfo.ShowInfo("Login", info);
     }
 
     public void CloseInfo()
     {
-        modalError.SetVisible(false);
-        modalError.SetButton(true);
+        modalInfo.Close();
     }
 }

@@ -1,8 +1,10 @@
 using System.Numerics;
 using Cysharp.Threading.Tasks;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Util;
 using Nethereum.Web3;
 using Reown.AppKit.Unity;
+using Reown.AppKit.Unity.WebGl.Wagmi;
 using Reown.Sign.Models;
 using UnityEngine;
 
@@ -27,40 +29,18 @@ public class ReownAccount : IAccount
         string contractAddress,
         string abi,
         string methodName,
+        HexBigInteger gasLimit,
         object[] parameters
     )
     {
-        if (!await HasEnoughGas(contractAddress, abi, methodName, parameters))
-        {
-            Debug.LogError("Insufficient funds for gas.");
-            return null;
-        }
-
         var transactionHash = await AppKit.Evm.WriteContractAsync(
             contractAddress,
             abi,
             methodName,
+            gasLimit,
             parameters
         );
         Debug.Log($"Transaction Sent. Hash: {transactionHash}");
         return transactionHash;
-    }
-
-    private async UniTask<bool> HasEnoughGas(
-        string contractAddress,
-        string abi,
-        string methodName,
-        object[] parameters
-    )
-    {
-        await SyncBalance();
-        var gasLimit = await AppKit.Evm.EstimateGasAsync(
-            contractAddress,
-            abi,
-            methodName,
-            0,
-            parameters
-        );
-        return Balance >= gasLimit * Web3.Convert.ToWei(1, UnitConversion.EthUnit.Gwei);
     }
 }

@@ -8,7 +8,7 @@ using Buffer = Chromia.Buffer;
 
 public class MenuController
 {
-    public event Action OnClaim;
+    public event Action<Queries.EifEventData[]> OnClaim;
 
     private readonly string DUID = null;
     private readonly string DISPLAY_NAME = "TicTacToe";
@@ -86,7 +86,7 @@ public class MenuController
             return;
         }
 
-        OnClaim?.Invoke();
+        OnClaim?.Invoke(unclaimedRewards);
     }
 
     private async void OnPlay(string queueName)

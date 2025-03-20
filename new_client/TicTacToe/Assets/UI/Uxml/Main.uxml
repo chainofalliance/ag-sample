@@ -5,7 +5,7 @@
     <engine:Template name="ModalMatchmaking" src="project://database/Assets/UI/Uxml/Components/Modal/ModalMatchmaking.uxml?fileID=9197481963319205126&amp;guid=2c175e848c9a77945a88eb51cb63c0cf&amp;type=3#ModalMatchmaking" />
     <engine:Template name="ModalResult" src="project://database/Assets/UI/Uxml/Components/ModalResult/ModalResult.uxml?fileID=9197481963319205126&amp;guid=97e99f2b8fa8e2c4eb779816cb36ebf5&amp;type=3#ModalResult" />
     <engine:Template name="ModalCancelGame" src="project://database/Assets/UI/Uxml/Components/Modal/ModalCancelGame.uxml?fileID=9197481963319205126&amp;guid=d51201d2205aed844bf1ae8623db955d&amp;type=3#ModalCancelGame" />
-    <engine:Template name="ModalError" src="project://database/Assets/UI/Uxml/Components/Modal/ModalError.uxml?fileID=9197481963319205126&amp;guid=57efaca496ed4a14aa9ad1fb233a4383&amp;type=3#ModalError" />
+    <engine:Template name="ModalInfo" src="project://database/Assets/UI/Uxml/Components/Modal/ModalInfo.uxml?fileID=9197481963319205126&amp;guid=57efaca496ed4a14aa9ad1fb233a4383&amp;type=3#ModalInfo" />
     <engine:Instance template="LoginScreen" name="LoginScreen" style="width: 100%; height: 100%; display: flex;" />
     <engine:VisualElement name="ContainerWithSideBar" style="flex-grow: 1; flex-direction: row; display: none;">
         <engine:VisualElement name="SideBar" style="flex-grow: 0; background-color: rgb(0, 0, 0);">
@@ -43,5 +43,5 @@
     <engine:Instance template="ModalMatchmaking" name="ModalMatchmaking" style="position: absolute; width: 100%; height: 100%; display: none;" />
     <engine:Instance template="ModalResult" name="ModalGameResult" style="position: absolute; width: 100%; height: 100%; display: none;" />
     <engine:Instance template="ModalCancelGame" name="ModalCancelGame" style="position: absolute; width: 100%; height: 100%; display: none;" />
-    <engine:Instance template="ModalError" name="ModalError" style="position: absolute; width: 100%; height: 100%; display: none;" />
+    <engine:Instance template="ModalInfo" name="ModalInfo" style="position: absolute; width: 100%; height: 100%; display: none;" />
 </engine:UXML>

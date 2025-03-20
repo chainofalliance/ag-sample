@@ -26,7 +26,6 @@ public class AccountManager
     public AccountManager()
     {
         AppKit.AccountConnected += OnAccountConnected;
-
         SignatureProvider = SignatureProvider.Create();
     }
 

@@ -100,9 +100,9 @@ public class Queries
         );
     }
 
-    public static async Task<ChromiaTypes.MerkleProof> GetEventMerkleProof(ChromiaClient client, Buffer eventHash)
+    public static async Task<ChromiaTypes.MerkleProof?> GetEventMerkleProof(ChromiaClient client, Buffer eventHash)
     {
-        return await client.Query<ChromiaTypes.MerkleProof>(
+        return await client.Query<ChromiaTypes.MerkleProof?>(
             "get_event_merkle_proof",
             ("eventHash", eventHash.Parse())
         );

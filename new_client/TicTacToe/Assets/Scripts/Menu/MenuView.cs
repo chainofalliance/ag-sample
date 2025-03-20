@@ -117,9 +117,9 @@ public class MenuView
 
         labelBalance.text = balance;
 
-        if (canClaim)
+        var unclaimedPoints = info?.Points - pointsEvm ?? 0;
+        if (canClaim && unclaimedPoints > 0)
         {
-            var unclaimedPoints = info.Points - pointsEvm;
             containerUnclaimedPoints.style.display = DisplayStyle.Flex;
             labelUnclaimedPointsValue.text = unclaimedPoints.ToString();
         }

@@ -35,19 +35,12 @@ public class LocalAccount : IAccount
         string contractAddress,
         string abi,
         string methodName,
+        HexBigInteger estimatedGas,
         object[] parameters
     )
     {
         var contract = web3.Eth.GetContract(abi, contractAddress);
         var function = contract.GetFunction(methodName);
-
-        var estimatedGas = await function.EstimateGasAsync(Address, null, null, parameters);
-        if (!await HasEnoughGas(estimatedGas.Value))
-        {
-            Debug.LogError("Insufficient funds for gas.");
-            return null;
-        }
-
         var transactionInput = function.CreateTransactionInput(Address, estimatedGas, new HexBigInteger(0), parameters);
 
         transactionInput.ChainId = new HexBigInteger(97);
@@ -58,16 +51,6 @@ public class LocalAccount : IAccount
         Debug.Log($"Transaction Sent. Hash: {transactionHash}");
 
         return transactionHash;
-    }
-
-    private async UniTask<bool> HasEnoughGas(BigInteger estimatedGas)
-    {
-        await SyncBalance();
-        var gasCost = estimatedGas * Web3.Convert.ToWei(1, UnitConversion.EthUnit.Gwei);
-
-        Debug.Log($"Balance: {balanceWei.Value} Wei, Estimated Gas Cost: {gasCost} Wei");
-
-        return balanceWei.Value >= gasCost;
     }
 
     private string LoadOrCreatePrivateKey()

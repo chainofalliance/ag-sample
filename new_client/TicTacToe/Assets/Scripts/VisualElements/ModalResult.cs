@@ -68,6 +68,7 @@ namespace TTT.Components
 
         private void Reset()
         {
+            UnityEngine.Debug.Log("Reset");
             homeInfo.Reset();
             awayInfo.Reset();
             viewInExplorerButton.clicked -= openLinkAction;
@@ -99,6 +100,11 @@ namespace TTT.Components
                 openLinkAction = () => OpenLinkToExplorer(sessionId);
                 viewInExplorerButton.clicked += openLinkAction;
 
+                foreach (var p in player)
+                {
+                    UnityEngine.Debug.Log($"Player: {p.Address} {p.IsMe} {p.Symbol} {p.IsAI}");
+                }
+
                 var home = player.Find(e => e.IsMe);
                 var away = player.Find(e => !e.IsMe);
 
@@ -114,6 +120,8 @@ namespace TTT.Components
                 {
                     labelTitle.text = amIWinner.Value ? "You Win" : "You Lose";
                 }
+
+                UnityEngine.Debug.Log($"Home: {home.Address} {amIWinner.HasValue && amIWinner.Value}");
 
                 homeInfo.Populate(home, amIWinner.HasValue && amIWinner.Value);
                 awayInfo.Populate(away, amIWinner.HasValue && !amIWinner.Value);

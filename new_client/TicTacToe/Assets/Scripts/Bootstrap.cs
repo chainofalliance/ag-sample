@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;
+using TTT.Components;
+using System.Threading;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -24,6 +26,8 @@ public class Bootstrap : MonoBehaviour
     private MenuController menuController;
     private GameController gameController;
     private NavbarController navbarController;
+
+    private ModalInfo modalInfo;
 
     private BlockchainConnectionManager connectionManager;
     private AccountManager accountManager;
@@ -43,6 +47,7 @@ public class Bootstrap : MonoBehaviour
     private async void Start()
     {
         root = mainDocument.rootVisualElement;
+        modalInfo = mainDocument.rootVisualElement.Q("ModalInfo").Q<ModalInfo>();
         var loginElement = mainDocument.rootVisualElement.Q<VisualElement>("LoginScreen");
         var menuElement = mainDocument.rootVisualElement.Q<VisualElement>("MenuScreen");
         var gameElement = mainDocument.rootVisualElement.Q<VisualElement>("GameScreen");
@@ -66,7 +71,7 @@ public class Bootstrap : MonoBehaviour
 
         var menuView = new MenuView(menuElement);
         menuController = new MenuController(menuView, connectionManager, accountManager, OnStartGame);
-        menuController.OnClaim += OnClaim;
+        menuController.OnClaim += (unclaimedRewards) => OnClaim(unclaimedRewards);
 
         var gameView = new GameView(gameElement);
         gameController = new GameController(gameView, accountManager, connectionManager, OnEndGame);
@@ -74,7 +79,7 @@ public class Bootstrap : MonoBehaviour
         {
             gameController.OpenCancelGame();
         };
-        gameController.OnClaim += OnClaim;
+        gameController.OnClaim += () => OnClaim(null);
 
         accountManager.OnAddressConnected += async (_) =>
         {
@@ -146,27 +151,57 @@ public class Bootstrap : MonoBehaviour
         );
     }
 
-    private async void OnClaim()
+    private async void OnClaim(Queries.EifEventData[] unclaimedRewards)
     {
-        var unclaimedRewards = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(accountManager.Address));
-
-        var claimData = new List<TicTacToeContract.ClaimData>();
-        foreach (var e in unclaimedRewards)
+        try
         {
-            var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
-            var merkleProof = EIFUtils.Construct(rawMerkleProof);
-            claimData.Add(new TicTacToeContract.ClaimData
+            const string title = "Claiming rewards...";
+            modalInfo.ShowInfo(title, "Fetching unclaimed rewards...");
+            unclaimedRewards ??= await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Buffer.From(accountManager.Address));
+
+            if (unclaimedRewards.Length == 0)
             {
-                EventWithProof = merkleProof,
-                EncodedData = e.EncodedData
+                await modalInfo.ShowError("No unclaimed rewards.");
+                return;
+            }
+
+            modalInfo.ShowInfo(title, "Fetching proof events for rewards...");
+            var claimData = new List<TicTacToeContract.ClaimData>();
+            foreach (var e in unclaimedRewards)
+            {
+                var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
+                if (!rawMerkleProof.HasValue)
+                {
+                    await modalInfo.ShowError($"Failed to get merkle proof for event: {e.EventHash}");
+                    modalInfo.ShowInfo(title, "Fetching proof events for rewards...");
+                    continue;
+                }
+
+                var merkleProof = EIFUtils.Construct(rawMerkleProof.Value);
+                claimData.Add(new TicTacToeContract.ClaimData
+                {
+                    EventWithProof = merkleProof,
+                    EncodedData = e.EncodedData
+                });
+            }
+
+            modalInfo.ShowInfo(title, "Claiming rewards...");
+            var result = await accountManager.TicTacToeContract.ClaimBatch(claimData.ToArray());
+            Debug.Log($"Claim result: {result}");
+
+            modalInfo.ShowInfo(title, "Syncing player data...");
+            await menuController.UpdatePlayerInfo();
+
+            modalInfo.SetInfoClickCallback(() =>
+            {
+                Application.OpenURL($"https://testnet.bscscan.com/tx/{result}");
             });
+            await modalInfo.Show("Claiming Success!", $"{claimData.Count} reward{(claimData.Count == 1 ? "" : "s")} claimed at transaction hash <color=blue><u>{result}</u></color>.");
         }
-
-        var result = await accountManager.TicTacToeContract.ClaimBatch(claimData.ToArray());
-
-        Debug.Log($"Claim result: {result}");
-
-        await menuController.UpdatePlayerInfo();
+        catch (Exception e)
+        {
+            await modalInfo.ShowError($"Failed to claim rewards", e);
+        }
     }
 
     private async void OnStartGame(Uri nodeUri, string matchId)

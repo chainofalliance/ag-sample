@@ -16,6 +16,14 @@ public class LoginController
         view.OnWalletLogin += OnWalletLogin;
         view.OnGuestLogin += OnGuestLogin;
         accountManager.OnLoginFailed += OnLoginFailed;
+
+        AppKit.ModalController.OpenStateChanged += (sender, eventArgs) =>
+        {
+            if (!eventArgs.IsOpen)
+            {
+                view.CloseInfo();
+            }
+        };
     }
 
     public void SetVisible(bool visible)
