@@ -36,6 +36,7 @@ internal class Logic
             throw new Exception("Failed to create server");
         }
         this.server = server;
+        Log.Logger = server.Logger;
 
         RegisterHandlers();
     }
