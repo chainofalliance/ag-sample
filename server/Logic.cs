@@ -67,7 +67,7 @@ internal class Logic
             InitializeBoard();
 
             Log.Information($"Waiting for both players to ready up");
-            var timeout = server.SetTimeout(() => readyCs.TrySetCanceled(), 10000, CancellationToken);
+            var timeout = server.SetTimeout(() => readyCs.TrySetCanceled(), 20000, CancellationToken);
             try
             {
                 await readyCs.Task;
