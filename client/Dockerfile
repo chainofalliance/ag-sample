@@ -1,9 +1,5 @@
 FROM unityci/editor:ubuntu-6000.0.40f1-webgl-3
 
-ARG DEPLOY_KEY
-RUN test -n "$DEPLOY_KEY" || (echo "DEPLOY_KEY not set" && false)
-ENV DEPLOY_KEY $DEPLOY_KEY
-
 RUN apt-get update && \
     apt-get install -y \
     jq \
@@ -28,7 +24,7 @@ RUN apt-get update && \
 RUN mkdir -p ~/.ssh
 RUN ssh-keyscan github.com >> ~/.ssh/known_hosts
 RUN ssh-keyscan 13.48.149.47 >> ~/.ssh/known_hosts
-RUN echo "$DEPLOY_KEY" >> ~/.ssh/id_rsa
+RUN touch ~/.ssh/id_rsa
 RUN chmod 600 ~/.ssh/id_rsa
 
 ENV IS_CI=true
