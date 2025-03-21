@@ -62,10 +62,6 @@ else
   exit 1
 fi
 
-echo "# "
-
-$(pwd)/scripts/upload.sh
-
 echo "#"
 
 END_TIME=$(date "+%s")
