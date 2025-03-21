@@ -1,8 +1,47 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Template name="Menu" src="project://database/Assets/UI/Uxml/Menu.uxml?fileID=9197481963319205126&amp;guid=243097bace451ab4fae05012b6764354&amp;type=3#Menu" />
-    <ui:Template name="Board" src="project://database/Assets/UI/Uxml/Board.uxml?fileID=9197481963319205126&amp;guid=47f595bfc7a9fcf4084fa112f2cc85d9&amp;type=3#Board" />
-    <ui:Template name="LoginScreen" src="project://database/Assets/UI/Uxml/LoginScreen.uxml?fileID=9197481963319205126&amp;guid=d1ac72512f67a064e9e5863e196aa053&amp;type=3#LoginScreen" />
-    <ui:Instance template="Menu" name="Menu" style="flex-grow: 1; display: none;" />
-    <ui:Instance template="Board" name="Game" style="flex-grow: 1; display: none;" />
-    <ui:Instance template="LoginScreen" name="LoginScreen" style="flex-grow: 1;" />
-</ui:UXML>
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:Template name="LoginScreen" src="project://database/Assets/UI/Uxml/Screens/LoginScreen.uxml?fileID=9197481963319205126&amp;guid=efadf5fb26348af43ade18227d05e048&amp;type=3#LoginScreen" />
+    <engine:Template name="MenuScreen" src="project://database/Assets/UI/Uxml/Screens/MenuScreen.uxml?fileID=9197481963319205126&amp;guid=bdc33c27ad6e86b4f89bb161984088fb&amp;type=3#MenuScreen" />
+    <engine:Template name="GameScreen" src="project://database/Assets/UI/Uxml/Screens/GameScreen.uxml?fileID=9197481963319205126&amp;guid=5f290a060655c45478f85c42dda574b4&amp;type=3#GameScreen" />
+    <engine:Template name="ModalMatchmaking" src="project://database/Assets/UI/Uxml/Components/Modal/ModalMatchmaking.uxml?fileID=9197481963319205126&amp;guid=2c175e848c9a77945a88eb51cb63c0cf&amp;type=3#ModalMatchmaking" />
+    <engine:Template name="ModalResult" src="project://database/Assets/UI/Uxml/Components/ModalResult/ModalResult.uxml?fileID=9197481963319205126&amp;guid=97e99f2b8fa8e2c4eb779816cb36ebf5&amp;type=3#ModalResult" />
+    <engine:Template name="ModalCancelGame" src="project://database/Assets/UI/Uxml/Components/Modal/ModalCancelGame.uxml?fileID=9197481963319205126&amp;guid=d51201d2205aed844bf1ae8623db955d&amp;type=3#ModalCancelGame" />
+    <engine:Template name="ModalInfo" src="project://database/Assets/UI/Uxml/Components/Modal/ModalInfo.uxml?fileID=9197481963319205126&amp;guid=57efaca496ed4a14aa9ad1fb233a4383&amp;type=3#ModalInfo" />
+    <engine:Instance template="LoginScreen" name="LoginScreen" style="width: 100%; height: 100%; display: flex;" />
+    <engine:VisualElement name="ContainerWithSideBar" style="flex-grow: 1; flex-direction: row; display: none;">
+        <engine:VisualElement name="SideBar" style="flex-grow: 0; background-color: rgb(0, 0, 0);">
+            <engine:VisualElement name="ContainerLogoName" style="margin-top: 0; flex-direction: row; align-items: center; width: 260px; padding-left: 40px; padding-right: 7px; padding-top: 25px; padding-bottom: 25px; margin-right: 0; margin-bottom: 0; margin-left: 0;">
+                <engine:VisualElement name="ImgLogo" style="width: 54px; height: 26px; background-image: url(&quot;project://database/Assets/UI/Textures/img_logo.png?fileID=2800000&amp;guid=48cff5a1d4a77f44ba354e3422e35ef3&amp;type=3#img_logo&quot;); margin-right: 16px;" />
+                <engine:Label text="TicTacToe" name="LabelName" style="-unity-font-definition: resource(&apos;open-sans.semibold&apos;); font-size: 24px; color: rgb(255, 255, 255); padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; width: 147px; height: 30px;" />
+            </engine:VisualElement>
+            <engine:VisualElement name="ContainerNavbar" style="flex-grow: 1; padding-top: 40px; padding-bottom: 40px; padding-right: 20px; padding-left: 20px; width: 260px;">
+                <engine:VisualElement name="Items" style="flex-grow: 1;">
+                    <engine:Button name="ButtonHome" style="background-color: rgba(209, 209, 209, 0); width: 220px; height: 44px; flex-shrink: 1; flex-direction: row; padding-right: 20px; padding-left: 20px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0;">
+                        <engine:VisualElement name="Icon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/UI/Textures/icon_home.png?fileID=2800000&amp;guid=364afa15753e2134b9b4b9fa5a47e996&amp;type=3#icon_home&quot;); width: 24px; height: 24px; margin-right: 8px;" />
+                        <engine:Label text="Home" name="LabelItem" style="-unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; font-size: 16px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                    </engine:Button>
+                </engine:VisualElement>
+                <engine:VisualElement name="FooterContent" style="flex-grow: 0;">
+                    <engine:VisualElement name="HowItWorks" style="flex-grow: 0; width: 220px; height: 44px; padding-left: 12px; padding-right: 12px; padding-top: 10px; padding-bottom: 10px; flex-direction: row; align-items: center; margin-bottom: 20px; display: none;">
+                        <engine:VisualElement name="Icon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/UI/Textures/icon_info.png?fileID=2800000&amp;guid=1c55ad195e2460f4e871430ebb6da00b&amp;type=3#icon_info&quot;); width: 18px; height: 18px; margin-right: 8px;" />
+                        <engine:Label text="How it works" name="LabelItem" style="-unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgba(255, 255, 255, 0.82); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; font-size: 16px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                    </engine:VisualElement>
+                    <engine:VisualElement name="WalletConnection" style="flex-grow: 1; padding-left: 12px; padding-right: 12px; flex-direction: row;">
+                        <engine:VisualElement name="ContainerLabel" style="flex-grow: 1; margin-right: 20px;">
+                            <engine:Label text="Connected wallet" name="LabelConnectedWlalet" style="-unity-font-definition: resource(&apos;AzeretMono-Bold&apos;); color: rgb(184, 179, 179); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                            <engine:Label text="CHR4k9..t21F" name="LabelAddress" style="-unity-font-definition: resource(&apos;open-sans.regular&apos;); color: rgb(255, 248, 248); font-size: 16px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        </engine:VisualElement>
+                        <engine:Button name="ButtonDisconnect" style="background-image: url(&quot;project://database/Assets/UI/Textures/icon_disconnect.png?fileID=2800000&amp;guid=567d63f3782aa22468a09963d2c3b713&amp;type=3#icon_disconnect&quot;); background-color: rgba(255, 255, 255, 0); width: 30px; height: 30px; align-self: center; -unity-background-image-tint-color: rgb(255, 255, 255); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement name="Content" style="flex-grow: 1;">
+            <engine:Instance template="MenuScreen" name="MenuScreen" style="flex-grow: 1; display: flex;" />
+            <engine:Instance template="GameScreen" name="GameScreen" style="display: none; flex-grow: 1;" />
+        </engine:VisualElement>
+    </engine:VisualElement>
+    <engine:Instance template="ModalMatchmaking" name="ModalMatchmaking" style="position: absolute; width: 100%; height: 100%; display: none;" />
+    <engine:Instance template="ModalResult" name="ModalGameResult" style="position: absolute; width: 100%; height: 100%; display: none;" />
+    <engine:Instance template="ModalCancelGame" name="ModalCancelGame" style="position: absolute; width: 100%; height: 100%; display: none;" />
+    <engine:Instance template="ModalInfo" name="ModalInfo" style="position: absolute; width: 100%; height: 100%; display: none;" />
+</engine:UXML>

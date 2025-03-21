@@ -29,15 +29,6 @@ public static class EditorCommands
             buildPath,
             version.ToString()
         );
-
-        UploadClient(buildPath, version.ToString());
-    }
-
-    [MenuItem("TTT/Upload")]
-    static void UploadBuild()
-    {
-        var buildPath = Application.dataPath + "/../../Builds/WebGL/";
-        UploadClient(buildPath, Application.version);
     }
 
     static void PerformCIBuild()
@@ -119,10 +110,10 @@ public static class EditorCommands
         if (buildTargetName.ToLower() == "android")
         {
 #if !UNITY_5_6_OR_NEWER
-                // https://issuetracker.unity3d.com/issues/buildoptions-dot-acceptexternalmodificationstoplayer-causes-unityexception-unknown-project-type-0
-                // Fixed in Unity 5.6.0
-                // side effect to fix android build system:
-                EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Internal;
+            // https://issuetracker.unity3d.com/issues/buildoptions-dot-acceptexternalmodificationstoplayer-causes-unityexception-unknown-project-type-0
+            // Fixed in Unity 5.6.0
+            // side effect to fix android build system:
+            EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Internal;
 #endif
         }
 
@@ -167,7 +158,7 @@ public static class EditorCommands
 #if UNITY_2018_3_OR_NEWER
             buildName += EditorUserBuildSettings.buildAppBundle ? ".aab" : ".apk";
 #else
-                buildName += ".apk";
+            buildName += ".apk";
 #endif
         }
         return buildPath + buildName;
@@ -223,61 +214,5 @@ public static class EditorCommands
             return;
 
         defines = on ? defines + $";{symbol}" : Regex.Replace(defines, $"{symbol}(;|$)", "");
-    }
-
-    private static void UploadClient(string buildPath, string version)
-    {
-        // Create the process
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "C:/Program Files/Git/git-bash.exe", // Bash executable
-                Arguments = $"-c \"upload-remote.sh {buildPath} {version}\"",
-                WorkingDirectory = Application.dataPath + "/../../", // Set working directory
-                RedirectStandardOutput = true, // Redirect standard output
-                RedirectStandardError = true, // Redirect error output
-                UseShellExecute = false, // Required for redirection
-                CreateNoWindow = true // Hide the shell window
-            }
-        };
-
-        // Subscribe to output events
-        process.OutputDataReceived += (sender, args) =>
-        {
-            if (!string.IsNullOrEmpty(args.Data))
-            {
-                UnityEngine.Debug.Log(args.Data); // Print to Unity console
-            }
-        };
-
-        process.ErrorDataReceived += (sender, args) =>
-        {
-            if (!string.IsNullOrEmpty(args.Data))
-            {
-                UnityEngine.Debug.LogError(args.Data); // Print errors to Unity console
-            }
-        };
-
-        try
-        {
-            UnityEngine.Debug.Log("t1");
-            process.Start(); // Start the process
-            UnityEngine.Debug.Log("t2");
-            process.BeginOutputReadLine(); // Start reading output
-            UnityEngine.Debug.Log("t3");
-            process.BeginErrorReadLine(); // Start reading error output
-            UnityEngine.Debug.Log("t4");
-            process.WaitForExit(); // Wait for the process to exit
-            UnityEngine.Debug.Log(process.ExitCode.ToString());
-        }
-        catch (System.Exception ex)
-        {
-            UnityEngine.Debug.LogError($"Error running script: {ex.Message}");
-        }
-        finally
-        {
-            process.Dispose(); // Clean up resources
-        }
     }
 }

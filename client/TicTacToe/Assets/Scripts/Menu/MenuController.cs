@@ -1,185 +1,301 @@
 using AllianceGamesSdk.Matchmaking;
 using Cysharp.Threading.Tasks;
-using System;
 using System.Threading;
 using UnityEngine;
+using System;
+
+using Buffer = Chromia.Buffer;
+using System.Numerics;
 
 public class MenuController
 {
-    private readonly string DUID = "dapp-recursing-heisenberg-1026";
-    private readonly string DISPLAY_NAME = "TicTacToe";
-    private readonly string QUEUE_NAME = "1Vs1";
+    public event Action<Queries.EifEventData[]> OnClaim;
 
+    private readonly string DUID = null;
+    private readonly string DISPLAY_NAME = "TicTacToe";
+
+    private readonly string AI_QUEUE_NAME = "1Vs1";
+    private readonly string PVP_QUEUE_NAME = "pvp";
 
     private readonly MenuView view;
-    private readonly Blockchain blockchain;
-    private readonly Blockchain agBlockchain;
-    private readonly Action<Uri, string, bool> onStartGame;
-
-
-    private CancellationTokenSource cts;
+    private readonly IMatchmakingService matchmakingService;
+    private readonly BlockchainConnectionManager connectionManager;
+    private readonly AccountManager accountManager;
+    private readonly Action<Uri, string> OnStartGame;
+    private string duid;
+    private Queries.EifEventData[] unclaimedRewards;
+    private CancellationTokenSource timerCts;
+    private CancellationTokenSource updateCts;
 
     public MenuController(
         MenuView view,
-        Blockchain blockchain,
-        Blockchain agBlockchain,
-        Action<Uri, string, bool> onStartGame
+        BlockchainConnectionManager connectionManager,
+        AccountManager accountManager,
+        Action<Uri, string> OnStartGame
     )
     {
         this.view = view;
-        this.blockchain = blockchain;
-        this.agBlockchain = agBlockchain;
-        this.onStartGame = onStartGame;
+        this.connectionManager = connectionManager;
+        this.accountManager = accountManager;
+        this.OnStartGame = OnStartGame;
+        this.duid = DUID;
 
-        view.OnLogin += OnLogin;
-        view.OnSync += async () => await SyncPoints();
-        view.OnPlay += OnPlay;
-        view.OnCancel += OnCancel;
+        matchmakingService = MatchmakingServiceFactory.Get(
+            connectionManager.AlliancesGamesClient, accountManager.SignatureProvider);
 
-        view.SetVersion(Application.version);
+        view.OnPlayPve += OpenPvEMatchmaking;
+        view.OnPlayPvp += OpenPvPMatchmaking;
+        view.OnClaim += Claim;
+        view.OnClickViewAllSessions += () =>
+        {
+            Application.OpenURL($"https://alliance-games-explorer.vercel.app/address/{accountManager.AddressWithoutPrefix}/sessions");
+        };
+        view.OnClickAddressLink += () =>
+        {
+            Application.OpenURL($"https://testnet.bscscan.com/address/{accountManager.Address}");
+        };
 
-#if !DEPLOYED
-#if UNITY_EDITOR
-        var privKey = "1111111111111111111111111111111111111111111111111111111111111111";
-#else
-        var privKey = "2222222222222222222222222222222222222222222222222222222222222222";
-#endif
-#else
-        var privKey = blockchain.GetLocalPrivKey();
-#endif
-        view.SetPrivKey(privKey);
+        AutoPlayerInfoUpdate();
     }
 
-    public void SetVisible(
-        bool visible
-    )
+    public void SetVisible(bool visible)
     {
+        timerCts?.CancelAndDispose();
+        timerCts = null;
+
         view.SetVisible(visible);
     }
 
-    public async UniTask SyncPoints()
+    public void OpenPvEMatchmaking()
     {
-        var points = await blockchain.GetPoints();
-        view.SetLogin(blockchain.SignatureProvider.PubKey, points);
+        OnPlay(AI_QUEUE_NAME);
     }
 
-    private async void OnLogin(string privKey)
+    public void OpenPvPMatchmaking()
     {
-        view.SetInfo($"Logging in {(view.ConnectToDevnet ? "Devnet" : "Local")}...");
-        await blockchain.Login(BlockchainConfig.TTT(view.ConnectToDevnet), privKey);
-        await agBlockchain.Login(BlockchainConfig.AG(view.ConnectToDevnet), privKey);
-        view.SetInfo("Syncing points...");
-        await SyncPoints();
-
-        blockchain.SaveLocalPrivKey(privKey);
+        OnPlay(PVP_QUEUE_NAME);
     }
 
-    private async void OnPlay()
+    public async UniTask UpdatePlayerInfo()
     {
-        cts?.Dispose();
-        cts = new CancellationTokenSource();
+        var address = accountManager.Address;
+        await accountManager.Account.SyncBalance();
+        var pointsEvm = await accountManager.TicTacToeContract.GetPoints(address);
+        var tttUpdate = await Queries.GetPlayerUpdate(connectionManager.TicTacToeClient, Buffer.From(address));
+        unclaimedRewards = await accountManager.GetUnclaimedEifEvents();
 
-        (Uri node, string sessionId) result;
-        if (view.ConnectToLocal)
+        duid ??= await MatchmakingService.GetDuid(connectionManager.AlliancesGamesClient, DISPLAY_NAME, CancellationToken.None);
+        var playersInQueue = await matchmakingService.GetAmountTicketsInQueue(new()
         {
-            result = PlayLocal();
-        }
-        else
-        {
-            result = await PlayWithMatchmaking();
-        }
+            Duid = duid,
+            QueueName = PVP_QUEUE_NAME
+        }, CancellationToken.None);
 
-        if (result.node == null || result.sessionId == null)
+        var balanceString = accountManager.Account.Balance == BigInteger.Zero ? "0 (Get TBNB from faucet)" : accountManager.Balance;
+        view.SetPlayersInQueue(playersInQueue);
+        view.SetPlayerUpdate(tttUpdate, pointsEvm, balanceString, unclaimedRewards.Length > 0);
+        view.SetAddress(address);
+    }
+
+    private void Claim()
+    {
+        if (unclaimedRewards.Length == 0)
         {
+            Debug.Log("No unclaimed rewards");
             return;
         }
 
-        view.SetInfo($"Connecting to {result.node} with session ID {result.sessionId}...");
-        onStartGame?.Invoke(result.node, result.sessionId, view.ConnectToLocal);
+        OnClaim?.Invoke(unclaimedRewards);
     }
 
-    private (Uri, string) PlayLocal()
+    private async void OnPlay(string queueName)
     {
-        var node = new UriBuilder("http://localhost:40940");
-        var sessionId = "mock-match-id";
+        var cts = new CancellationTokenSource();
 
-        return (node.Uri, sessionId);
+        RunMatchmaking(cts, matchmakingService, duid).Forget();
+
+        try
+        {
+            view.SetMatchmakingStatus("Creating matchmaking ticket...");
+            var ticketId = await CreateMatchmakingTicket(matchmakingService, duid, queueName, cts.Token);
+            if (string.IsNullOrEmpty(ticketId))
+            {
+                Debug.Log("Failed to get ticket ID");
+                view.ShowError("Matchmaking ticket closed", "Failed to create matchmaking ticket. Please try again.");
+                view.CloseWaitingForMatch();
+                timerCts?.CancelAndDispose();
+                timerCts = null;
+                return;
+            }
+
+            view.SetMatchmakingStatus("Waiting for a match...");
+            var result = await WaitForMatch(matchmakingService, ticketId, cts.Token);
+            cts?.CancelAndDispose();
+
+            if (result == null)
+            {
+                view.CloseWaitingForMatch();
+                timerCts?.CancelAndDispose();
+                timerCts = null;
+                return;
+            }
+
+            var (sessionId, node) = result.Value;
+
+            var uriBuilder = new UriBuilder(node);
+            if (uriBuilder.Host == "host.docker.internal")
+            {
+                uriBuilder.Host = "localhost";
+            }
+
+            Debug.Log($"Connecting to {uriBuilder.Uri}...");
+            view.SetMatchmakingStatus("Connecting to the game...");
+            view.DisableLeaveButton();
+            OnStartGame?.Invoke(uriBuilder.Uri, sessionId);
+        }
+        catch (OperationCanceledException)
+        { }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error while in matchmaking: {e.Message}");
+        }
     }
 
-    private async UniTask<(Uri, string)> PlayWithMatchmaking()
+    private async UniTask<string> CreateMatchmakingTicket(
+        IMatchmakingService matchmakingService,
+        string duid,
+        string queueName,
+        CancellationToken ct
+    )
     {
-        var matchmakingService = MatchmakingServiceFactory.Get(agBlockchain.Client, agBlockchain.SignatureProvider);
-
-        var duid = DUID;
-        duid ??= await MatchmakingService.GetDuid(agBlockchain.Client, DISPLAY_NAME, cts.Token);
-
-        view.SetInfo("Clearing pending tickets...");
+        Debug.Log("Clearing pending tickets...");
         await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
         {
-            Creator = blockchain.SignatureProvider.PubKey,
+            Identifier = Buffer.From(accountManager.Address),
             Duid = duid
-        }, cts.Token);
+        }, ct);
 
-        view.SetInfo("Creating ticket...");
+        Debug.Log("Creating ticket...");
         var response = await matchmakingService.CreateMatchmakingTicket(new()
         {
-            Creator = blockchain.SignatureProvider.PubKey,
+            Identifier = Buffer.From(accountManager.Address),
+            NetworkSigner = accountManager.SignatureProvider.PubKey,
             Duid = duid,
-            QueueName = QUEUE_NAME
-        }, cts.Token);
+            QueueName = queueName
+        }, ct);
 
-
-        if (response.Status == Chromia.TransactionReceipt.ResponseStatus.Rejected)
+        if (response.Status != Chromia.TransactionReceipt.ResponseStatus.Confirmed)
         {
-            view.SetInfo("Creating ticket transaction got rejected " + response.RejectReason);
-            return (null, null);
+            Debug.Log("Creating ticket transaction got rejected " + response.RejectReason);
+            return null;
         }
 
-        var ticketId = await matchmakingService.GetMatchmakingTicket(new()
+        return await matchmakingService.GetMatchmakingTicket(new()
         {
-            Creator = blockchain.SignatureProvider.PubKey,
+            Identifier = Buffer.From(accountManager.Address),
             Duid = duid,
-            QueueName = QUEUE_NAME
-        }, cts.Token);
+            QueueName = queueName
+        }, ct);
+    }
 
-
-        view.SetInfo($"Waiting for match with ticket ID {ticketId}...");
+    private async UniTask<(string sessionId, string node)?> WaitForMatch(
+        IMatchmakingService matchmakingService,
+        string ticketId,
+        CancellationToken ct
+    )
+    {
         string sessionId = null;
-        while (!cts.Token.IsCancellationRequested)
+        while (!ct.IsCancellationRequested)
         {
             var ticket = await matchmakingService.GetMatchmakingTicketStatus(new()
             {
                 TicketId = ticketId
-            }, cts.Token);
+            }, ct);
 
-            if (ticket.SessionId != "")
+            if (!string.IsNullOrEmpty(ticket.SessionId))
             {
                 sessionId = ticket.SessionId;
                 break;
             }
+            else if (ticket.Status == MatchmakingTicketState.Closed)
+            {
+                view.ShowError("Matchmaking ticket closed", "The matchmaking ticket has been closed. Please try again.");
+                return null;
+            }
 
-            view.SetInfo($"Waiting for match with ticket ID {ticketId}...\nStatus: {ticket.Status}");
-            await UniTask.Delay(1000);
+            await UniTask.Delay(1000, cancellationToken: ct);
         }
 
-        view.SetInfo($"Match found! Getting server details for match ID {sessionId}...");
-        var connectionDetails = await matchmakingService.GetConnectionDetails(new()
+        Debug.Log($"Match found! Getting server details for match ID {sessionId}...");
+        var node = await matchmakingService.GetConnectionDetails(new()
         {
             SessionId = sessionId
-        }, cts.Token);
+        }, ct);
 
-        var node = new UriBuilder(connectionDetails);
-        // fix docker network mapping
-        if (node.Host == "host.docker.internal")
-        {
-            node.Host = "localhost";
-        }
-
-        return (node.Uri, sessionId);
+        return (sessionId, node);
     }
 
-    private void OnCancel()
+    private async UniTaskVoid RunMatchmaking(
+        CancellationTokenSource cts,
+        IMatchmakingService matchmakingService,
+        string duid
+    )
     {
-        cts.Cancel();
+        view.OpenMatchmaking();
+
+        Timer().Forget();
+
+        if (!await view.OpenWaitingForMatch(cts.Token))
+        {
+            try
+            {
+                cts?.CancelAndDispose();
+                timerCts?.CancelAndDispose();
+                timerCts = null;
+            }
+            catch (ObjectDisposedException)
+            { }
+
+            view.CloseWaitingForMatch();
+
+            await matchmakingService.CancelAllMatchmakingTicketsForPlayer(new()
+            {
+                Identifier = Buffer.From(accountManager.Address),
+                Duid = duid
+            }, CancellationToken.None);
+        }
+    }
+
+    private async UniTaskVoid Timer()
+    {
+        timerCts?.CancelAndDispose();
+        timerCts = new();
+        var count = 0;
+        while (!timerCts.IsCancellationRequested)
+        {
+            await UniTask.Delay(1000, cancellationToken: timerCts.Token);
+            view.UpdateMatchmakingTimer(++count);
+        }
+    }
+
+    private void AutoPlayerInfoUpdate()
+    {
+        updateCts?.CancelAndDispose();
+        updateCts = new();
+
+        UpdateInfo(updateCts.Token).Forget();
+
+        async UniTaskVoid UpdateInfo(CancellationToken ct)
+        {
+            while (true)
+            {
+                if (view.IsVisible())
+                {
+                    await UpdatePlayerInfo();
+                }
+
+                await UniTask.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken: ct);
+            }
+        }
     }
 }

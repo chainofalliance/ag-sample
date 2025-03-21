@@ -1,45 +1,68 @@
-using AllianceGamesSdk.Client;
-using AllianceGamesSdk.Common;
-using AllianceGamesSdk.Common.Transport;
 using AllianceGamesSdk.Transport.Unity;
-using Cysharp.Threading.Tasks;
-using Serilog;
-using Serilog.Sinks.Unity3D;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Buffer = Chromia.Buffer;
-using IMessage = Messages.IMessage;
+using Cysharp.Threading.Tasks;
+using AllianceGamesSdk.Client;
+using System.Threading.Tasks;
 using AllianceGamesSdk.Unity;
+using Serilog.Sinks.Unity3D;
+using System.Threading;
+using System.Linq;
+using UnityEngine;
+using Serilog;
+using System;
+
+using Buffer = Chromia.Buffer;
+using static Messages;
 
 public class GameController
 {
+    public enum AfterGameAction
+    {
+        Menu,
+        NextRoundPvE,
+        NextRoundPvP,
+    }
+
     public struct PlayerData
     {
         public string Address;
-        public int Points;
         public Messages.Field Symbol;
+        public bool IsMe;
+        public bool IsAI => Address == "0x0000000000000000000000000000000000000000";
+    }
+
+    public event Action OnClaim
+    {
+        add { view.OnClaim += value; }
+        remove { view.OnClaim -= value; }
     }
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
     private readonly List<PlayerData> playerData = new List<PlayerData>();
 
     private readonly GameView view;
-    private readonly Blockchain blockchain;
-    private AllianceGamesClient agClient;
+    private readonly AccountManager accountManager;
+    private readonly BlockchainConnectionManager connectionManager;
+    private readonly Action<AfterGameAction> onEndGame;
 
+    private string sessionId;
+    private AllianceGamesClient allianceGamesClient;
     private CancellationTokenSource cts;
     private UniTaskCompletionSource<int> turn = null;
 
+    private CancellationTokenSource openGameResultCts = null;
+
     public GameController(
         GameView view,
-        Blockchain blockchain,
-        Action OnEndGame
+        AccountManager accountManager,
+        BlockchainConnectionManager connectionManager,
+        Action<AfterGameAction> onEndGame
     )
     {
         this.view = view;
-        this.blockchain = blockchain;
+        this.accountManager = accountManager;
+        this.connectionManager = connectionManager;
+        this.onEndGame = onEndGame;
 
         view.OnClickField += idx =>
         {
@@ -50,187 +73,290 @@ public class GameController
                 turn.TrySetResult(idx);
             }
         };
-        view.OnClickBack += async () =>
-        {
-            view.SetInfo("Forfeiting...");
-            await GameOver(true);
-            OnEndGame?.Invoke();
-        };
+
+        view.OnClickBack += OpenCancelGame;
+        view.OnClickViewInExplorer += () => OpenLinkToExplorer(sessionId);
     }
 
-    public void SetVisible(
-        bool visible
-    )
+    public void SetVisible(bool visible)
     {
         view.SetVisible(visible);
+
+        if (!visible)
+        {
+            openGameResultCts?.CancelAndDispose();
+            openGameResultCts = null;
+        }
     }
 
-    public async UniTask StartGame(
-        Uri nodeUri,
-        string matchId,
-        bool local
-    )
+    public void OnSuccessfulClaim()
+    {
+        view.DisableClaimButton();
+    }
+
+    public async Task<bool> StartGame(Uri nodeUri, string matchId)
     {
         cts = new CancellationTokenSource();
 
         view.Reset();
+
         try
         {
-            view.SetInfo($"Creating connection to {nodeUri}...");
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Unity3D()
-                .CreateLogger();
-            var config = GetClientConfig(nodeUri, matchId, local, logger);
-            agClient = await AllianceGamesClient.Create(
-                new WebSocketTransport(config.Logger),
+            .CreateLogger();
+
+            var config = GetClientConfig(nodeUri, matchId, logger);
+
+            allianceGamesClient = await AllianceGamesClient.Create(
+                WebSocketTransportFactory.Get(config.Logger),
                 config,
                 ct: cts.Token
             );
-            if (agClient == null)
+
+            if (allianceGamesClient == null)
             {
-                view.SetInfo("Could not create client");
-                return;
+                await OnError("Could not connect to the game server.");
+                return false;
             }
+
+            sessionId = matchId;
+
             RegisterHandlers();
 
-            view.SetInfo("Sending request to get player data...");
-            var response = await Request<Messages.PlayerDataResponse>(
-                new Messages.PlayerDataRequest(),
+            var response = await Request<PlayerDataResponse>(
+                new PlayerDataRequest(),
                 cts.Token
             );
+
             if (response == null)
             {
-                view.SetInfo("Could not retrieve player data");
-                return;
+                await OnError("Could not retrieve player data");
+                return false;
             }
 
             foreach (var player in response.Players)
             {
-                view.SetInfo($"Adding player {player.PubKey.Parse()}...");
+                Debug.Log($"Adding player {player.PubKey.Parse()} {player.Symbol}...");
+                var address = $"0x{player.PubKey.Parse()}";
                 playerData.Add(new PlayerData()
                 {
-                    Address = player.PubKey.Parse(),
-                    Points = player.Points,
-                    Symbol = player.Symbol
+                    Address = address,
+                    Symbol = player.Symbol,
+                    IsMe = accountManager.IsMyAddress(address),
                 });
             }
 
-            view.SetInfo($"Finalize startup...");
-            var pubKey = blockchain.SignatureProvider.PubKey.Parse();
-            view.Initialize(
-                playerData.Find(p => p.Address == pubKey),
-                playerData.Find(p => p.Address != pubKey)
+            var myPlayerData = playerData.Find(p => p.IsMe);
+            var opponentPlayerData = playerData.Find(p => !p.IsMe);
+
+            view.Populate(
+                matchId,
+                myPlayerData,
+                opponentPlayerData,
+                myPlayerData.Symbol
             );
 
-            await agClient.Send((int)Messages.Header.Ready, Buffer.Empty(), cts.Token);
+            Debug.Log($"Send ready");
+            await allianceGamesClient.Send((int)Header.Ready, Buffer.Empty(), cts.Token);
         }
         catch (OperationCanceledException) { }
-    }
-
-    public async UniTask Forfeit()
-    {
-        await agClient.Send((int)Messages.Header.Forfeit, Buffer.Empty(), cts.Token);
+        catch (Exception e)
+        {
+            await OnError($"Failed to start game: {e.Message}");
+        }
+        return true;
     }
 
     private void RegisterHandlers()
     {
-        agClient.RegisterMessageHandler((int)Messages.Header.Sync, data =>
+        allianceGamesClient.RegisterMessageHandler((int)Header.Sync, async data =>
         {
-            var sync = new Messages.Sync(data);
-            view.SetBoard(sync.Fields.ToList());
-            if (sync.Turn == Messages.Field.X)
-                view.SetInfo("Your turn.");
-            else
-                view.SetInfo("Opponents turn.");
+            try
+            {
+                var sync = Decode<Sync>(data);
+                view.SetBoard(sync.Fields.ToList());
+
+                if (sync.Turn == Field.X)
+                {
+                    view.StartTurn(Field.X);
+                    view.EndTurn(Field.O);
+
+                }
+                else
+                {
+                    view.StartTurn(Field.O);
+                    view.EndTurn(Field.X);
+                }
+            }
+            catch (Exception e)
+            {
+                await OnError($"Failed to sync game state: {e.Message}");
+            }
         });
 
-        agClient.RegisterMessageHandler((int)Messages.Header.GameOver, async winner =>
+        allianceGamesClient.RegisterMessageHandler((int)Header.GameOver, async data =>
         {
-            view.SetInfo($"{winner} has won!");
-            await GameOver(false);
+            try
+            {
+                var gameOver = Decode<GameOver>(data);
+                Debug.Log($"{Buffer.From(gameOver.Winner ?? new byte[0]).Parse()} has won {(gameOver.IsForfeit ? "by forfeit" : "")}!");
+                OpenGameResult(gameOver);
+                await GameOver();
+            }
+            catch (Exception e)
+            {
+                await OnError($"Failed to handle game over: {e.Message}");
+            }
         });
 
-        agClient.RegisterMessageHandler((int)Messages.Header.MoveRequest, async data =>
+        allianceGamesClient.RegisterMessageHandler((int)Header.MoveRequest, async data =>
         {
-            view.SetInfo("Received move request.");
-            turn = new UniTaskCompletionSource<int>();
-            var idx = await turn.Task;
-            turn = null;
-            view.SetInfo($"Send move response {idx}.");
+            try
+            {
+                turn = new UniTaskCompletionSource<int>();
+                var idx = await turn.Task;
+                turn = null;
 
-            var response = new Messages.MoveResponse(idx).Encode();
-            await agClient.Send((int)Messages.Header.MoveResponse, response, cts.Token);
+                var response = Encode(new MoveResponse(idx));
+                await allianceGamesClient.Send((int)Header.MoveResponse, response, cts.Token);
+            }
+            catch (Exception e)
+            {
+                await OnError($"Failed to handle move request: {e.Message}");
+            }
         });
     }
 
     private async UniTask<T> Request<T>(
         IMessage message,
         CancellationToken ct
-    ) where T : class, IMessage, new()
+    ) where T : class, IMessage
     {
-        var response = await agClient.RequestUnverified((uint)message.Header, message.Encode(), ct);
+        var response = await allianceGamesClient.RequestUnverified((uint)message.Header, Encode(message), ct);
         if (response == null)
             return null;
 
-        var responseMessage = new T();
-        responseMessage.Decode(response.Value);
-        return responseMessage;
+        return Decode<T>(response.Value);
     }
 
-    private async UniTask GameOver(bool forfeit)
+    private async UniTask GameOver()
     {
-        view.SetInfo("GameOver...");
-        if (agClient != null)
-        {
-            if (forfeit)
-                await Forfeit();
+        view.Reset();
 
-            view.SetInfo("Disposing client...");
-            await agClient.Stop(cts?.Token ?? CancellationToken.None);
-            agClient = null;
-            view.SetInfo("Client disposed...");
+        if (allianceGamesClient != null)
+        {
+            await allianceGamesClient.Stop(cts?.Token ?? CancellationToken.None);
+            allianceGamesClient = null;
         }
 
         if (cts != null)
         {
-            view.SetInfo("Canceling cts...");
             cts.Cancel();
             cts.Dispose();
             cts = null;
         }
-        view.SetInfo("GameOver done...");
     }
 
     private IClientConfig GetClientConfig(
         Uri nodeUri,
         string matchId,
-        bool local,
-        ILogger logger
+        Serilog.ILogger logger
     )
     {
-        if (local)
+#if LOCAL
+    return new ClientTestConfig(
+        matchId,
+        "",
+        nodeUri,
+        accountManager.SignatureProvider,
+        new UniTaskRunner(),
+        new UnityHttpClient(),
+        logger: logger
+    );
+
+#else
+        return new ClientConfig(
+            matchId,
+            nodeUri,
+            accountManager.SignatureProvider,
+            new UniTaskRunner(),
+            new UnityHttpClient(),
+            logger: logger
+        );
+#endif
+    }
+
+    public static void OpenLinkToExplorer(string sessionId)
+    {
+        Application.OpenURL($"{Config.EXPLORER_URL}sessions/{sessionId}");
+    }
+
+    private async void OpenGameResult(GameOver gameOver)
+    {
+        openGameResultCts = new CancellationTokenSource();
+
+        var winner = gameOver.Winner != null ? Buffer.From(gameOver.Winner).Parse() : null;
+        var amIWinner = string.IsNullOrEmpty(winner) ? (bool?)null : accountManager.IsMyAddress(winner);
+
+        CheckClaimState(openGameResultCts.Token).Forget();
+        var res = await view.OpenGameResult(sessionId, amIWinner, playerData, gameOver.IsForfeit, openGameResultCts.Token);
+
+        view.CloseGameResult();
+
+        openGameResultCts?.CancelAndDispose();
+        openGameResultCts = null;
+
+        if (res == TTT.Components.ModalAction.CLOSE)
         {
-            return new ClientTestConfig(
-                matchId,
-                "",
-                nodeUri,
-                blockchain.SignatureProvider,
-                new UniTaskRunner(),
-                new UnityHttpClient(),
-                logger: logger
-            );
+            onEndGame?.Invoke(AfterGameAction.Menu);
         }
-        else
+        else if (res == TTT.Components.ModalAction.NEXT_ROUND)
         {
-            return new ClientConfig(
-                matchId,
-                nodeUri,
-                blockchain.SignatureProvider,
-                new UniTaskRunner(),
-                new UnityHttpClient(),
-                logger: logger
-            );
+            if (playerData.Any(p => p.IsAI))
+            {
+                onEndGame?.Invoke(AfterGameAction.NextRoundPvE);
+            }
+            else
+            {
+                onEndGame?.Invoke(AfterGameAction.NextRoundPvP);
+            }
         }
+    }
+
+    private async UniTaskVoid CheckClaimState(CancellationToken ct)
+    {
+        view.UpdateClaimState(false);
+        while (!ct.IsCancellationRequested)
+        {
+            var result = await Queries.GetEifEventBySession(connectionManager.AlliancesGamesClient, sessionId);
+            if (result != null)
+            {
+                view.UpdateClaimState(true);
+                break;
+            }
+            await UniTask.Delay(500, cancellationToken: ct);
+        }
+    }
+
+    public async void OpenCancelGame()
+    {
+        if (cts == null)
+            return;
+
+        var res = await view.OpenCancelGame(cts.Token);
+        if (res)
+        {
+            await allianceGamesClient.Send((int)Messages.Header.Forfeit, Buffer.Empty(), cts.Token);
+        }
+    }
+
+    private async UniTask OnError(string info)
+    {
+        Debug.LogError(info);
+        await GameOver();
+        await view.OpenError(info, CancellationToken.None);
+        onEndGame?.Invoke(AfterGameAction.Menu);
     }
 }
