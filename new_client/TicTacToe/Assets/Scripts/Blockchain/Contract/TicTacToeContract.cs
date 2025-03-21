@@ -4,10 +4,11 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Util;
 using Nethereum.Web3;
+using Newtonsoft.Json;
 using Reown.AppKit.Unity;
+using Buffer = Chromia.Buffer;
 using UnityEngine;
 
 public class TicTacToeContract
@@ -52,11 +53,13 @@ public class TicTacToeContract
                 data.EventWithProof.Sigs,
                 data.EventWithProof.Signers,
                 data.EventWithProof.ExtraProof,
-                data.EncodedData.HexToByteArray()
+                Buffer.From(data.EncodedData).Bytes
             });
         }
 
         var arguments = new object[] { argumentsList.ToArray() };
+
+        Debug.Log($"Claiming batch with arguments: {JsonConvert.SerializeObject(arguments, Formatting.Indented)}");
 
         var estimatedGas = await account.EstimateGas(CONTRACT_ADDRESS, abi, "batchClaim", arguments);
         if (!await HasEnoughGas(estimatedGas))
@@ -64,6 +67,7 @@ public class TicTacToeContract
             throw new Exception("Insufficient funds for gas.");
         }
 
+        Debug.Log($"Sending transaction with estimated gas: {estimatedGas}");
         var txHash = await account.SendTransaction(CONTRACT_ADDRESS, abi, "batchClaim", estimatedGas, arguments);
         if (string.IsNullOrEmpty(txHash))
         {

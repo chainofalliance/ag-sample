@@ -162,7 +162,7 @@ public class Bootstrap : MonoBehaviour
             foreach (var e in unclaimedRewards)
             {
                 var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
-                if (!rawMerkleProof.HasValue)
+                if (!rawMerkleProof.HasValue || rawMerkleProof.Value.EventData.IsEmpty)
                 {
                     await modalInfo.ShowError($"Failed to get merkle proof for event: {e.EventHash}");
                     modalInfo.ShowInfo(title, "Fetching proof events for rewards...");
@@ -177,6 +177,11 @@ public class Bootstrap : MonoBehaviour
                 });
             }
 
+            if (claimData.Count == 0)
+            {
+                await modalInfo.ShowError("No unclaimed rewards.");
+                return;
+            }
 
             modalInfo.ShowInfo(title, "Waiting for transaction confirmation...");
             var result = await accountManager.TicTacToeContract.ClaimBatch(claimData.ToArray());

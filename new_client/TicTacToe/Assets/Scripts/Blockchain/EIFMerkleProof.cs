@@ -52,8 +52,7 @@ public static class CryptoUtils
 
     public static byte[] ToBytesLike(Buffer data)
     {
-        var hex = $"0x{data.Parse()}";
-        return Nethereum.Hex.HexConvertors.Extensions.HexByteConvertorExtensions.HexToByteArray(hex);
+        return data.Bytes;
     }
 
     public static IEnumerable<ChromiaTypes.BlockWitness> Sort(this IEnumerable<ChromiaTypes.BlockWitness> witnesses)

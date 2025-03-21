@@ -1,9 +1,10 @@
 using Newtonsoft.Json;
-
+using Reown.Core.Common.Utils;
 using Buffer = Chromia.Buffer;
 
 public class ChromiaTypes
 {
+    [Preserve]
     public struct MerkleProof
     {
         [JsonProperty("blockHeader")]
@@ -22,6 +23,7 @@ public class ChromiaTypes
         public ExtraMerkleProof ExtraMerkleProof;
     }
 
+    [Preserve]
     public struct BlockWitness
     {
         [JsonProperty("pubkey")]
@@ -31,6 +33,7 @@ public class ChromiaTypes
         public Buffer Sig;
     }
 
+    [Preserve]
     public struct EventProof
     {
         [JsonProperty("leaf")]
@@ -43,6 +46,7 @@ public class ChromiaTypes
         public int Position;
     }
 
+    [Preserve]
     public struct ExtraMerkleProof
     {
         [JsonProperty("extraMerkleProofs")]

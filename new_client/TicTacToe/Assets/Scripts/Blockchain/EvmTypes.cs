@@ -1,9 +1,12 @@
 using Nethereum.ABI.FunctionEncoding.Attributes;
+using Newtonsoft.Json;
+using Reown.Core.Common.Utils;
 using System.Collections.Generic;
 using System.Numerics;
 
 public class EvmTypes
 {
+    [Preserve]
     public struct EventWithProof
     {
         public byte[] _Event;
@@ -13,6 +16,7 @@ public class EvmTypes
         public List<string> Signers;
         public ExtraMerkleProof ExtraProof;
 
+        [JsonConstructor]
         public EventWithProof(
             byte[] _event, EventProof eventProof, byte[] blockHeader,
             List<byte[]> sigs, List<string> signers, ExtraMerkleProof extraProof)
@@ -26,6 +30,7 @@ public class EvmTypes
         }
     }
 
+    [Preserve]
     [Struct("ClaimData")]
     public class ClaimData
     {
@@ -49,9 +54,12 @@ public class EvmTypes
 
         [Parameter("bytes", "encodedData", 7)]
         public byte[] EncodedData { get; set; }
+
+        [JsonConstructor]
+        public ClaimData() { }
     }
 
-
+    [Preserve]
     [Struct("Proof")]
     public class EventProof
     {
@@ -64,6 +72,7 @@ public class EvmTypes
         [Parameter("bytes32[]", "merkleProofs", 3)]
         public List<byte[]> MerkleProofs { get; set; }
 
+        [JsonConstructor]
         public EventProof(byte[] leaf, BigInteger position, List<byte[]> merkleproofs)
         {
             Leaf = leaf;
@@ -72,6 +81,7 @@ public class EvmTypes
         }
     }
 
+    [Preserve]
     [Struct("ExtraProofData")]
     public class ExtraMerkleProof
     {
@@ -90,6 +100,7 @@ public class EvmTypes
         [Parameter("bytes32[]", "extraMerkleProofs", 5)]
         public List<byte[]> ExtraMerkleProofs { get; set; }
 
+        [JsonConstructor]
         public ExtraMerkleProof(byte[] leaf, byte[] hashedLead, BigInteger position, byte[] extraRoot, List<byte[]> extraMerkleProofs)
         {
             Leaf = leaf;
