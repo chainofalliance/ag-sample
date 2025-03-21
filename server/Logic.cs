@@ -334,14 +334,7 @@ internal class Logic
         });
 
         server.OnClientConnect += address => Log.Information($"Player {address.Parse()} connected");
-        server.OnClientDisconnect += async address =>
-        {
-            Log.Information($"Player {address.Parse()} disconnected");
-            if (!gameOver)
-            {
-                await Forfeit(address);
-            }
-        };
+        server.OnClientDisconnect += address => Log.Information($"Player {address.Parse()} disconnected");
     }
 
     private async Task Stop(string? reward)
