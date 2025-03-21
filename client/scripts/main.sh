@@ -64,7 +64,7 @@ fi
 
 echo "# "
 
-$(pwd)/build/upload.sh
+$(pwd)/scripts/upload.sh
 
 echo "#"
 
@@ -73,4 +73,4 @@ ELAPSED_TIME=$((END_TIME-START_TIME))
 ELAPSED_TIME_STR=$(date -d@${ELAPSED_TIME} -u +%H:%M:%S)
 echo "# Total deploy time: ${ELAPSED_TIME_STR}"
 echo "########################################"
-} 2>&1 | tee $(pwd)/build/build.log
+} 2>&1 | tee $(pwd)/scripts/build.log

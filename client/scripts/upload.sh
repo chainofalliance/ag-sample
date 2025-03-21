@@ -2,11 +2,11 @@
 
 echo "# Uploading build..."
 
-CLIENT_CONTAINER=$(pwd)/build/client_container/
+CLIENT_CONTAINER=$(pwd)/scripts/client_container/
 rm -rf ${BUILD_PATH}/node_modules/ &> /dev/null 
 rm -rf ${CLIENT_CONTAINER}/node_modules/ &> /dev/null 
 
-cp $(pwd)/build/client_container/* ${BUILD_PATH}
+cp $(pwd)/scripts/client_container/* ${BUILD_PATH}
 
 chmod -R 755 ${BUILD_PATH}/TicTacToe/Build
 

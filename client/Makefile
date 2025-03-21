@@ -6,4 +6,4 @@ export
 
 .PHONY: client
 client:	
-	build/main.sh
+	scripts/main.sh
