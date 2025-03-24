@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.nethereum.unity": "4.29.0",
-    "com.reown.appkit.unity": "1.3.0",
+    "com.reown.appkit.unity": "git@github.com:chainofalliance/reown-dotnet.git?path=/src/Reown.AppKit.Unity",
     "com.unity.collab-proxy": "2.7.1",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.cursor": "https://github.com/boxqkrtm/com.unity.ide.cursor.git",

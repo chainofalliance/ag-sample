@@ -8,9 +8,9 @@
       "url": "https://package.openupm.com"
     },
     "com.reown.appkit.unity": {
-      "version": "1.3.0",
+      "version": "git@github.com:chainofalliance/reown-dotnet.git?path=/src/Reown.AppKit.Unity",
       "depth": 0,
-      "source": "registry",
+      "source": "git",
       "dependencies": {
         "com.reown.sign.nethereum.unity": "1.3.0",
         "com.reown.sign.unity": "1.3.0",
@@ -18,7 +18,7 @@
         "com.reown.unity.dependencies": "1.3.0",
         "com.unity.vectorgraphics": "2.0.0-preview.24"
       },
-      "url": "https://package.openupm.com"
+      "hash": "a49ae4425e985c560ba5b33cf4affa6eedefd2d8"
     },
     "com.reown.core": {
       "version": "1.3.0",
