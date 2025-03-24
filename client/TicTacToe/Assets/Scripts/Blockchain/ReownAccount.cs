@@ -45,7 +45,13 @@ public class ReownAccount : IAccount
 
     public async UniTask<TransactionReceipt> GetTransactionReceipt(string transactionHash)
     {
-        return await AppKit.Evm.RpcRequestAsync<TransactionReceipt>("eth_getTransactionByHash", transactionHash);
+        // TODO: fix rpc call in reown appkit
+        return await UniTask.FromResult(new TransactionReceipt()
+        {
+            TransactionHash = transactionHash,
+            BlockNumber = new HexBigInteger(1),
+        });
+        // return await AppKit.Evm.RpcRequestAsync<TransactionReceipt>("eth_getTransactionByHash", transactionHash);
     }
 
     public async UniTask<BigInteger> EstimateGas(string contractAddress, string abi, string methodName, object[] parameters)
