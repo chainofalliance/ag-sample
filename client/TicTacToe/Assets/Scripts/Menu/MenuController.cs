@@ -48,7 +48,7 @@ public class MenuController
         view.OnClaim += Claim;
         view.OnClickViewAllSessions += () =>
         {
-            Application.OpenURL($"https://alliance-games-explorer.vercel.app/address/{accountManager.AddressWithoutPrefix}/sessions");
+            Application.OpenURL($"https://explorer-testnet.alliancegames.xyz/address/{accountManager.AddressWithoutPrefix}/sessions");
         };
         view.OnClickAddressLink += () =>
         {
