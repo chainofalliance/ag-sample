@@ -4,6 +4,9 @@ using Reown.Core.Common.Utils;
 using System.Collections.Generic;
 using System.Numerics;
 
+using Buffer = Chromia.Buffer;
+using static TicTacToeContract;
+
 public class EvmTypes
 {
     [Preserve]
@@ -12,14 +15,14 @@ public class EvmTypes
         public byte[] _Event;
         public EventProof EventProof;
         public byte[] BlockHeader;
-        public List<byte[]> Sigs;
-        public List<string> Signers;
+        public byte[][] Sigs;
+        public string[] Signers;
         public ExtraMerkleProof ExtraProof;
 
         [JsonConstructor]
         public EventWithProof(
             byte[] _event, EventProof eventProof, byte[] blockHeader,
-            List<byte[]> sigs, List<string> signers, ExtraMerkleProof extraProof)
+            byte[][] sigs, string[] signers, ExtraMerkleProof extraProof)
         {
             _Event = _event;
             EventProof = eventProof;
@@ -31,8 +34,8 @@ public class EvmTypes
     }
 
     [Preserve]
-    [Struct("ClaimData")]
-    public class ClaimData
+    [Struct("ProofData")]
+    public class ProofData
     {
         [Parameter("bytes", "eventData", 1)]
         public byte[] EventData { get; set; }
@@ -44,10 +47,10 @@ public class EvmTypes
         public byte[] BlockHeader { get; set; }
 
         [Parameter("bytes[]", "signatures", 4)]
-        public List<byte[]> Signatures { get; set; }
+        public byte[][] Signatures { get; set; }
 
         [Parameter("address[]", "signers", 5)]
-        public List<string> Signers { get; set; }
+        public string[] Signers { get; set; }
 
         [Parameter("tuple", "extraProof", 6)]
         public ExtraMerkleProof ExtraProof { get; set; }
@@ -56,7 +59,16 @@ public class EvmTypes
         public byte[] EncodedData { get; set; }
 
         [JsonConstructor]
-        public ClaimData() { }
+        public ProofData(ClaimData data)
+        {
+            EventData = data.EventWithProof._Event;
+            EventProof = data.EventWithProof.EventProof;
+            BlockHeader = data.EventWithProof.BlockHeader;
+            Signatures = data.EventWithProof.Sigs;
+            Signers = data.EventWithProof.Signers;
+            ExtraProof = data.EventWithProof.ExtraProof;
+            EncodedData = Buffer.From(data.EncodedData).Bytes;
+        }
     }
 
     [Preserve]
@@ -70,10 +82,10 @@ public class EvmTypes
         public BigInteger Position { get; set; }
 
         [Parameter("bytes32[]", "merkleProofs", 3)]
-        public List<byte[]> MerkleProofs { get; set; }
+        public byte[][] MerkleProofs { get; set; }
 
         [JsonConstructor]
-        public EventProof(byte[] leaf, BigInteger position, List<byte[]> merkleproofs)
+        public EventProof(byte[] leaf, BigInteger position, byte[][] merkleproofs)
         {
             Leaf = leaf;
             Position = position;
@@ -98,10 +110,10 @@ public class EvmTypes
         public byte[] ExtraRoot { get; set; }
 
         [Parameter("bytes32[]", "extraMerkleProofs", 5)]
-        public List<byte[]> ExtraMerkleProofs { get; set; }
+        public byte[][] ExtraMerkleProofs { get; set; }
 
         [JsonConstructor]
-        public ExtraMerkleProof(byte[] leaf, byte[] hashedLead, BigInteger position, byte[] extraRoot, List<byte[]> extraMerkleProofs)
+        public ExtraMerkleProof(byte[] leaf, byte[] hashedLead, BigInteger position, byte[] extraRoot, byte[][] extraMerkleProofs)
         {
             Leaf = leaf;
             HashedLeaf = hashedLead;

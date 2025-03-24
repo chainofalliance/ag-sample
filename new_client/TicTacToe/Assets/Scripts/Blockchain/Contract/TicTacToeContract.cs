@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Nethereum.Util;
 using Nethereum.Web3;
-using Newtonsoft.Json;
 using Reown.AppKit.Unity;
-using Buffer = Chromia.Buffer;
 using UnityEngine;
+
 
 public class TicTacToeContract
 {
@@ -42,26 +41,20 @@ public class TicTacToeContract
 
     public async Task<string> ClaimBatch(ClaimData[] claimData)
     {
-        var argumentsList = new List<object>();
+        var argumentsList = new List<EvmTypes.ProofData>();
         foreach (var data in claimData)
         {
-            argumentsList.Add(new object[]
-            {
-                data.EventWithProof._Event,
-                data.EventWithProof.EventProof,
-                data.EventWithProof.BlockHeader,
-                data.EventWithProof.Sigs,
-                data.EventWithProof.Signers,
-                data.EventWithProof.ExtraProof,
-                Buffer.From(data.EncodedData).Bytes
-            });
+            argumentsList.Add(new EvmTypes.ProofData(data));
         }
 
         var arguments = new object[] { argumentsList.ToArray() };
+        var gasArgs = arguments;
 
-        Debug.Log($"Claiming batch with arguments: {JsonConvert.SerializeObject(arguments, Formatting.Indented)}");
+#if !UNITY_EDITOR
+        arguments = WagmiArgConverter.ConvertToViemTupleArgs(claimData);
+#endif
 
-        var estimatedGas = await account.EstimateGas(CONTRACT_ADDRESS, abi, "batchClaim", arguments);
+        var estimatedGas = await account.EstimateGas(CONTRACT_ADDRESS, abi, "batchClaim", gasArgs);
         if (!await HasEnoughGas(estimatedGas))
         {
             throw new Exception("Insufficient funds for gas.");

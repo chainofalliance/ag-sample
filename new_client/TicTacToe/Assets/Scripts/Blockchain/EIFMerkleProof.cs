@@ -20,12 +20,12 @@ public static class EIFUtils
 
 public static class CryptoUtils
 {
-    public static (List<byte[]> sigs, List<string> signers) GetWeb3BlockWitness(ChromiaTypes.BlockWitness[] blockWitness)
+    public static (byte[][], string[] signers) GetWeb3BlockWitness(ChromiaTypes.BlockWitness[] blockWitness)
     {
         var witness = blockWitness.Sort();
 
-        var sigs = witness.Select(w => ToBytesLike(w.Sig)).ToList();
-        var signers = witness.Select(w => $"0x{w.Pubkey.Parse()}").ToList();
+        var sigs = witness.Select(w => ToBytesLike(w.Sig)).ToArray();
+        var signers = witness.Select(w => $"0x{w.Pubkey.Parse()}").ToArray();
 
         return (sigs, signers);
     }
@@ -35,7 +35,7 @@ public static class CryptoUtils
         return new EvmTypes.EventProof(
             ToBytesLike(proof.Leaf),
             proof.Position,
-            proof.MerkleProofs.Select(w => ToBytesLike(w)).ToList()
+            proof.MerkleProofs.Select(w => ToBytesLike(w)).ToArray()
         );
     }
 
@@ -46,7 +46,7 @@ public static class CryptoUtils
             ToBytesLike(extraProof.HashedLeaf),
             extraProof.Position,
             ToBytesLike(extraProof.ExtraRoot),
-            extraProof.ExtraMerkleProofs.Select(w => ToBytesLike(w)).ToList()
+            extraProof.ExtraMerkleProofs.Select(w => ToBytesLike(w)).ToArray()
         );
     }
 
