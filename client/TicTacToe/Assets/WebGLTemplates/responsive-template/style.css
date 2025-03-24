@@ -1,0 +1,23 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #111;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#unity-container {
+    padding: 10px;
+}
+
+#unity-canvas {
+    width: min(calc(95vh * (16/10)), 95vw);
+    max-width: 1440px;
+    max-height: 900px;
+    height: auto;
+    aspect-ratio: 16/10;
+    background: #000;
+}
