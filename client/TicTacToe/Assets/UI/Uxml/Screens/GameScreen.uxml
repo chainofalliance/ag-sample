@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ttt="TTT.Components" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xmlns="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="PlayerInfoElement" src="project://database/Assets/UI/Uxml/Components/PlayerInfoElement.uxml?fileID=9197481963319205126&amp;guid=ba43c0a26e8bf2149bf9c997e4abde41&amp;type=3#PlayerInfoElement" />
+    <ui:Template name="CellElement" src="project://database/Assets/UI/Uxml/Components/CellElement.uxml?fileID=9197481963319205126&amp;guid=5d05db0cecff9d44dbabe6b8d6c19c43&amp;type=3#CellElement" />
+    <Style src="project://database/Assets/UI/Uss/Components/ModalResult.uss?fileID=7433441132597879392&amp;guid=49c7cf30ff50b474d8d8f40e2a91e0a3&amp;type=3#ModalResult" />
+    <Style src="project://database/Assets/UI/Uss/Components/CellElement.uss?fileID=7433441132597879392&amp;guid=a4a077c8bf9741c449541b148cf8b73f&amp;type=3#CellElement" />
+    <Style src="project://database/Assets/UI/Uss/Game.uss?fileID=7433441132597879392&amp;guid=3052f7b3b65c7ca47a959c18d1c5c049&amp;type=3#Game" />
+    <Style src="project://database/Assets/UI/Uss/Components/PlayerInfoElement.uss?fileID=7433441132597879392&amp;guid=f1c38b64535c66043998a1070982037d&amp;type=3#PlayerInfoElement" />
+    <ui:VisualElement name="GameContainer" style="flex-grow: 1; background-color: rgb(26, 26, 26); align-items: center; padding-left: 44px; padding-right: 0; padding-top: 0; flex-direction: row;">
+        <ui:Button name="ButtonExit" style="margin-top: 24px; margin-right: 32px; margin-bottom: 0; margin-left: 0; padding-top: 16px; padding-right: 16px; padding-bottom: 16px; padding-left: 16px; width: 48px; height: 48px; background-color: rgba(188, 188, 188, 0); border-left-color: rgba(255, 255, 255, 0.19); border-right-color: rgba(255, 255, 255, 0.19); border-top-color: rgba(255, 255, 255, 0.19); border-bottom-color: rgba(255, 255, 255, 0.19); align-self: flex-start; background-image: url(&quot;project://database/Assets/UI/Textures/icon_exit.png?fileID=2800000&amp;guid=a890fcfecf91d4044b954576f0243929&amp;type=3#icon_exit&quot;); background-size: 16px 16px;" />
+        <ui:VisualElement name="SectionGame" style="flex-grow: 1; align-self: flex-start; margin-right: 100px; margin-top: 24px; margin-bottom: 56px;">
+            <ui:Instance template="PlayerInfoElement" name="PlayerInfoMe" style="margin-bottom: 20px; align-self: center;" />
+            <ui:VisualElement name="ContainerBoard" style="flex-grow: 1; align-items: center; justify-content: center;">
+                <ui:VisualElement name="Row" style="flex-direction: row;">
+                    <ui:Instance template="CellElement" name="Cell0" />
+                    <ui:Instance template="CellElement" name="Cell1" />
+                    <ui:Instance template="CellElement" name="Cell2" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Row" style="flex-direction: row;">
+                    <ui:Instance template="CellElement" name="Cell3" />
+                    <ui:Instance template="CellElement" name="Cell4" />
+                    <ui:Instance template="CellElement" name="Cell5" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Row" style="flex-direction: row;">
+                    <ui:Instance template="CellElement" name="Cell6" />
+                    <ui:Instance template="CellElement" name="Cell7" />
+                    <ui:Instance template="CellElement" name="Cell8" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:Instance template="PlayerInfoElement" name="PlayerInfoOpponent" style="margin-bottom: 0; margin-top: 20px; align-self: center;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="SectionSessonInfo" style="flex-grow: 0; width: 300px; height: 100%; background-color: rgb(0, 0, 0); padding-top: 37px; padding-bottom: 37px; padding-right: 32px; padding-left: 32px; border-left-color: rgba(255, 255, 255, 0.08); border-right-color: rgba(255, 255, 255, 0.08); border-top-color: rgba(255, 255, 255, 0.08); border-bottom-color: rgba(255, 255, 255, 0.08); border-left-width: 1px;">
+            <ui:Label text="Session Info" name="LabelSessionInfo" style="-unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255); font-size: 16px;" />
+            <ui:VisualElement name="ContainerSessionId" style="flex-grow: 0; flex-direction: row;">
+                <ui:Label text="Session ID:" name="LabelSessionId" style="-unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(255, 255, 255); font-size: 12px;" />
+                <ui:Label text="02a3b1...d4a1" name="LabelSessionIdValue" style="-unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(255, 255, 255); font-size: 12px;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ContainerViewInExplorer" style="flex-grow: 0; flex-direction: row; align-items: center;">
+                <ui:Label text="View in Explorer" name="LabelView" style="-unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(255, 255, 255); font-size: 12px;" />
+                <ui:Button name="ButtonViewInExplorer" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-color: rgba(188, 188, 188, 0); border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; background-image: url(&quot;project://database/Assets/UI/Textures/icon_link2.png?fileID=2800000&amp;guid=71e478bddbfdaab4b96c08bcc224940e&amp;type=3#icon_link2&quot;); background-size: 18px 18px; width: 18px; height: 18px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

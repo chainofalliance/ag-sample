@@ -1,0 +1,66 @@
+.symbol_container {
+    flex-grow: 0;
+    width: 24px;
+    height: 24px;
+    padding-top: 4px;
+    padding-right: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    background-size: 16px 16px;
+}
+
+.container-player-info {
+    flex-grow: 0;
+    height: 72px;
+    padding-top: 24px;
+    padding-right: 24px;
+    padding-bottom: 24px;
+    padding-left: 24px;
+    flex-direction: row;
+}
+
+.container-turn-timer {
+    flex-grow: 0;
+    padding-top: 8px;
+    padding-right: 16px;
+    padding-left: 16px;
+    padding-bottom: 8px;
+    background-color: rgb(21, 21, 21);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.08);
+    border-right-color: rgba(255, 255, 255, 0.08);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+    flex-direction: row;
+    align-content: center;
+}
+
+.your-turn #ContainerTimer {
+    background-image: url("project://database/Assets/UI/Textures/bg_gradient.png?fileID=2800000&guid=e61ba4a8a382645499f6904d0cc07ec7&type=3#bg_gradient");
+}
+
+.your-turn #LabelYourTurn {
+    display: flex;
+}
+
+.your-turn #LabelYourTurn {
+    display: flex;
+}
+
+.label-your-turn {
+    margin-top: 0;
+    margin-right: 24px;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    -unity-font-definition: resource('AzeretMono-Regular');
+    color: rgb(215, 19, 210);
+    align-self: center;
+    display: none;
+}

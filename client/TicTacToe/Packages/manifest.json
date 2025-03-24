@@ -1,15 +1,22 @@
 {
   "dependencies": {
-    "com.unity.collab-proxy": "2.4.4",
-    "com.unity.feature.development": "1.0.1",
+    "com.nethereum.unity": "4.29.0",
+    "com.reown.appkit.unity": "git@github.com:chainofalliance/reown-dotnet.git?path=/src/Reown.AppKit.Unity",
+    "com.unity.collab-proxy": "2.7.1",
+    "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.cursor": "https://github.com/boxqkrtm/com.unity.ide.cursor.git",
-    "com.unity.nuget.newtonsoft-json": "3.2.1",
-    "com.unity.textmeshpro": "3.0.6",
-    "com.unity.timeline": "1.7.6",
-    "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.9",
-    "com.unity.ugui": "1.0.0",
-    "com.unity.visualscripting": "1.9.1",
+    "com.unity.ide.rider": "3.0.31",
+    "com.unity.ide.visualstudio": "2.0.22",
+    "com.unity.inputsystem": "1.13.0",
+    "com.unity.multiplayer.center": "1.0.0",
+    "com.unity.render-pipelines.universal": "17.0.4",
+    "com.unity.test-framework": "1.4.6",
+    "com.unity.timeline": "1.8.7",
+    "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.10",
+    "com.unity.ugui": "2.0.0",
+    "com.unity.visualscripting": "1.9.5",
     "xyz.alliancegames.unity-sdk": "git@github.com:chainofalliance/ag-unity-sdk.git?path=/unity/AllianceGamesSdk/Assets/AllianceGamesSdk#dev",
+    "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
@@ -41,5 +48,25 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.nethereum.unity",
+        "com.reown.appkit.unity",
+        "com.reown.core",
+        "com.reown.core.common",
+        "com.reown.core.crypto",
+        "com.reown.core.network",
+        "com.reown.core.storage",
+        "com.reown.sign",
+        "com.reown.sign.nethereum",
+        "com.reown.sign.nethereum.unity",
+        "com.reown.sign.unity",
+        "com.reown.unity.dependencies"
+      ]
+    }
+  ]
 }

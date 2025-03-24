@@ -1,0 +1,23 @@
+.winner #Winner {
+    background-image: url("project://database/Assets/UI/Textures/icon_crown.png?fileID=2800000&guid=22d840156861f5649b5fd793ab03de3a&type=3#icon_crown");
+}
+
+.symbol-x #ImageContainer {
+    background-image: url("project://database/Assets/UI/Textures/img_cross.png?fileID=2471131270988543656&guid=c4f091d1765aa4a42a20b25f2f5b2cd3&type=3#img_cross_0");
+}
+
+.symbol-o #ImageContainer {
+    background-image: url("project://database/Assets/UI/Textures/img_circle.png?fileID=2112984180497816711&guid=6d5508106c45754449b6ef420b1b47c5&type=3#img_circle_0");
+}
+
+.container-modal {
+    flex-grow: 0;
+    width: auto;
+    height: auto;
+    top: 202px;
+    background-image: url("project://database/Assets/UI/Textures/bg_modal.png?fileID=2800000&guid=88dccef9845d6cc4ca14ef4e4d5bdedc&type=3#bg_modal");
+    left: 470px;
+    right: 473px;
+    bottom: 202px;
+    position: absolute;
+}

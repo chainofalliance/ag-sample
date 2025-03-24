@@ -1,0 +1,39 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <engine:Template name="ModalResultPlayerInfo" src="project://database/Assets/UI/Uxml/Components/ModalResult/ModalResultPlayerInfo.uxml?fileID=9197481963319205126&amp;guid=21687bfbfac33a44cbbcb35c89480f00&amp;type=3#ModalResultPlayerInfo" />
+    <Style src="project://database/Assets/UI/Uss/Components/ModalResult.uss?fileID=7433441132597879392&amp;guid=49c7cf30ff50b474d8d8f40e2a91e0a3&amp;type=3#ModalResult" />
+    <TTT.Components.ModalResult style="width: 100%; height: 100%; justify-content: center;">
+        <engine:VisualElement name="Blurr" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; background-color: rgba(30, 30, 30, 0.8);" />
+        <engine:VisualElement name="Content" style="width: 500px; height: 496px; align-self: center; background-image: url(&quot;project://database/Assets/UI/Textures/bg_modal.png?fileID=2800000&amp;guid=88dccef9845d6cc4ca14ef4e4d5bdedc&amp;type=3#bg_modal&quot;);">
+            <engine:Label text="You Lose" name="LableTitle" style="height: 61px; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); font-size: 24px; color: rgb(255, 255, 255); margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-text-align: middle-center;" />
+            <engine:VisualElement name="ContainerPlayerInfo" style="flex-grow: 0; flex-direction: row; justify-content: space-around;">
+                <engine:Instance template="ModalResultPlayerInfo" name="HomeInfo" />
+                <engine:Instance template="ModalResultPlayerInfo" name="AwayInfo" />
+            </engine:VisualElement>
+            <engine:VisualElement name="ContainerResult" style="flex-grow: 1; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px; align-items: center; margin-left: 20px; margin-right: 20px; margin-bottom: 10px; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-left-color: rgb(60, 60, 60); border-right-color: rgb(60, 60, 60); border-top-color: rgb(60, 60, 60); border-bottom-color: rgb(60, 60, 60);">
+                <engine:VisualElement name="ContainerPointsEarned" style="flex-grow: 0; flex-direction: row;">
+                    <engine:Label text="You gained" name="LabelPointsGained" style="margin-top: 0; margin-right: 8px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255);" />
+                    <engine:Label text="50" name="LabelPointsGainedValue" style="margin-top: 0; margin-right: 8px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255);" />
+                    <engine:VisualElement name="IconPoints" style="flex-grow: 1; width: 20px; height: 20px; background-image: url(&quot;project://database/Assets/UI/Textures/icon_points.png?fileID=2800000&amp;guid=ddd9bab4ac5905340920591e7b7317c4&amp;type=3#icon_points&quot;); background-size: 20px 20px;" />
+                </engine:VisualElement>
+                <engine:VisualElement name="Divider" style="flex-grow: 0; width: 100%; height: 1px; margin-top: 16px; margin-bottom: 16px; background-color: rgb(60, 60, 60);" />
+                <engine:VisualElement name="ContainerSessionInfo" style="flex-grow: 0; flex-direction: row; width: 100%; height: auto;">
+                    <engine:VisualElement name="LabelsSession" style="flex-grow: 1; flex-direction: row;">
+                        <engine:Label text="Session ID: " name="LabelSession" style="margin-top: 0; margin-right: 8px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255);" />
+                        <engine:Label text="02a3b1...d4a1" name="LabelSessionValue" style="margin-top: 0; margin-right: 8px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;open-sans.semibold&apos;); color: rgb(255, 255, 255);" />
+                    </engine:VisualElement>
+                    <engine:VisualElement name="ContainerViewExplorer" style="flex-grow: 1; flex-direction: row; align-items: center; justify-content: flex-end;">
+                        <engine:Label text="View in explorer" name="LabelViewInExplorer" style="margin-top: 0; margin-right: 8px; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-definition: resource(&apos;AzeretMono-Regular&apos;); color: rgb(184, 179, 179); font-size: 12px; align-self: center;" />
+                        <engine:Button name="ButtonViewInExplorer" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; background-image: url(&quot;project://database/Assets/UI/Textures/icon_link.png?fileID=2800000&amp;guid=e8c818afc4d5c284290076058a0484b6&amp;type=3#icon_link&quot;); background-size: 16px 16px; width: 16px; height: 16px; background-color: rgba(188, 188, 188, 0);" />
+                    </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:VisualElement>
+            <engine:VisualElement name="ContainerButtons" style="flex-grow: 1; padding-top: 20px; padding-right: 20px; padding-bottom: 20px; padding-left: 20px;">
+                <engine:Button text="Claim points" name="ButtonClaim" style="margin-top: 0; background-color: rgba(255, 255, 255, 0); -unity-font-definition: resource(&apos;AzeretMono-Bold&apos;); padding-top: 16px; padding-bottom: 16px; padding-left: 20px; padding-right: 20px; width: 100%; height: 53px; margin-left: 0; margin-right: 0; margin-bottom: 20px; align-self: center; color: rgb(1, 255, 255); border-left-color: rgb(1, 255, 255); border-right-color: rgb(1, 255, 255); border-top-color: rgb(1, 255, 255); border-bottom-color: rgb(1, 255, 255); display: flex;" />
+                <engine:VisualElement name="ContainerButtonRow" style="flex-grow: 1; flex-direction: row;">
+                    <engine:Button text="Home" name="ButtonHome" enabled="true" style="margin-top: 0; background-color: rgb(0, 0, 0); -unity-font-definition: resource(&apos;AzeretMono-Bold&apos;); padding-top: 16px; padding-bottom: 16px; padding-left: 20px; padding-right: 20px; width: 50%; height: 53px; margin-left: 0; margin-right: 10px; margin-bottom: 0; color: rgb(255, 255, 255); border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); flex-grow: 1; flex-shrink: 1;" />
+                    <engine:Button text="Next round" name="ButtonNextRound" enabled="true" style="margin-top: 0; background-color: rgb(255, 255, 255); -unity-font-definition: resource(&apos;AzeretMono-Bold&apos;); padding-top: 16px; padding-bottom: 16px; padding-left: 20px; padding-right: 20px; width: 50%; height: 53px; margin-left: 10px; margin-right: 0; margin-bottom: 0; flex-grow: 1; flex-shrink: 1;" />
+                </engine:VisualElement>
+            </engine:VisualElement>
+        </engine:VisualElement>
+    </TTT.Components.ModalResult>
+</engine:UXML>

@@ -16,21 +16,17 @@ internal class Logic
     private readonly CancellationTokenSource cts = new();
     private readonly TaskCompletionSource initCs = new();
     private readonly TaskCompletionSource readyCs = new();
-    private readonly INodeConfig config;
-    private List<Buffer> players => points.Keys.ToList();
-    private readonly Dictionary<Buffer, int> points = new();
-    private readonly bool isAi;
+    private List<Buffer> players = new();
+    private bool IsAi => server.Clients.Count == 1;
     private int readyPlayers = 0;
     private Buffer currentPlayerId = Buffer.Empty();
     private TaskCompletionSource<Messages.MoveResponse>? moveTcs;
 
     private readonly Messages.Field[,] board = new Messages.Field[3, 3];
+    private bool gameOver = false;
 
-    public Logic(INodeConfig config, bool isAi)
+    public Logic(INodeConfig config)
     {
-        this.config = config;
-        this.isAi = isAi;
-
         var server = AllianceGamesServer.Create(
             new WebSocketTransport(config.Logger),
             config
@@ -40,6 +36,7 @@ internal class Logic
             throw new Exception("Failed to create server");
         }
         this.server = server;
+        Log.Logger = server.Logger;
 
         RegisterHandlers();
     }
@@ -49,7 +46,7 @@ internal class Logic
         Log.Information($"Player {address.Parse()} forfeited the game");
 
         var winnerField = GetField(players.First(p => p != address.Parse()));
-        await GameOver(winnerField);
+        await GameOver(winnerField, true);
     }
 
     public async Task Run()
@@ -58,25 +55,39 @@ internal class Logic
 
         if (server == null)
         {
-            config.Logger.Error("Failed to create server");
+            Log.Error("Failed to create server");
             return;
         }
 
-
         try
         {
-            Log.Information($"Login to blockchain");
-            // TODO: does not work anymore
-            var blockchain = await Blockchain.Create(BlockchainConfig.TTT(config.SessionId == server.SessionId));
-
             Log.Information($"Initializing players");
-            await InitializePlayers(blockchain);
+            InitializePlayers();
 
             Log.Information($"Initializing board");
             InitializeBoard();
 
             Log.Information($"Waiting for both players to ready up");
-            await readyCs.Task;
+            var timeout = server.SetTimeout(() => readyCs.TrySetCanceled(), 20000, CancellationToken);
+            try
+            {
+                await readyCs.Task;
+            }
+            catch (TaskCanceledException)
+            {
+                Log.Information($"Timeout waiting for both players to ready up");
+                await server!.Send(
+                    (int)Messages.Header.GameOver,
+                    Messages.Encode(new Messages.GameOver(null, true)),
+                    CancellationToken
+                );
+                // finally calls stop, so we don't need to do anything
+                return;
+            }
+            finally
+            {
+                timeout.Cancel();
+            }
 
             // play game
             Messages.Field? winner = null;
@@ -89,17 +100,17 @@ internal class Logic
                 {
                     await server.Send(
                         (int)Messages.Header.Sync,
-                        new Messages.Sync(GetField(currentPlayerId), board).Encode(),
+                        Messages.Encode(new Messages.Sync(GetField(currentPlayerId), board)),
                         CancellationToken
                     );
                     Log.Information($"Send request to player {currentPlayerId.Parse()}");
 
                     int move;
-                    if (isAi && currentPlayerId == aiAddress)
+                    if (IsAi && currentPlayerId == aiAddress)
                     {
                         move = RandomMove();
                         var cts = new TaskCompletionSource();
-                        server.SetTimeout(() => cts.TrySetResult(), 1000, CancellationToken);
+                        server.SetTimeout(() => cts.TrySetResult(), 2500, CancellationToken);
                         await cts.Task;
                     }
                     else
@@ -126,11 +137,11 @@ internal class Logic
 
             await server.Send(
                 (int)Messages.Header.Sync,
-                new Messages.Sync(GetField(currentPlayerId), board).Encode(),
+                Messages.Encode(new Messages.Sync(GetField(currentPlayerId), board)),
                 CancellationToken
             );
 
-            await GameOver(winner);
+            await GameOver(winner.Value, false);
         }
         catch (WebSocketException) { }
         catch (OperationCanceledException) { }
@@ -140,63 +151,57 @@ internal class Logic
         }
     }
 
-    private async Task InitializePlayers(Blockchain blockchain)
+    private void InitializePlayers()
     {
         Log.Information($"Initialize players");
         foreach (var client in server.Clients)
         {
-            Log.Information($"Initialize player {client.Parse()}");
-            int playerPoints = 0;
-            try
-            {
-                playerPoints = await blockchain.GetPoints(client.Parse());
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, $"Failed to get points for player {client.Parse()}");
-            }
-
-            Log.Information($"Add player {client.Parse()} with {playerPoints} points");
-            points.Add(client, playerPoints);
+            Log.Information($"Add player {client.Parse()}");
+            players.Add(client);
         }
 
-        if (isAi)
+        if (IsAi)
         {
             Log.Information($"Initialize AI player");
-            var aiPoints = await blockchain.GetPoints(AI_ADDRESS);
-            points.Add(aiAddress, aiPoints);
             players.Add(aiAddress);
-            Log.Information($"Add AI player with {aiPoints} points");
+            Log.Information($"Add AI player");
         }
 
         Log.Information($"Initialize players done");
         initCs.SetResult();
     }
 
-    private async Task GameOver(Messages.Field? winner)
+    private async Task GameOver(Messages.Field winner, bool isForfeit)
     {
-        Buffer? winnerPlayer = winner == null ? null : players[(int)winner - 1];
-        Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}");
+        gameOver = true;
+        Buffer? winnerPlayer = winner == Messages.Field.Empty ? null : players[(int)winner - 1];
+        Log.Information($"Game is over, winner is {winnerPlayer?.Parse()}, forfeit: {isForfeit}");
         await server!.Send(
             (int)Messages.Header.GameOver,
-            winnerPlayer ?? Buffer.Empty(),
-            default
+            Messages.Encode(new Messages.GameOver(winnerPlayer?.Bytes, isForfeit)),
+            CancellationToken
         );
 
-        Reward[] blockchainReward;
+        List<Reward> blockchainReward = new();
         if (winnerPlayer == null)
         {
-            blockchainReward = players
-                .Select(p => new Reward(p, 50))
-                .ToArray();
+            for (int i = 0; i < players.Count; i++)
+            {
+                blockchainReward.Add(
+                    new Reward(players[i], server.SessionId, players[(i + 1) % 2], 50, Outcome.Draw)
+                );
+            }
         }
         else
         {
+            var looser = players.First(p => p != winnerPlayer.Value);
             blockchainReward = [
-                new Reward(winnerPlayer.Value, 100),
-                new Reward(players.First(p => p != winnerPlayer.Value), 50)
+                new Reward(winnerPlayer.Value, server.SessionId, looser, 100, Outcome.Win),
+                new Reward(looser, server.SessionId, winnerPlayer.Value, 25, Outcome.Loose)
             ];
         }
+
+        blockchainReward.RemoveAll(r => r.PubKey == AI_ADDRESS);
 
         await Stop(JsonConvert.SerializeObject(blockchainReward));
     }
@@ -249,7 +254,7 @@ internal class Logic
         );
         Log.Information($"Send request done");
 
-        var timeout = server.SetTimeout(() => moveTcs?.TrySetCanceled(), 5000, ct);
+        var timeout = server.SetTimeout(() => moveTcs?.TrySetCanceled(), 30000, ct);
         try
         {
             var res = await moveTcs.Task;
@@ -280,7 +285,7 @@ internal class Logic
         {
             readyPlayers++;
             Log.Information($"Player {address.Parse()} is ready");
-            if (readyPlayers == (isAi ? 1 : 2))
+            if (readyPlayers == (IsAi ? 1 : 2))
             {
                 readyCs.SetResult();
             }
@@ -299,7 +304,7 @@ internal class Logic
                 return;
             }
 
-            moveTcs.SetResult(new Messages.MoveResponse(data));
+            moveTcs.SetResult(Messages.Decode<Messages.MoveResponse>(data));
         });
 
         server.RegisterMessageHandler((uint)Messages.Header.Forfeit, async (address, _) =>
@@ -323,9 +328,9 @@ internal class Logic
                 return Buffer.Empty();
             }
 
-            return new Messages.PlayerDataResponse(players.Select(
-                p => new Messages.PlayerDataResponse.Player(p, points[p], GetField(p))
-            ).ToArray()).Encode();
+            return Messages.Encode(new Messages.PlayerDataResponse(players.Select(
+                p => new Messages.PlayerDataResponse.Player(p, GetField(p))
+            ).ToArray()));
         });
 
         server.OnClientConnect += address => Log.Information($"Player {address.Parse()} connected");
@@ -336,6 +341,7 @@ internal class Logic
     {
         if (server.IsRunning)
         {
+            await Task.Delay(1000);
             await server.Stop(reward);
         }
 
@@ -346,6 +352,10 @@ internal class Logic
         }
         catch (Exception)
         { }
+        finally
+        {
+            Environment.Exit(0);
+        }
     }
 
     private Messages.Field? GetWinner()
@@ -385,11 +395,28 @@ internal class Logic
         return null;
     }
 
-    private class Reward(Buffer pubKey, int points)
+    enum Outcome
+    {
+        Win,
+        Loose,
+        Draw
+    }
+
+    private class Reward(Buffer pubKey, string SessionId, Buffer opponent, int points, Outcome outcome)
     {
         [JsonProperty("pubkey")]
         public string PubKey { get; } = pubKey.Parse();
+
+        [JsonProperty("session_id")]
+        public string SessionId { get; } = SessionId;
+
+        [JsonProperty("opponent")]
+        public string Opponent { get; } = opponent.Parse();
+
         [JsonProperty("points")]
         public int Points { get; } = points;
+
+        [JsonProperty("outcome")]
+        public Outcome Outcome { get; } = outcome;
     }
 }
