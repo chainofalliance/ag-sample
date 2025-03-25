@@ -512,7 +512,7 @@
         "com.unity.netcode.gameobjects": "1.12.2",
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       },
-      "hash": "0a9a3f5aceeb741858e0c9bfcfb0ca6e1deeb8ce"
+      "hash": "a07d6c48f601d7d7f6df4f8a74046d605ea2fcbd"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
