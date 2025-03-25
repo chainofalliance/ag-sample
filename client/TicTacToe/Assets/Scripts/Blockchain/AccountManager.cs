@@ -64,7 +64,6 @@ public class AccountManager
         LoggingIn = true;
         try
         {
-            Debug.Log("AccountManager: New Account Connected!");
             Account = new ReownAccount(await eventArgs.GetAccount());
             FinishLogin();
         }

@@ -122,8 +122,6 @@ namespace TTT.Components
                     labelTitle.text = amIWinner.Value ? "You Win" : "You Lose";
                 }
 
-                UnityEngine.Debug.Log($"Home: {home.Address} {amIWinner.HasValue && amIWinner.Value}");
-
                 homeInfo.Populate(home, amIWinner.HasValue && amIWinner.Value);
                 awayInfo.Populate(away, amIWinner.HasValue && !amIWinner.Value);
 

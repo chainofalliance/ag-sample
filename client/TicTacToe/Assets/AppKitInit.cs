@@ -27,8 +27,6 @@ public class AppKitInit : MonoBehaviour
             )
         };
 
-        Debug.Log("[AppKit Init] Initializing AppKit...");
-
         await AppKit.InitializeAsync(
             appKitConfig
         );

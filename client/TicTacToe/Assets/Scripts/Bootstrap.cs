@@ -77,43 +77,12 @@ public class Bootstrap : MonoBehaviour
         {
             await menuController.UpdatePlayerInfo();
             OnChangeScreen(Screen.MENU);
-
-            //var eventData = await Queries.getEifEventBySession(connectionManager.AlliancesGamesClient, "0321d8c1fd9b366c7bf1cdfdf2c0a2c15e124b02847d45a1c0e0f673eec66377");
-            //var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, eventData.EventHash);
-            //var merkleProof = EIFUtils.Construct(rawMerkleProof);
-
-            //foreach (var signer in merkleProof.Signers)
-            //{
-            //    Debug.Log(signer);
-            //}
-            //await TicTacToeContract.Claim(merkleProof, eventData.EncodedData);
         };
 
         AppKit.AccountDisconnected += (sender, eventArgs) =>
         {
             OnChangeScreen(Screen.LOGIN);
         };
-
-        //AppKit.AccountConnected += async (sender, eventArgs) =>
-        //{
-        //    OnChangeScreen(Screen.MENU);
-
-        //    var account = await eventArgs.GetAccount();
-
-        //    Debug.Log(res.ToString());
-
-        //    var events = await Queries.GetUnclaimedEifEvents(connectionManager.AlliancesGamesClient, Chromia.Buffer.From(account.Address));
-        //    Debug.Log("Amount events found: " + events.Length);
-
-        //    foreach (var e in events)
-        //    {
-        //        Debug.Log(e.ToString());
-        //        var rawMerkleProof = await Queries.GetEventMerkleProof(connectionManager.AlliancesGamesClient, e.EventHash);
-        //        var merkleProof = EIFUtils.Construct(rawMerkleProof);
-
-        //        await TicTacToeContract.Claim(merkleProof, e.EncodedData);
-        //    }
-        //};
 
         OnChangeScreen(Screen.LOGIN);
     }
@@ -135,8 +104,6 @@ public class Bootstrap : MonoBehaviour
                 ChainBNBTestnet
             }
         };
-
-        Debug.Log("[AppKit Init] Initializing AppKit...");
 
         await AppKit.InitializeAsync(
             appKitConfig

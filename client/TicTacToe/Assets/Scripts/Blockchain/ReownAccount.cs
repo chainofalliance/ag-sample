@@ -39,7 +39,7 @@ public class ReownAccount : IAccount
             gasLimit,
             parameters
         );
-        Debug.Log($"Transaction Sent. Hash: {transactionHash}");
+
         return transactionHash;
     }
 

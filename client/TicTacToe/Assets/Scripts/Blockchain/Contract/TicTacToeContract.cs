@@ -60,7 +60,6 @@ public class TicTacToeContract
             throw new Exception("Insufficient funds for gas.");
         }
 
-        Debug.Log($"Sending transaction with estimated gas: {estimatedGas}");
         var txHash = await account.SendTransaction(CONTRACT_ADDRESS, abi, "batchClaim", estimatedGas, arguments);
         if (string.IsNullOrEmpty(txHash))
         {
