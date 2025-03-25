@@ -136,6 +136,8 @@ public class GameController
                 return false;
             }
 
+            playerData.Clear();
+
             foreach (var player in response.Players)
             {
                 Debug.Log($"Adding player {player.PubKey.Parse()} {player.Symbol}...");
