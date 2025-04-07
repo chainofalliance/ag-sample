@@ -21,7 +21,7 @@ public class MenuController
     private readonly IMatchmakingService matchmakingService;
     private readonly BlockchainConnectionManager connectionManager;
     private readonly AccountManager accountManager;
-    private readonly Action<Uri, string> OnStartGame;
+    private readonly Action<Uri, string, Buffer> OnStartGame;
     private string duid;
     private Queries.EifEventData[] unclaimedRewards;
     private CancellationTokenSource timerCts;
@@ -31,7 +31,7 @@ public class MenuController
         MenuView view,
         BlockchainConnectionManager connectionManager,
         AccountManager accountManager,
-        Action<Uri, string> OnStartGame
+        Action<Uri, string, Buffer> OnStartGame
     )
     {
         this.view = view;
@@ -140,9 +140,9 @@ public class MenuController
                 return;
             }
 
-            var (sessionId, node) = result.Value;
+            var (sessionId, coordinatorUrl, coordinatorPubkey) = result.Value;
 
-            var uriBuilder = new UriBuilder(node);
+            var uriBuilder = new UriBuilder(coordinatorUrl);
             if (uriBuilder.Host == "host.docker.internal")
             {
                 uriBuilder.Host = "localhost";
@@ -151,7 +151,7 @@ public class MenuController
             Debug.Log($"Connecting to {uriBuilder.Uri}...");
             view.SetMatchmakingStatus("Connecting to the game...");
             view.DisableLeaveButton();
-            OnStartGame?.Invoke(uriBuilder.Uri, sessionId);
+            OnStartGame?.Invoke(uriBuilder.Uri, sessionId, coordinatorPubkey);
         }
         catch (OperationCanceledException)
         { }
@@ -198,7 +198,7 @@ public class MenuController
         }, ct);
     }
 
-    private async UniTask<(string sessionId, string node)?> WaitForMatch(
+    private async UniTask<(string sessionId, string coordinatorUrl, Buffer coordinatorPubkey)?> WaitForMatch(
         IMatchmakingService matchmakingService,
         string ticketId,
         CancellationToken ct
@@ -227,12 +227,12 @@ public class MenuController
         }
 
         Debug.Log($"Match found! Getting server details for match ID {sessionId}...");
-        var node = await matchmakingService.GetConnectionDetails(new()
+        var response = await matchmakingService.GetConnectionDetails(new()
         {
             SessionId = sessionId
         }, ct);
 
-        return (sessionId, node);
+        return (sessionId, response.CoordinatorUrl, response.CoordinatorPubkey);
     }
 
     private async UniTaskVoid RunMatchmaking(

@@ -7,6 +7,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using TTT.Components;
+using Buffer = Chromia.Buffer;
 
 public class Bootstrap : MonoBehaviour
 {
@@ -169,9 +170,9 @@ public class Bootstrap : MonoBehaviour
         }
     }
 
-    private async void OnStartGame(Uri nodeUri, string matchId)
+    private async void OnStartGame(Uri nodeUri, string matchId, Buffer coordinatorPubkey)
     {
-        var res = await gameController.StartGame(nodeUri, matchId);
+        var res = await gameController.StartGame(nodeUri, matchId, coordinatorPubkey);
         if (res)
         {
             OnChangeScreen(Screen.GAME);

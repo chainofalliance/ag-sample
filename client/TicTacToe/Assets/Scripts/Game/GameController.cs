@@ -94,7 +94,7 @@ public class GameController
         view.DisableClaimButton();
     }
 
-    public async Task<bool> StartGame(Uri nodeUri, string matchId)
+    public async Task<bool> StartGame(Uri nodeUri, string matchId, Buffer coordinatorPubkey)
     {
         cts = new CancellationTokenSource();
 
@@ -107,15 +107,22 @@ public class GameController
                 .WriteTo.Unity3D()
             .CreateLogger();
 
-            var config = GetClientConfig(nodeUri, matchId, logger);
+            var config = GetClientConfig(nodeUri, coordinatorPubkey, matchId, logger);
 
-            allianceGamesClient = await AllianceGamesClient.Create(
+            allianceGamesClient = AllianceGamesClient.Create(
                 WebSocketTransportFactory.Get(config.Logger),
-                config,
-                ct: cts.Token
+                config
             );
 
             if (allianceGamesClient == null)
+            {
+                await OnError("Could not start the game.");
+                return false;
+            }
+
+            RegisterHandlers();
+
+            if (!await allianceGamesClient.Start(cts.Token))
             {
                 await OnError("Could not connect to the game server.");
                 return false;
@@ -123,7 +130,6 @@ public class GameController
 
             sessionId = matchId;
 
-            RegisterHandlers();
 
             var response = await Request<PlayerDataResponse>(
                 new PlayerDataRequest(),
@@ -263,6 +269,7 @@ public class GameController
 
     private IClientConfig GetClientConfig(
         Uri nodeUri,
+        Buffer coordinatorPubkey,
         string matchId,
         Serilog.ILogger logger
     )
@@ -272,6 +279,7 @@ public class GameController
         matchId,
         "",
         nodeUri,
+        coordinatorPubkey,
         accountManager.SignatureProvider,
         new UniTaskRunner(),
         new UnityHttpClient(),
@@ -282,6 +290,7 @@ public class GameController
         return new ClientConfig(
             matchId,
             nodeUri,
+            coordinatorPubkey,
             accountManager.SignatureProvider,
             new UniTaskRunner(),
             new UnityHttpClient(),
