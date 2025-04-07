@@ -64,8 +64,8 @@ fi
 
 echo "#"
 
-cp -r $BASE_WORKDIR/scripts/Dockerfile $BUILD_PATH
-cp -r $BASE_WORKDIR/scripts/default.conf $BUILD_PATH
+cp -r $BASE_WORKDIR/scripts/client_container/Dockerfile $BUILD_PATH
+cp -r $BASE_WORKDIR/scripts/client_container/default.conf $BUILD_PATH
 
 END_TIME=$(date "+%s")
 ELAPSED_TIME=$((END_TIME-START_TIME))
