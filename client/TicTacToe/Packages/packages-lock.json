@@ -505,14 +505,14 @@
       "url": "https://packages.unity.com"
     },
     "xyz.alliancegames.unity-sdk": {
-      "version": "git@github.com:chainofalliance/ag-unity-sdk.git?path=/unity/AllianceGamesSdk/Assets/AllianceGamesSdk#dev",
+      "version": "git@github.com:chainofalliance/ag-unity-sdk.git?path=/AllianceGamesSdk/Assets/AllianceGamesSdk",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.netcode.gameobjects": "1.12.2",
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       },
-      "hash": "f1f1cfedfae650253abd7619217ce38c5432843e"
+      "hash": "593c4457996453d2fd530fb5357b7e39486a63a8"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",

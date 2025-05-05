@@ -40,8 +40,7 @@ public class MenuController
         this.OnStartGame = OnStartGame;
         this.duid = DUID;
 
-        matchmakingService = MatchmakingServiceFactory.Get(
-            connectionManager.AlliancesGamesClient, accountManager.SignatureProvider);
+        matchmakingService = MatchmakingServiceFactory.Get(connectionManager.AlliancesGamesClient);
 
         view.OnPlayPve += OpenPvEMatchmaking;
         view.OnPlayPvp += OpenPvPMatchmaking;
